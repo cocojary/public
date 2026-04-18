@@ -65,8 +65,23 @@ export function UserInfoStep({ onNext }: { onNext: (userId: string) => void }) {
         </div>
 
         <div>
-          <Label htmlFor="position">Vị trí (Tuỳ chọn)</Label>
-          <Input id="position" placeholder="Vị trí ứng tuyển / công tác" {...register("position")} />
+          <Label htmlFor="targetRole">Bộ câu hỏi kiểm tra chuyên môn (Bắt buộc) *</Label>
+          <Select onValueChange={(val) => setValue("targetRole", val)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Chọn chức danh ứng tuyển" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="DEV">Lập trình viên (Dev)</SelectItem>
+              <SelectItem value="MANAGER">Quản lý / Leader</SelectItem>
+              <SelectItem value="PM">Project Manager (PM)</SelectItem>
+              <SelectItem value="HR">Nhân sự (HR)</SelectItem>
+              <SelectItem value="BRSE">Kỹ sư cầu nối (BrSE)</SelectItem>
+              <SelectItem value="COMTOR">Biên phiên dịch (Comtor)</SelectItem>
+              <SelectItem value="ACC">Kế toán (Accounting)</SelectItem>
+              <SelectItem value="MKT">Marketing</SelectItem>
+            </SelectContent>
+          </Select>
+          {errors.targetRole && <p className="text-red-500 text-sm mt-1">{errors.targetRole.message}</p>}
         </div>
 
         <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={isPending}>

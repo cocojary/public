@@ -356,10 +356,10 @@ export function calcCombatPower(dims: DimensionScore[]): CombatPower {
   const pct = (val: number) => val * 10;
 
   const components = [
-    { name: '⚡ Ý chí hành động', score: Math.round((pct(get('achievement_drive')) + pct(get('challenge_spirit'))) / 2), weight: 0.25 },
-    { name: '🧠 Năng lực tư duy', score: Math.round((pct(get('logical_thinking')) + pct(get('empathy'))) / 2), weight: 0.25 },
-    { name: '🛡️ Sức chịu đựng', score: Math.round((pct(get('stress_mental')) + pct(get('stress_physical'))) / 2), weight: 0.25 },
-    { name: '🎯 Tính cách cốt lõi', score: Math.round((pct(get('conscientiousness')) + pct(get('emotional_stability'))) / 2), weight: 0.25 },
+    { name: '⚡ Ý chí hành động', score: Math.round((pct(get('achievement_drive')) + pct(get('challenge_spirit'))) / 2 * 100), weight: 0.25 },
+    { name: '🧠 Năng lực tư duy', score: Math.round((pct(get('logical_thinking')) + pct(get('empathy'))) / 2 * 100), weight: 0.25 },
+    { name: '🛡️ Sức chịu đựng', score: Math.round((pct(get('stress_mental')) + pct(get('stress_physical'))) / 2 * 100), weight: 0.25 },
+    { name: '🎯 Tính cách cốt lõi', score: Math.round((pct(get('conscientiousness')) + pct(get('emotional_stability'))) / 2 * 100), weight: 0.25 },
   ];
 
   const total = Math.round(components.reduce((sum, c) => sum + c.score * c.weight, 0));
@@ -368,10 +368,10 @@ export function calcCombatPower(dims: DimensionScore[]): CombatPower {
   let label = 'Cần phát triển thêm';
   let description = 'Tổng năng lực cần được đầu tư phát triển đáng kể.';
 
-  if (total >= 85) { rank = 'S'; label = 'Xuất sắc'; description = 'Tổng năng lực cao nổi bật. Có khả năng tạo ra tác động lớn trong tổ chức với sự dẫn dắt phù hợp.'; }
-  else if (total >= 70) { rank = 'A'; label = 'Tốt'; description = 'Tổng năng lực tốt. Có tiềm năng phát triển rõ ràng và sẵn sàng nhận trách nhiệm cao hơn.'; }
-  else if (total >= 55) { rank = 'B'; label = 'Trung bình khá'; description = 'Tổng năng lực ở mức khá. Có thể đảm nhận tốt vai trò hiện tại và phát triển thêm với sự hỗ trợ.'; }
-  else if (total >= 40) { rank = 'C'; label = 'Trung bình'; description = 'Tổng năng lực ở mức trung bình. Có một số điểm mạnh nhưng cũng có những lĩnh vực cần cải thiện rõ rệt.'; }
+  if (total >= 8500) { rank = 'S'; label = 'Xuất sắc'; description = 'Khả năng tạo ra tác động lớn trong tổ chức.'; }
+  else if (total >= 7000) { rank = 'A'; label = 'Tốt'; description = 'Tiềm năng phát triển rõ ràng, sẵn sàng nhận trách nhiệm cao.'; }
+  else if (total >= 5500) { rank = 'B'; label = 'Khá'; description = 'Đảm nhận tốt vai trò hiện tại, phát triển thêm với sự hỗ trợ.'; }
+  else if (total >= 4000) { rank = 'C'; label = 'Trung bình'; description = 'Có một số điểm mạnh nhưng cần cải thiện rõ rệt.'; }
 
   return { total, rank, label, description, components };
 }

@@ -5,7 +5,6 @@ import { userInfoSchema, type UserInfoFormValues } from "@/features/assessment/s
 
 export async function submitUserInfo(data: UserInfoFormValues) {
   try {
-    // Validate the incoming data from server-side as well
     const parsedData = userInfoSchema.parse(data);
 
     // Save into database
@@ -15,11 +14,12 @@ export async function submitUserInfo(data: UserInfoFormValues) {
         employeeId: parsedData.employeeId || null,
         email: parsedData.email || null,
         department: parsedData.department || null,
-        position: parsedData.position || null,
+        // Using position field to store the role code for now if we don't want to change User schema again
+        position: parsedData.targetRole, 
       },
     });
 
-    return { success: true, userId: user.id };
+    return { success: true, userId: user.id, targetRole: parsedData.targetRole };
   } catch (error) {
     console.error("Error creating user:", error);
     return { success: false, error: "Đã có lỗi xảy ra khi lưu thông tin" };

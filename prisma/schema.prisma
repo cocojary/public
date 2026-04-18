@@ -30,5 +30,39 @@ model AssessmentRecord {
   userId          String
   user            User     @relation(fields: [userId], references: [id])
   
+  questionSetId   String?
+  questionSet     QuestionSet? @relation(fields: [questionSetId], references: [id])
+
   createdAt       DateTime @default(now())
+}
+
+model TargetRole {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  name        String
+  description String?
+  questionSets QuestionSet[]
+}
+
+model QuestionSet {
+  id          String   @id @default(uuid())
+  roleId      String
+  role        TargetRole @relation(fields: [roleId], references: [id])
+  version     String
+  isActive    Boolean  @default(true)
+  questions   Question[]
+  assessments AssessmentRecord[]
+}
+
+model Question {
+  id               String   @id @default(uuid())
+  setId            String
+  set              QuestionSet @relation(fields: [setId], references: [id])
+  textVi           String
+  textEn           String
+  textJa           String
+  dimensionId      String
+  reversed         Boolean  @default(false)
+  isLieScale       Boolean  @default(false)
+  consistencyGroup String?
 }

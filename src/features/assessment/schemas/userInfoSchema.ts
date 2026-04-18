@@ -5,7 +5,7 @@ export const userInfoSchema = z.object({
   employeeId: z.string().optional(),
   email: z.string().email("Email không hợp lệ").optional().or(z.literal('')),
   department: z.string().optional(),
-  position: z.string().optional(),
+  targetRole: z.string().min(1, "Vui lòng chọn chức danh áp dụng mẫu khảo sát"),
 });
 
 export type UserInfoFormValues = z.infer<typeof userInfoSchema>;
