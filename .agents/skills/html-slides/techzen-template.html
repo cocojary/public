@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><!-- INSERT TITLE HERE --></title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="techzen-base.css">
+    <style>
+        /* === Tùy chỉnh CSS thêm ở đây === */
+    </style>
+</head>
+
+<!-- data-lang="vi" or "ja" -->
+<body data-lang="vi">
+
+    <!-- Language Switcher UI -->
+    <div style="position: fixed; top: 15px; right: 15px; z-index: 9999; background: #fff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: flex; overflow: hidden; border: 1px solid #cbd5e1; cursor: pointer;">
+        <div id="btn-lang-vi" style="padding: 6px 12px; font-size: 13px; font-weight: bold; background: var(--primary); color: white; transition: all 0.3s;" onclick="setLang('vi')">🇻🇳 VI</div>
+        <div id="btn-lang-ja" style="padding: 6px 12px; font-size: 13px; font-weight: bold; background: white; color: #64748b; transition: all 0.3s;" onclick="setLang('ja')">🇯🇵 JA</div>
+    </div>
+
+    <!-- Initialization Script for Language Toggle -->
+    <script>
+        function setLang(lang) {
+            document.body.setAttribute('data-lang', lang);
+            if (lang === 'vi') {
+                document.getElementById('btn-lang-vi').style.background = 'var(--primary)';
+                document.getElementById('btn-lang-vi').style.color = 'white';
+                document.getElementById('btn-lang-ja').style.background = 'white';
+                document.getElementById('btn-lang-ja').style.color = '#64748b';
+            } else {
+                document.getElementById('btn-lang-ja').style.background = 'var(--primary)';
+                document.getElementById('btn-lang-ja').style.color = 'white';
+                document.getElementById('btn-lang-vi').style.background = 'white';
+                document.getElementById('btn-lang-vi').style.color = '#64748b';
+            }
+        }
+    </script>
+
+    <!-- Progress bar -->
+    <div class="progress-bar" id="progressBar"></div>
+
+    <!-- ========================================================================= -->
+    <!-- MẪU SLIDE BÌA (COVER SLIDE) -->
+    <!-- ========================================================================= -->
+    <div class="techzen-slide" id="slide1">
+        <div class="tz-header">
+            <div class="tz-header-blue">
+                <div class="tz-logo-area">
+                    <span style="color:white; font-size: 18px; font-weight: bold; letter-spacing: 1px;">TECHZEN SECURITY</span>
+                </div>
+            </div>
+            <div class="tz-slogan">
+                <span class="lang-vi">ANTI-SCAM EDGE AI<br>EXECUTIVE PITCH DECK</span>
+                <span class="lang-ja">詐欺防止エッジAI<br>エグゼクティブ・ピッチ資料</span>
+            </div>
+        </div>
+
+        <div class="grid-2-image" style="height: 100%; margin-top: 60px;">
+            <div class="title-content">
+                <div class="tag" style="margin-bottom: 15px; display: inline-block;">
+                    <span class="lang-vi">MẪU SLIDE TEMPLATE</span>
+                    <span class="lang-ja">スライドテンプレート</span>
+                </div>
+                <h1>Techzen HTML Template</h1>
+                <h2 style="color: var(--secondary); font-size: 22px; margin-bottom: 20px;">
+                    <span class="lang-vi">Bản nháp gốc dành cho Bộ Skill AI</span>
+                    <span class="lang-ja">AI スキルのオリジナルの下書き</span>
+                </h2>
+                <div class="highlight-box" style="margin-top: 30px; font-size: 16px; border-radius: 8px; line-height: 1.6;">
+                    <span class="lang-vi">Hãy bắt đầu thêm nội dung bằng cách copy các Layout trong <strong>techzen-layouts.md</strong> và dán vào dưới slide này.</span>
+                    <span class="lang-ja"><strong>techzen-layouts.md</strong> のレイアウトをコピーしてこのスライドの下に貼り付けることで、コンテンツの追加を開始してください。</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="tz-footer">
+            <div class="tz-footer-line"></div>
+            <div class="tz-page">1</div>
+        </div>
+    </div>
+
+
+    <!-- Core Navigation Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const slides = document.querySelectorAll('.techzen-slide');
+            let currentSlide = 0;
+            const progressBar = document.getElementById('progressBar');
+
+            function showSlide(index) {
+                if (index < 0 || index >= slides.length) return;
+                
+                // Cập nhật Progress Bar
+                if(slides.length > 1) {
+                    progressBar.style.width = ((index) / (slides.length - 1)) * 100 + '%';
+                }
+
+                // Scroll mượt đến slide mong muốn
+                slides[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                currentSlide = index;
+
+                // Kích hoạt lại animation cho slide hiện tại
+                const animElements = slides[index].querySelectorAll('.anim-slide-right, .card-layer');
+                animElements.forEach(el => {
+                    el.classList.remove('visible');
+                    void el.offsetWidth; // Trigger reflow
+                    el.classList.add('visible');
+                });
+            }
+
+            // Keyboard Navigation
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight' || e.key === 'Space' || e.key === 'ArrowDown') {
+                    showSlide(currentSlide + 1);
+                    e.preventDefault();
+                } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                    showSlide(currentSlide - 1);
+                    e.preventDefault();
+                }
+            });
+
+            // Intersection Observer de tự động kích hoạt animation khi cuộn chuột tới
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const animElements = entry.target.querySelectorAll('.anim-slide-right, .card-layer');
+                        animElements.forEach(el => el.classList.add('visible'));
+                        
+                        // Update current slide index based on intersection
+                        slides.forEach((slide, idx) => {
+                            if(slide === entry.target) {
+                                currentSlide = idx;
+                                if(slides.length > 1) {
+                                    progressBar.style.width = ((idx) / (slides.length - 1)) * 100 + '%';
+                                }
+                            }
+                        });
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            slides.forEach(slide => observer.observe(slide));
+
+            // Init first slide
+            showSlide(0);
+        });
+    </script>
+</body>
+</html>
