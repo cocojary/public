@@ -2,8 +2,9 @@ import { getAssessmentRecord } from "@/server/actions/getRecordAction";
 import { ResultView } from "@/features/assessment/components/ResultView";
 import { notFound } from "next/navigation";
 
-export default async function ResultPage({ params }: { params: { id: string } }) {
-  const record = await getAssessmentRecord(params.id);
+export default async function ResultPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const record = await getAssessmentRecord(id);
 
   if (!record) {
     notFound();
