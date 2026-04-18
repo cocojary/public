@@ -6,7 +6,7 @@
 import type { AssessmentResult } from '../data/scoring';
 import type { PersonaType, CombatPower, DutyScore } from '../data/aiAnalysis';
 
-const API_KEY = import.meta.env.VITE_OPENAI_KEY as string | undefined;
+const API_KEY = process.env.VITE_OPENAI_KEY || process.env.OPENAI_API_KEY;
 
 export interface AIReport {
   executiveSummary: string;          // Tóm tắt tổng thể ~150 từ
