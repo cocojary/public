@@ -3,6 +3,8 @@ import { generateQuestionSet } from '../server/actions/generateQuestions';
 import db from '../server/db';
 
 const TARGET_ROLES = [
+  { code: 'DIR', name: 'Giám đốc (Director)' },
+  { code: 'HEAD', name: 'Trưởng bộ phận (Department Head)' },
   { code: 'DEV', name: 'Lập trình viên (Dev)' },
   { code: 'TESTER', name: 'Kiểm thử phần mềm (Tester)' },
   { code: 'MANAGER', name: 'Quản lý / Leader' },
@@ -16,12 +18,11 @@ const TARGET_ROLES = [
 ];
 
 async function heal() {
-  console.log('--- DATABASE HEALING PROCESS STARTED ---');
+  console.log('--- DATABASE HEALING PROCESS STARTED (SOTA v1.2) ---');
 
   for (const roleDef of TARGET_ROLES) {
     console.log(`\nChecking role: ${roleDef.code}...`);
 
-    // 1. Check if QuestionSet exists and has enough questions
     const qSets = await db.questionSet.findMany({
       where: { 
         role: { code: roleDef.code },
@@ -34,10 +35,10 @@ async function heal() {
       }
     });
 
-    const hasRealData = qSets.some(qs => qs._count.questions >= 120 && qs.version !== "v1.0-mock");
+    const hasRealData = qSets.some(qs => qs._count.questions >= 140 && qs.version !== "v1.0-mock");
 
     if (hasRealData) {
-      console.log(`✅ Role ${roleDef.code} is already healthy with real AI data.`);
+      console.log(`✅ Role ${roleDef.code} is already healthy with 140 SOTA questions.`);
       continue;
     }
 

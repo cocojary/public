@@ -42,6 +42,7 @@ model TargetRole {
   name        String
   description String?
   questionSets QuestionSet[]
+  createdAt   DateTime @default(now())
 }
 
 model QuestionSet {
@@ -52,6 +53,7 @@ model QuestionSet {
   isActive    Boolean  @default(true)
   questions   Question[]
   assessments AssessmentRecord[]
+  createdAt   DateTime @default(now())
 }
 
 model Question {
@@ -65,4 +67,5 @@ model Question {
   reversed         Boolean  @default(false)
   isLieScale       Boolean  @default(false)
   consistencyGroup String?
+  createdAt        DateTime @default(now())
 }

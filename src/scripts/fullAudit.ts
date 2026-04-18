@@ -33,12 +33,12 @@ async function runAudit() {
     console.log('\n[QuestionSet Audit]');
     qSets.rows.forEach(row => {
       const count = parseInt(row.q_count);
-      const status = count >= 120 ? '✅ OK' : '❌ ERROR (Insufficient Qs)';
-      console.log(`- Role ${row.targetRole}: ${count}/120 questions [${status}]`);
+      const status = count >= 140 ? '✅ OK' : '❌ ERROR (Insufficient Qs)';
+      console.log(`- Role ${row.targetRole}: ${count}/140 questions [${status}]`);
     });
 
     // 3. Find missing roles (referenced in UI but no QuestionSet)
-    const uiRoles = ['DEV', 'TESTER', 'MANAGER', 'PM', 'HR', 'SALES', 'BRSE', 'COMTOR', 'ACC', 'MKT'];
+    const uiRoles = ['DIR', 'HEAD', 'DEV', 'TESTER', 'MANAGER', 'PM', 'HR', 'SALES', 'BRSE', 'COMTOR', 'ACC', 'MKT'];
     const dbRoles = qSets.rows.map(r => r.targetRole);
     const missingRoles = uiRoles.filter(role => !dbRoles.includes(role));
 

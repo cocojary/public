@@ -10,7 +10,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { Label } from "@/components/ui/label";
 import { submitUserInfo } from "@/server/actions/userActions";
 
-export function UserInfoStep({ onNext }: { onNext: (userId: string) => void }) {
+export function UserInfoStep({ onNext }: { onNext: (userId: string, role: string) => void }) {
   const [isPending, startTransition] = useTransition();
 
   const { register, handleSubmit, formState: { errors }, setValue } = useForm<UserInfoFormValues>({
@@ -20,8 +20,8 @@ export function UserInfoStep({ onNext }: { onNext: (userId: string) => void }) {
   const onSubmit = (data: UserInfoFormValues) => {
     startTransition(async () => {
       const res = await submitUserInfo(data);
-      if (res.success && res.userId) {
-        onNext(res.userId);
+      if (res.success && res.userId && res.targetRole) {
+        onNext(res.userId, res.targetRole);
       } else {
         alert(res.error || "Ghi nhận thông tin thất bại!");
       }
@@ -56,6 +56,8 @@ export function UserInfoStep({ onNext }: { onNext: (userId: string) => void }) {
               <SelectValue placeholder="Chọn vị trí của bạn" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="DIR">Giám đốc (Director)</SelectItem>
+              <SelectItem value="HEAD">Trưởng bộ phận (Department Head)</SelectItem>
               <SelectItem value="DEV">Lập trình viên (Dev)</SelectItem>
               <SelectItem value="TESTER">Kiểm thử phần mềm (Tester)</SelectItem>
               <SelectItem value="MANAGER">Quản lý / Leader</SelectItem>

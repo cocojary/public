@@ -35,81 +35,73 @@ export async function generateQuestionSet(roleCode: string, roleName: string) {
     data: { roleId: role.id, version: "v1.0" }
   });
 
-  // Loop through all 19 dimensions and generate 6 questions each
-  // To avoid hitting token limits, we'll process them sequentially or in small batches
-  const BATCH_SIZE = 3;
-  
-  for (let i = 0; i < DIMENSIONS.length; i += BATCH_SIZE) {
-    const batch = DIMENSIONS.slice(i, i + BATCH_SIZE);
-    
-    for (const dim of batch) {
-      try {
-        console.log(`Đang sinh 6 câu hỏi cho Dimension: ${dim.nameVi} (${roleCode})...`);
-        const response = await openai.chat.completions.create({
-          model: "gpt-4o",
-          response_format: { type: "json_object" },
-          messages: [
-            {
-              role: "system",
-              content: `You are a world-class Industrial/Organizational (I/O) Psychologist and HR Assessment Specialist from top-tier firms like Korn Ferry or SHL.
-Task: Create 6 high-fidelity self-assessment questions (Likert 1-5) for dimension '${dim.nameEn} (${dim.nameVi})' specifically tailored for the role of ${roleName}.
+  // Loop through all 19 dimensions and generate 7 questions each
+  for (const dim of DIMENSIONS) {
+    try {
+      console.log(`Đang sinh 7 câu hỏi SOTA cho Dimension: ${dim.nameVi} (${roleCode})...`);
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        response_format: { type: "json_object" },
+        messages: [
+          {
+            role: "system",
+            content: `You are a world-class Industrial/Organizational (I/O) Psychologist.
+Task: Create 7 high-fidelity assessment questions for dimension '${dim.nameEn} (${dim.nameVi})' tailored for the role of '${roleName}'.
 
-SOTA Quality Requirements:
-1. Scenario-Infusion: Questions must NOT be generic ("I am organized"). Instead, embed them into professional scenarios relevant to a ${roleName} (e.g., if Tester: focus on bug verification, test planning under pressure; if Sales: focus on client rejection, pipeline management).
-2. Cognitive Depth: Aim for behavioral indicators rather than simple attitudes.
-3. Balance: 
-   - 3 Positive-keyed (Forward): High score indicates higher ${dim.nameEn}.
-   - 3 Negative-keyed (Reversed): Agreement indicates lower ${dim.nameEn}. Set 'reversed: true' for these.
-4. Trilingual Precision: 
-   - Vietnamese: Use professional, respectful, office-appropriate language.
-   - English: Business professional level.
-   - Japanese: Use Keigo (Teineigo/Sonkeigo) where appropriate for professional assessment context.
+Core Quality Standards:
+1. Reliability & Consistency: All questions must measure ${dim.nameEn} through diverse yet related scenarios.
+2. Validity: Questions must reflect specific situations a ${roleName} actually faces.
+3. Discrimination: Avoid obvious "good" answers.
+4. Bias-free: Neutral professional language.
+5. Anti-fake (Scenario-based): Use contextual dilemmas rather than abstract statements.
+6. Key Balance: 4 Positive-keyed, 3 Negative-keyed (reversed: true).
 
-Response Format (JSON only):
-{ "questions": [ { "textVi": "", "textEn": "", "textJa": "", "reversed": boolean } ] }`
-            }
-          ],
-          temperature: 0.8,
-        });
+Output Requirement:
+- You MUST provide translations in 3 languages: Vietnamese (textVi), English (textEn), and Japanese (textJa).
+- ALL 3 language fields are MANDATORY. Do not omit any field.
 
-        const rawJson = response.choices[0].message.content || "{}";
-        const parsed = QuestionsArraySchema.parse(JSON.parse(rawJson));
+Response Format (Strict JSON):
+{ "questions": [ { "textVi": "string", "textEn": "string", "textJa": "string", "reversed": boolean } ] }`
+          }
+        ],
+        temperature: 0.7,
+      });
 
-        // Insert exactly 6 questions
-        await db.question.createMany({
-          data: parsed.questions.map(q => ({
-            setId: qSet.id,
-            dimensionId: dim.id,
-            textVi: q.textVi,
-            textEn: q.textEn,
-            textJa: q.textJa,
-            reversed: q.reversed,
-            isLieScale: false,
-          }))
-        });
-      } catch (error) {
-        console.error(`Lỗi khi tạo câu hỏi cho ${dim.id}:`, error);
-      }
+      const rawJson = response.choices[0].message.content || "{}";
+      const parsed = QuestionsArraySchema.parse(JSON.parse(rawJson));
+
+      await db.question.createMany({
+        data: parsed.questions.map(q => ({
+          setId: qSet.id,
+          dimensionId: dim.id,
+          textVi: q.textVi,
+          textEn: q.textEn,
+          textJa: q.textJa,
+          reversed: q.reversed,
+          isLieScale: false,
+        }))
+      });
+    } catch (error) {
+      console.error(`Lỗi khi tạo câu hỏi cho ${dim.id}:`, error);
     }
   }
 
-  // Generate 6 Lie Scale questions (Option 2B: Context-sensitive)
+  // Generate 7 Lie Scale questions
   try {
-    console.log(`Đang sinh 6 câu hỏi Validation (Lie Scale) theo bối cảnh Role: ${roleName}...`);
+    console.log(`Đang sinh 7 câu hỏi Validation (Lie Scale) cho Role: ${roleName}...`);
     const lieResponse = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-4o-mini",
       response_format: { type: "json_object" },
       messages: [
         {
           role: "system",
-          content: `Create 6 sophisticated validation questions (Lie Scale / Social Desirability Bias) for the role of '${roleName}'. 
-Requirements:
-- Embed absolute negative behavioral claims within the context of a ${roleName}'s daily tasks.
-- These must be humanly impossible absolute statements (e.g., "I have never once written a line of code I wasn't 100% proud of" or "I have never missed a minor detail in a 100-page requirement document").
-- Goal: Capturing candidates who try to present an unrealistically perfect image.
-- Agreement (Likert 4-5) should indicate high social desirability bias.
-- Trilingual output: Vietnamese, English, and Japanese professional business tone.
-- JSON structure: { "questions": [ { "textVi": "", "textEn": "", "textJa": "", "reversed": false } ] }`
+          content: `Create 7 sophisticated Validation questions (Lie Scale) for the role of '${roleName}'.
+Standards:
+- Reliability: Test for unrealistically perfect behavior.
+- Anti-fake: Use impossible absolute claims (e.g., "I have never once made a mistake in a professional report").
+- Consistency: 7 questions must form a coherent lie-detection battery.
+- Trilingual output: Vietnamese, English, and Japanese.
+- JSON: { "questions": [ { "textVi": "", "textEn": "", "textJa": "", "reversed": false } ] }`
         }
       ]
     });
@@ -129,6 +121,6 @@ Requirements:
     console.error("Lỗi khi tạo Lie Scale:", error);
   }
 
-  console.log(`Hoàn tất bộ câu hỏi 120 câu cho chức danh ${roleName}!`);
+  console.log(`Hoàn tất bộ câu hỏi 140 câu cho chức danh ${roleName}!`);
   return { success: true, setId: qSet.id };
 }

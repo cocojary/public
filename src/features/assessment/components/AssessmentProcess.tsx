@@ -11,6 +11,7 @@ type StepStatus = "intro" | "user-info" | "quiz";
 export function AssessmentProcess() {
   const [step, setStep] = useState<StepStatus>("intro");
   const [userId, setUserId] = useState<string | null>(null);
+  const [targetRole, setTargetRole] = useState<string | null>(null);
   const router = useRouter();
 
   return (
@@ -20,15 +21,17 @@ export function AssessmentProcess() {
       )}
       
       {step === "user-info" && (
-        <UserInfoStep onNext={(id) => {
-          setUserId(id);
+        <UserInfoStep onNext={(userId, role) => {
+          setUserId(userId);
+          setTargetRole(role);
           setStep("quiz");
         }} />
       )}
 
-      {step === "quiz" && userId && (
+      {step === "quiz" && userId && targetRole && (
         <QuizStep 
           userId={userId} 
+          targetRole={targetRole} 
           onComplete={(recordId) => {
             // Once quiz is submitted and record is created, navigate to Result
             router.push(`/result/${recordId}`);
