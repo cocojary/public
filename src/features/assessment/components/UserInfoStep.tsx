@@ -50,31 +50,18 @@ export function UserInfoStep({ onNext }: { onNext: (userId: string) => void }) {
         </div>
 
         <div>
-          <Label htmlFor="department">Phòng ban (Tuỳ chọn)</Label>
-          <Select onValueChange={(val) => setValue("department", val)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Chọn phòng ban" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="TECH">Technology</SelectItem>
-              <SelectItem value="HR">Human Resources</SelectItem>
-              <SelectItem value="SALES">Sales & Marketing</SelectItem>
-              <SelectItem value="OTHER">Khác</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div>
-          <Label htmlFor="targetRole">Bộ câu hỏi kiểm tra chuyên môn (Bắt buộc) *</Label>
+          <Label htmlFor="targetRole">Vị trí ứng tuyển / Chức danh (Bắt buộc) *</Label>
           <Select onValueChange={(val) => setValue("targetRole", val)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Chọn chức danh ứng tuyển" />
+            <SelectTrigger className="h-12 border-slate-200">
+              <SelectValue placeholder="Chọn vị trí của bạn" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="DEV">Lập trình viên (Dev)</SelectItem>
+              <SelectItem value="TESTER">Kiểm thử phần mềm (Tester)</SelectItem>
               <SelectItem value="MANAGER">Quản lý / Leader</SelectItem>
               <SelectItem value="PM">Project Manager (PM)</SelectItem>
               <SelectItem value="HR">Nhân sự (HR)</SelectItem>
+              <SelectItem value="SALES">Kinh doanh / Sales</SelectItem>
               <SelectItem value="BRSE">Kỹ sư cầu nối (BrSE)</SelectItem>
               <SelectItem value="COMTOR">Biên phiên dịch (Comtor)</SelectItem>
               <SelectItem value="ACC">Kế toán (Accounting)</SelectItem>
@@ -84,8 +71,8 @@ export function UserInfoStep({ onNext }: { onNext: (userId: string) => void }) {
           {errors.targetRole && <p className="text-red-500 text-sm mt-1">{errors.targetRole.message}</p>}
         </div>
 
-        <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={isPending}>
-          {isPending ? "Đang xử lý..." : "Tiếp tục"}
+        <Button type="submit" className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition-all" disabled={isPending}>
+          {isPending ? "Đang xử lý..." : "Bắt đầu làm bài trắc nghiệm"}
         </Button>
       </form>
     </div>

@@ -6,7 +6,7 @@ import { DIMENSIONS } from '@/features/assessment/data/dimensions';
 import { z } from 'zod';
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_KEY,
 });
 
 // Using zod to parse and validate OpenAI JSON
@@ -42,26 +42,34 @@ export async function generateQuestionSet(roleCode: string, roleName: string) {
   for (let i = 0; i < DIMENSIONS.length; i += BATCH_SIZE) {
     const batch = DIMENSIONS.slice(i, i + BATCH_SIZE);
     
-    await Promise.all(batch.map(async (dim) => {
+    for (const dim of batch) {
       try {
         console.log(`Đang sinh 6 câu hỏi cho Dimension: ${dim.nameVi} (${roleCode})...`);
         const response = await openai.chat.completions.create({
-          model: "gpt-4o-mini",
+          model: "gpt-4o",
           response_format: { type: "json_object" },
           messages: [
             {
               role: "system",
-              content: `Bạn là chuyên gia thiết kế câu trắc nghiệm tâm lý học I/O (Industrial/Organizational Psychology).
-Nhiệm vụ: Viết 6 câu hỏi tự đánh giá (Self-report Likert scale 1-5) để đo lường tiêu chí '${dim.nameEn} (${dim.nameVi})' dành riêng cho ứng viên ứng tuyển vị trí '${roleName}'.
-Đặc thù chức danh: Hãy để ngữ cảnh câu hỏi dính dáng tới các công việc tự nhiên trên văn phòng của chức danh này (vd: nếu là Dev thì nói về viết code/fix bug, nếu HR thì nói về nhân sự).
-Yêu cầu bắt buộc:
-- 3 câu xuôi (thuận chiều - tức là điểm 5 là rất cao ở tiêu chí này).
-- 3 câu ngược (reversed = true - tức là người trả lời "Rất đồng ý" lại tương đương điểm 1 ở tiêu chí này).
-- Phải kèm theo bản dịch tiếng Anh và Nhật thương mại.
-- Trả về JSON đúng định dạng: { "questions": [ { "textVi": "", "textEn": "", "textJa": "", "reversed": boolean } ] }`
+              content: `You are a world-class Industrial/Organizational (I/O) Psychologist and HR Assessment Specialist from top-tier firms like Korn Ferry or SHL.
+Task: Create 6 high-fidelity self-assessment questions (Likert 1-5) for dimension '${dim.nameEn} (${dim.nameVi})' specifically tailored for the role of ${roleName}.
+
+SOTA Quality Requirements:
+1. Scenario-Infusion: Questions must NOT be generic ("I am organized"). Instead, embed them into professional scenarios relevant to a ${roleName} (e.g., if Tester: focus on bug verification, test planning under pressure; if Sales: focus on client rejection, pipeline management).
+2. Cognitive Depth: Aim for behavioral indicators rather than simple attitudes.
+3. Balance: 
+   - 3 Positive-keyed (Forward): High score indicates higher ${dim.nameEn}.
+   - 3 Negative-keyed (Reversed): Agreement indicates lower ${dim.nameEn}. Set 'reversed: true' for these.
+4. Trilingual Precision: 
+   - Vietnamese: Use professional, respectful, office-appropriate language.
+   - English: Business professional level.
+   - Japanese: Use Keigo (Teineigo/Sonkeigo) where appropriate for professional assessment context.
+
+Response Format (JSON only):
+{ "questions": [ { "textVi": "", "textEn": "", "textJa": "", "reversed": boolean } ] }`
             }
           ],
-          temperature: 0.7,
+          temperature: 0.8,
         });
 
         const rawJson = response.choices[0].message.content || "{}";
@@ -82,21 +90,26 @@ Yêu cầu bắt buộc:
       } catch (error) {
         console.error(`Lỗi khi tạo câu hỏi cho ${dim.id}:`, error);
       }
-    }));
+    }
   }
 
-  // Generate 6 Lie Scale questions
+  // Generate 6 Lie Scale questions (Option 2B: Context-sensitive)
   try {
-    console.log(`Đang sinh 6 câu hỏi Validation (Lie Scale)...`);
+    console.log(`Đang sinh 6 câu hỏi Validation (Lie Scale) theo bối cảnh Role: ${roleName}...`);
     const lieResponse = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-4o",
       response_format: { type: "json_object" },
       messages: [
         {
           role: "system",
-          content: `Tạo 6 câu hỏi kiểm tra độ thành thật (Lie Scale / Social Desirability Bias) cho ứng viên vị trí '${roleName}'. 
-Cách làm: Đưa ra những tuyên bố phổ quát mà trên thực tế hầu như KHÔNG AI chưa từng mắc phải (VD: "Tôi chưa bao giờ nói dối dù chỉ 1 lần", "Tôi chưa bao giờ đến trễ"). Nếu họ chọn "Rất Đồng Ý", họ đang cố giả tạo bề ngoài.
-Trả về JSON định dạng: { "questions": [ { "textVi": "", "textEn": "", "textJa": "", "reversed": false } ] }`
+          content: `Create 6 sophisticated validation questions (Lie Scale / Social Desirability Bias) for the role of '${roleName}'. 
+Requirements:
+- Embed absolute negative behavioral claims within the context of a ${roleName}'s daily tasks.
+- These must be humanly impossible absolute statements (e.g., "I have never once written a line of code I wasn't 100% proud of" or "I have never missed a minor detail in a 100-page requirement document").
+- Goal: Capturing candidates who try to present an unrealistically perfect image.
+- Agreement (Likert 4-5) should indicate high social desirability bias.
+- Trilingual output: Vietnamese, English, and Japanese professional business tone.
+- JSON structure: { "questions": [ { "textVi": "", "textEn": "", "textJa": "", "reversed": false } ] }`
         }
       ]
     });

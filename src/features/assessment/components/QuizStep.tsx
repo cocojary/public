@@ -1,17 +1,39 @@
-"use client";
-
-import { useState, useTransition } from "react";
-import { QUESTIONS } from "../data/questions";
-import { submitAssessmentAction } from "@/server/actions/assessmentActions";
+import { useState, useTransition, useEffect } from "react";
+import { getQuestionsByRole, submitAssessmentAction } from "@/server/actions/assessmentActions";
 import { Button } from "@/components/ui/button";
 
-export function QuizStep({ userId, onComplete }: { userId: string; onComplete: (recordId: string) => void }) {
+export function QuizStep({ 
+  userId, 
+  targetRole,
+  onComplete 
+}: { 
+  userId: string; 
+  targetRole: string;
+  onComplete: (recordId: string) => void 
+}) {
   const [lang, setLang] = useState<'vi' | 'en' | 'ja'>('vi');
-  const questions = QUESTIONS; // In this mock we use the same questions
+  const [questions, setQuestions] = useState<any[]>([]);
+  const [setId, setSetId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [isPending, startTransition] = useTransition();
+
+  // Fetch questions on mount
+  useEffect(() => {
+    async function loadQuestions() {
+      const res = await getQuestionsByRole(targetRole);
+      if (res.success && res.questions) {
+        setQuestions(res.questions);
+        setSetId(res.setId);
+      } else {
+        alert(res.error || "Không thể tải bộ câu hỏi. Vui lòng đảm bảo Role đã được Seed.");
+      }
+      setIsLoading(false);
+    }
+    loadQuestions();
+  }, [targetRole]);
 
   const getOptions = (l: string) => {
     if (l === 'en') return [
@@ -39,17 +61,15 @@ export function QuizStep({ userId, onComplete }: { userId: string; onComplete: (
 
   const handleAnswer = (value: number) => {
     const currentQuestion = questions[currentIndex];
-    
-    // Save answer
     const newAnswers = { ...answers, [currentQuestion.id]: value };
     setAnswers(newAnswers);
 
     if (currentIndex < questions.length - 1) {
       setCurrentIndex(currentIndex + 1);
     } else {
-      // Finished
       startTransition(async () => {
-        const res = await submitAssessmentAction(userId, newAnswers, lang);
+        if (!setId) return;
+        const res = await submitAssessmentAction(userId, newAnswers, setId, lang);
         if (res.success && res.recordId) {
           onComplete(res.recordId);
         } else {
@@ -59,14 +79,36 @@ export function QuizStep({ userId, onComplete }: { userId: string; onComplete: (
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center p-20 bg-white rounded-2xl shadow-xl mt-10">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+        <p className="text-slate-600 font-medium">Đang chuẩn bị bộ câu hỏi cho vị trí {targetRole}...</p>
+      </div>
+    );
+  }
+
+  if (questions.length === 0) {
+    return (
+      <div className="p-10 bg-white rounded-2xl shadow-xl mt-10 text-center">
+        <p className="text-red-500 font-bold mb-4">Lỗi: Không tìm thấy bộ câu hỏi.</p>
+        <p className="text-slate-600">Vui lòng liên hệ Admin để chạy Seeding cho vị trí {targetRole}.</p>
+      </div>
+    );
+  }
+
   const currentQ = questions[currentIndex];
-  
-  // Progress calc
   const progress = Math.round(((currentIndex) / questions.length) * 100);
+
+  // Helper text mapping based on language
+  const getQuestionText = (q: any, l: 'vi' | 'en' | 'ja') => {
+    if (l === 'en') return q.textEn || q.textVi;
+    if (l === 'ja') return q.textJa || q.textVi;
+    return q.textVi;
+  };
 
   return (
     <div className="w-full bg-white rounded-2xl shadow-xl overflow-hidden mt-10">
-      {/* Header section with Language Selector and Progress */}
       <div className="bg-slate-50 p-4 sm:p-6 border-b border-slate-200">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-slate-800">Câu {currentIndex + 1} / {questions.length}</h2>
@@ -83,19 +125,16 @@ export function QuizStep({ userId, onComplete }: { userId: string; onComplete: (
           </div>
         </div>
         
-        {/* Progress Bar */}
         <div className="w-full bg-slate-200 rounded-full h-2.5">
           <div className="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style={{ width: `${progress}%` }}></div>
         </div>
       </div>
 
-      {/* Question Content */}
       <div className="p-6 sm:p-10 flex flex-col items-center">
-        <h3 className="text-2xl sm:text-3xl font-semibold text-slate-800 text-center mb-10 leading-relaxed min-h-[100px] flex items-center justify-center">
-          {currentQ.text}
+        <h3 className="text-2xl sm:text-3xl font-semibold text-slate-800 text-center mb-10 leading-relaxed min-h-[120px] flex items-center justify-center">
+          {getQuestionText(currentQ, lang)}
         </h3>
 
-        {/* Answer Options */}
         <div className="flex flex-col space-y-4 w-full max-w-xl">
           {getOptions(lang).map((option) => (
             <button
@@ -110,9 +149,8 @@ export function QuizStep({ userId, onComplete }: { userId: string; onComplete: (
         </div>
       </div>
       
-      {/* Footer Info */}
       <div className="p-4 bg-slate-50 border-t border-slate-200 text-center text-sm text-slate-500">
-        Hãy trả lời chân thực dựa trên cách bạn thường xuyên hành xử nhất
+        Vị trí: {targetRole} | Hãy trả lời chân thực dựa trên cách bạn thường xuyên hành xử nhất
       </div>
     </div>
   );
