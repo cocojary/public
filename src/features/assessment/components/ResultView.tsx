@@ -13,9 +13,9 @@ import { Loader2, Download } from "lucide-react";
 export function ResultView({ user, resultData, date }: { user: any, resultData: AssessmentResult, date: Date }) {
   const reportRef = useRef<HTMLDivElement>(null);
   
-  const persona = useMemo(() => detectPersona(resultData), [resultData]);
-  const combatPower = useMemo(() => calcCombatPower(resultData), [resultData]);
-  const duties = useMemo(() => calcDutySuitability(resultData), [resultData]);
+  const persona = useMemo(() => detectPersona(resultData.dimensions), [resultData.dimensions]);
+  const combatPower = useMemo(() => calcCombatPower(resultData.dimensions), [resultData.dimensions]);
+  const duties = useMemo(() => calcDutySuitability(resultData.dimensions), [resultData.dimensions]);
 
   const [aiReport, setAiReport] = useState<any>(null);
   const [loadingAi, setLoadingAi] = useState(true);
@@ -157,8 +157,8 @@ export function ResultView({ user, resultData, date }: { user: any, resultData: 
         <div className="mt-8 border-t border-slate-200 pt-6 flex justify-between items-center text-sm">
           <div>
             <span className="font-bold text-slate-600">Độ tin cậy bài test (Lie Scale): </span>
-            <span className={`font-bold ${resultData.reliability.score < 5 ? 'text-red-600' : 'text-green-600'}`}>
-              {resultData.reliability.score}/10 ({resultData.reliability.level})
+            <span className={`font-bold ${resultData.reliability.lieScore > 50 ? 'text-red-600' : 'text-green-600'}`}>
+              {resultData.reliability.lieScore}% ({resultData.reliability.level})
             </span>
           </div>
           <div className="text-slate-400 font-medium italic">
