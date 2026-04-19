@@ -52,6 +52,14 @@ Hệ thống được chuyển đổi toàn diện sang kỹ thuật **Next.js 1
   - Phân loại dựa trên 4 nhóm Job-Fit chính: **Technical, Business, Operations, Management**.
   - AI không chỉ đánh giá mức độ phù hợp chung mà phải đề xuất các **vai trò ngách (Niche roles)** cụ thể. 
   - Ví dụ: Nếu phù hợp Technical, AI sẽ gợi ý sâu là Backend Optimization, Cloud Architect, hay Frontend UX Engineer dựa trên sự kết hợp các điểm số tính cách.
+  - **Quy tắc ngôn ngữ AI (AI Prompting Rules):**
+    - Ngôi thứ hai: Luôn sử dụng "Bạn" để tăng tính tương tác và phản chiếu cá nhân.
+    - Trung tính (Neutral): Loại bỏ các tính từ sáo rỗng, phóng đại (ngọc ngà, dịch chuyển thế giới, vạn quy tắc...).
+    - Cấu trúc 1-1: Mỗi nhận xét phải tuân thủ công thức **1 Hành vi + 1 Kết quả**.
+    - Sửa lỗi chính tả: Kiểm soát chặt chẽ chính tả tiếng Việt trong nội dung tạo ra.
+- **Cấu trúc dữ liệu AIReport (V4.1)**:
+  - Tách biệt `strengthsBlindSpots` thành object riêng chứa `strengths` và `blindSpots` để tối ưu SEO và cấu trúc dữ liệu Frontend.
+  - Mỗi Điểm mạnh/Điểm mù chứa `title` và `behavior`/`risk` thay vì `description` chung chung để đảm bảo tính hành động.
 - **Logic Validation**:
   - Tích hợp thang đo nói dối (Lie Scale) và độ nhất quán (Consistency).
   - Áp dụng Penalty hoặc Cảnh báo nếu độ tin cậy thấp, đảm bảo tính khách quan cho nhà tuyển dụng.

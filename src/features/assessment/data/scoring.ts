@@ -28,6 +28,7 @@ export interface AssessmentResult {
   reliability: ReliabilityResult;
   completedAt: string;
   durationSeconds: number;
+  traits?: Array<{ trait: string; score: number }>;
 }
 
 /**

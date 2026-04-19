@@ -160,7 +160,7 @@ function DimRow({ item, color }: { item: UnifiedScoreItem; color: string }) {
 }
 
 // ─── ROLE BAR ─────────────────────────────────────────────────
-function RoleBar({ role, score, icon }: { role: string; score: number; icon: string }) {
+function RoleBar({ role, score, icon, description }: { role: string; score: number; icon: string; description: string }) {
   const pct = Math.round(score);
   const color = pct >= 75 ? '#059669' : pct >= 55 ? '#2563EB' : pct >= 40 ? '#D97706' : '#DC2626';
   const label = pct >= 75 ? '✅ Phù hợp cao' : pct >= 55 ? '✅ Phù hợp' : pct >= 40 ? '⚠️ Cần phát triển' : '❌ Chưa phù hợp';
@@ -179,6 +179,9 @@ function RoleBar({ role, score, icon }: { role: string; score: number; icon: str
           background: `linear-gradient(90deg, ${color}88, ${color})`,
           transition: 'width 0.8s ease-out',
         }} />
+      </div>
+      <div style={{ fontSize: 11, color: '#6B7280', marginTop: 5, lineHeight: 1.4, fontStyle: 'italic' }}>
+        {description}
       </div>
     </div>
   );
@@ -444,7 +447,7 @@ export default function UnifiedReport({ data, aiReport, candidateName, reportDat
           </h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 28px' }}>
             {suitability.map(s => (
-              <RoleBar key={s.role} role={s.role} score={s.matchScore} icon={ROLE_ICON[s.role] ?? '📌'} />
+              <RoleBar key={s.role} role={s.role} score={s.matchScore} icon={ROLE_ICON[s.role] ?? '📌'} description={s.description} />
             ))}
           </div>
           {topRole && (

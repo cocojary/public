@@ -456,63 +456,91 @@ export default function ScouterReport({ user, resultData, date, aiReport }: Scou
             <BlockHeader num={isCEO ? "8" : "7"} title="Vị Trí Công Việc Phù Hợp" desc="Tương thích dựa trên Ma trận Năng lực & Thái độ" />
             
             <div className="mt-4 grid grid-cols-1 gap-4">
-              {duties.map((duty, idx) => (
-                <div 
-                  key={idx} 
-                  className={`relative p-4 rounded-sm border transition-all duration-300 ${
-                    duty.suitable 
-                      ? 'bg-gradient-to-r from-emerald-50 to-white border-emerald-200 shadow-sm' 
-                      : 'bg-white border-slate-200'
-                  }`}
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-center gap-4 flex-1">
-                      <div className={`w-12 h-12 rounded-sm flex items-center justify-center text-2xl shadow-inner ${
-                        duty.suitable ? 'bg-emerald-100' : 'bg-slate-100'
-                      }`}>
-                        {duty.duty.split(' ')[0]}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-black text-slate-800 text-sm uppercase tracking-tight">
-                            {duty.duty.split(' ').slice(1).join(' ')}
-                          </h4>
-                          {duty.suitable && (
-                            <span className="bg-emerald-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest animate-pulse">
-                              Highly Recommended
-                            </span>
-                          )}
+              {duties.map((duty, idx) => {
+                // Ánh xạ comment từ AI report nếu có (dựa trên keyword match)
+                const aiFit = aiReport?.jobFit;
+                let aiComment = "";
+                if (aiFit) {
+                  const dName = duty.duty.toLowerCase();
+                  if (dName.includes('kỹ thuật') || dName.includes('dev')) aiComment = aiFit.technical?.comment;
+                  else if (dName.includes('kinh doanh') || dName.includes('sales')) aiComment = aiFit.business?.comment;
+                  else if (dName.includes('kế toán') || dName.includes('hành chính') || dName.includes('vận hành')) aiComment = aiFit.operations?.comment;
+                  else if (dName.includes('ceo') || dName.includes('quản lý')) aiComment = aiFit.management?.comment;
+                }
+
+                return (
+                  <div 
+                    key={idx} 
+                    className={`relative p-4 rounded-sm border transition-all duration-300 ${
+                      duty.suitable 
+                        ? 'bg-gradient-to-r from-emerald-50 to-white border-emerald-200 shadow-sm' 
+                        : 'bg-white border-slate-200'
+                    }`}
+                  >
+                    <div className="flex flex-col gap-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex items-center gap-4 flex-1">
+                          <div className={`w-12 h-12 rounded-sm flex items-center justify-center text-2xl shadow-inner ${
+                            duty.suitable ? 'bg-emerald-100' : 'bg-slate-100'
+                          }`}>
+                            {duty.duty.split(' ')[0]}
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <h4 className="font-black text-slate-800 text-sm uppercase tracking-tight">
+                                {duty.duty.split(' ').slice(1).join(' ')}
+                              </h4>
+                              {duty.suitable && (
+                                <span className="bg-emerald-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest animate-pulse">
+                                  Highly Recommended
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[11px] text-slate-500 mt-1 italic leading-snug">
+                              {duty.description}
+                            </p>
+                          </div>
                         </div>
-                        <p className="text-[11px] text-slate-500 mt-1 italic leading-snug">
-                          {duty.description}
-                        </p>
+                        
+                        <div className="flex items-center gap-6 sm:w-64">
+                          <div className="flex-1 space-y-1">
+                              <div className="flex justify-between text-[10px] font-bold">
+                                <span className="text-slate-400">Match Score</span>
+                                <span className={duty.suitable ? "text-emerald-700" : "text-slate-600"}>{duty.score}%</span>
+                              </div>
+                              <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-200/50 p-[1px]">
+                                <div 
+                                  className={`h-full rounded-full transition-all duration-1000 ${
+                                    duty.suitable ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.3)]' : 'bg-slate-400'
+                                  }`} 
+                                  style={{ width: `${duty.score}%` }}
+                                ></div>
+                              </div>
+                          </div>
+                          <div className={`text-2xl font-black italic tracking-tighter ${
+                            duty.suitable ? 'text-emerald-600' : 'text-slate-300'
+                          }`}>
+                            {duty.score > 80 ? 'S' : duty.score > 70 ? 'A' : duty.score > 60 ? 'B' : 'C'}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-6 sm:w-64">
-                       <div className="flex-1 space-y-1">
-                          <div className="flex justify-between text-[10px] font-bold">
-                            <span className="text-slate-400">Match Score</span>
-                            <span className={duty.suitable ? "text-emerald-700" : "text-slate-600"}>{duty.score}%</span>
+
+                      {/* AI Niche Role Comment */}
+                      {aiComment && (
+                        <div className="bg-white/50 border-l-2 border-indigo-400 p-2.5 mt-1">
+                          <div className="text-[9px] font-black text-indigo-600 uppercase tracking-widest mb-1 flex items-center gap-1">
+                            <span className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></span>
+                            AI Niche Recommendation
                           </div>
-                          <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-200/50 p-[1px]">
-                            <div 
-                              className={`h-full rounded-full transition-all duration-1000 ${
-                                duty.suitable ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.3)]' : 'bg-slate-400'
-                              }`} 
-                              style={{ width: `${duty.score}%` }}
-                            ></div>
-                          </div>
-                       </div>
-                       <div className={`text-2xl font-black italic tracking-tighter ${
-                         duty.suitable ? 'text-emerald-600' : 'text-slate-300'
-                       }`}>
-                         {duty.score > 80 ? 'S' : duty.score > 70 ? 'A' : duty.score > 60 ? 'B' : 'C'}
-                       </div>
+                          <p className="text-[11px] text-indigo-900 leading-relaxed font-medium">
+                            {aiComment}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {isCEO && (
@@ -586,28 +614,66 @@ export default function ScouterReport({ user, resultData, date, aiReport }: Scou
         </div>
         
         {aiReport ? (
-          <div className="space-y-6">
+          <div className="space-y-8">
+            {/* Persona Description */}
             <div className="relative pl-6">
-              <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-indigo-200"></div>
-              <p className="text-sm text-slate-700 leading-relaxed">
-                <span className="inline-block px-2 py-0.5 bg-indigo-100 text-indigo-700 font-bold text-[10px] uppercase rounded-sm mr-2 mb-1">Tổng thể</span>
-                {(aiReport as any).corePersona?.personaDescription ?? (aiReport as any).executiveSummary ?? 'Đang tải phân tích...'}
+              <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500"></div>
+              <div className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-2 flex items-center gap-2">
+                <span>{aiReport.personaEmoji}</span>
+                Cốt cách & Chân dung bản ngã
+              </div>
+              <h4 className="text-lg font-black text-slate-800 mb-2 italic">"{aiReport.personaTitle}"</h4>
+              <p className="text-sm text-slate-700 leading-relaxed text-justify">
+                {aiReport.personaDescription}
               </p>
             </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="bg-white/60 p-4 border border-emerald-100 rounded-sm">
-                <span className="inline-block px-2 py-0.5 bg-emerald-100 text-emerald-700 font-bold text-[10px] uppercase rounded-sm mb-2">Điểm mạnh & Cống hiến</span>
-                <p className="text-sm text-slate-600 leading-relaxed">
-                  {(aiReport as any).strengthsNarrative ?? (aiReport as any).strengthsBlindSpots?.strengths?.map((s: any) => s.description).join(' ') ?? 'Đang tải thông tin...'}
-                </p>
+
+            {/* Strengths & Blind Spots */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-emerald-50/50 p-4 rounded-sm border border-emerald-100">
+                <div className="text-[10px] font-black text-emerald-700 uppercase tracking-widest mb-3 flex items-center gap-2">
+                  <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                  Ưu thế vượt trội
+                </div>
+                <ul className="space-y-2">
+                  {aiReport.strengthsBlindSpots.strengths.map((s, i) => (
+                    <li key={i} className="text-sm text-slate-700 leading-tight">
+                      <span className="font-bold text-emerald-800">· {s.title}:</span> {s.behavior}
+                    </li>
+                  ))}
+                </ul>
               </div>
-              
-              <div className="bg-white/60 p-4 border border-amber-100 rounded-sm">
-                <span className="inline-block px-3 py-0.5 bg-amber-100 text-amber-700 font-bold text-[10px] uppercase rounded-sm mb-2">Rủi ro / Lưu ý quản lý</span>
-                <p className="text-sm text-slate-600 leading-relaxed">
-                  {(aiReport as any).developmentNarrative ?? (aiReport as any).strengthsBlindSpots?.blindSpots?.map((s: any) => s.description).join(' ') ?? 'Đang tải thông tin...'}
-                </p>
+              <div className="bg-rose-50/50 p-4 rounded-sm border border-rose-100">
+                <div className="text-[10px] font-black text-rose-700 uppercase tracking-widest mb-3 flex items-center gap-2">
+                  <span className="w-2 h-2 bg-rose-500 rounded-full"></span>
+                  Điểm mù & Rủi ro
+                </div>
+                <ul className="space-y-2">
+                  {aiReport.strengthsBlindSpots.blindSpots.map((s, i) => (
+                    <li key={i} className="text-sm text-slate-700 leading-tight">
+                      <span className="font-bold text-rose-800">· {s.title}:</span> {s.risk}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {/* Coaching Advice */}
+            <div className="bg-white p-5 rounded-sm border border-indigo-100 shadow-sm">
+              <div className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <span className="p-1 bg-indigo-100 rounded text-xs">🚀</span>
+                Lộ trình phát triển & Lời khuyên chiến lược
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {aiReport.coachingAdvice.map((advice, i) => (
+                  <div key={i} className="flex gap-3">
+                    <div className="text-indigo-300 font-black text-xl leading-none">{i + 1}</div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs font-black text-slate-800 uppercase tracking-tight">{advice.area}</span>
+                      <p className="text-xs text-slate-600 leading-normal italic">{advice.action}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -618,8 +684,7 @@ export default function ScouterReport({ user, resultData, date, aiReport }: Scou
           </div>
         )}
       </div>
-
-      </div>
     </div>
+  </div>
   );
 }

@@ -1,67 +1,31 @@
-// ============================================================
-// OPENAI NARRATIVE SERVICE — Techzen HR Assessment v4 (Universal)
-// Prompt: "Cố vấn nghề nghiệp chiến lược" — Phân tích sâu vai trò ngách
-// Chỉ chạy server-side (gọi từ Server Action)
-// ============================================================
-
-import type { AssessmentResult } from '../data/scoring';
-import type { PersonaType, CombatPower, DutyScore } from '../data/aiAnalysis';
+import { AssessmentResult } from '../data/scoring';
+import { PersonaType, CombatPower, DutyScore } from '../data/aiAnalysis';
 import { DIMENSIONS } from '../data/dimensions';
 
-// ─── OUTPUT STRUCTURE ──────────────────────────────────────────
-export interface AIJobFitBlock {
-  score: number;   // % tương thích (0–100)
-  comment: string; // Nhận xét ngắn gọn
-}
-
-export interface AIStrength {
-  title: string;    // Tên năng lực
-  behavior: string; // Hành vi thực tế trong công việc
-}
-
-export interface AIBlindSpot {
-  title: string; // Điểm mù
-  risk: string;  // Rủi ro tiềm ẩn
-}
-
-export interface AICoachingAdvice {
-  action: string;    // Hành động cụ thể
-  rationale: string; // Lý do / kỳ vọng kết quả
-}
-
 export interface AIReport {
-  // 1. Thẩm định độ tin cậy
-  reliabilityVerdict: string;  // Nhận định về độ trung thực
-  reliabilityAlert: boolean;   // true = cảnh báo tô hồng
-
-  // 2. Chân dung cốt cách
-  personaTitle: string;       // VD: "Người thực thi thầm lặng"
-  personaEmoji: string;       // Emoji đại diện
-  personaDescription: string; // Mô tả bản ngã
-  personaCombination: string; // Phân tích tổ hợp điểm (mâu thuẫn/cộng hưởng)
-
-  // 3. Thế mạnh & Điểm mù
-  strengths: AIStrength[];    // 3 năng lực vượt trội
-  blindSpots: AIBlindSpot[];  // Các rủi ro tiềm ẩn
-
-  // 4. Job-Fit Mapping
-  jobFit: {
-    technical:  AIJobFitBlock; // Dev, R&D
-    business:   AIJobFitBlock; // Sales, CS
-    operations: AIJobFitBlock; // Kế toán, Hành chính
-    management: AIJobFitBlock; // Lead, Manager
+  reliabilityVerdict: string;
+  reliabilityAlert: boolean;
+  personaTitle: string;
+  personaEmoji: string;
+  personaDescription: string;
+  personaCombination: string;
+  strengthsBlindSpots: {
+    strengths: Array<{ title: string; behavior: string }>;
+    blindSpots: Array<{ title: string; risk: string }>;
   };
-
-  // 5. Lời khuyên phát triển
-  coachingAdvice: AICoachingAdvice[];
-
-  // Meta
-  language: 'vi' | 'en' | 'ja';
+  jobFit: {
+    technical: { score: number; comment: string };
+    business: { score: number; comment: string };
+    operations: { score: number; comment: string };
+    management: { score: number; comment: string };
+  };
+  coachingAdvice: Array<{ action: string; rationale: string }>;
+  language: string;
   generatedAt: string;
   fromCache: boolean;
 }
 
-// ─── BUILD PROMPT ──────────────────────────────────────────────
+// ─── GIẢI THUẬT XÂY DỰNG PROMPT ────────────────────────────────
 function buildPrompt(
   result: AssessmentResult,
   persona: PersonaType,
@@ -69,51 +33,32 @@ function buildPrompt(
   duties: DutyScore[],
   lang: 'vi' | 'en' | 'ja',
 ): string {
-  // Lấy tên Việt của dimension
-  const dimName = (id: string) => DIMENSIONS.find(d => d.id === id)?.nameVi ?? id;
+  // Đảm bảo có traits để phân tích (nếu result truyền vào chưa có traits thì map từ dimensions)
+  const traits = result.traits || result.dimensions.map((d) => {
+    const dim = DIMENSIONS.find(dm => dm.id === d.dimensionId);
+    return { trait: dim?.nameVi || d.dimensionId, score: d.percentile };
+  }).sort((a, b) => b.score - a.score);
 
-  // Lie scale score (đã normalize về 0-10)
-  const lieScoreRaw = result.reliability.lieScore;
-  // V2 lưu 0-100, V3 lưu 0-10 → chuẩn hóa về 0-10
-  const lieScore10 = lieScoreRaw > 10 ? Math.round(lieScoreRaw / 10) : lieScoreRaw;
+  const top5 = traits.slice(0, 5).map((t: { trait: string }) => t.trait);
+  const bottom3 = traits.slice(-3).map((t: { trait: string }) => t.trait);
+  const lieScore10 = Math.round(result.reliability.lieScore * 10) / 10;
 
-  // Tất cả dimensions (bỏ lie_scale)
-  const allDims = (result.dimensions || []).filter(
-    d => !['lie_scale', 'lie_score'].includes(d.dimensionId)
-  );
-
-  // Top 5 mạnh nhất
-  const top5 = [...allDims]
-    .sort((a, b) => b.scaled - a.scaled)
-    .slice(0, 5)
-    .map(d => `${dimName(d.dimensionId)} = ${d.scaled.toFixed(1)}/10`);
-
-  // Bottom 3 yếu nhất
-  const bottom3 = [...allDims]
-    .sort((a, b) => a.scaled - b.scaled)
-    .slice(0, 3)
-    .map(d => `${dimName(d.dimensionId)} = ${d.scaled.toFixed(1)}/10`);
-
-  // Phát hiện mâu thuẫn (contraindications)
-  const findScore = (id: string) => allDims.find(d => d.dimensionId === id)?.scaled ?? 0;
+  // Logic mâu thuẫn nội tại (Self-Contradiction)
   const contradictions: string[] = [];
+  const traitValues = Object.fromEntries(traits.map((t: { trait: string; score: number }) => [t.trait, t.score]));
 
-  if (findScore('achievement_drive') >= 7.5 && findScore('agreeableness') < 4)
-    contradictions.push('Chủ động cao + Cộng tác thấp → Nhiệt tình nhưng thiếu làm việc nhóm');
-  if (findScore('conscientiousness') >= 7.5 && (findScore('stress_mental') < 4 || findScore('stress_physical') < 4))
-    contradictions.push('Tận tâm cao + Chịu áp lực thấp → Nguy cơ kiệt sức khi dự án căng');
-  if (findScore('extraversion') >= 7.5 && findScore('logical_thinking') < 4)
-    contradictions.push('Năng động cao + Tư duy logic thấp → Giao tiếp tốt nhưng dễ phân tán');
-  if (findScore('openness') >= 7.5 && findScore('stability_orientation') < 4)
-    contradictions.push('Sáng tạo cao + Ổn định thấp → Ý tưởng nhiều nhưng khó cam kết dài hạn');
-  if (findScore('caution') >= 8 && findScore('challenge_spirit') < 3.5)
-    contradictions.push('Cẩn trọng quá cao + Tinh thần thách thức thấp → Ngại rủi ro, khó đổi mới');
+  if (traitValues['Tận tâm'] > 80 && traitValues['Sáng tạo'] > 80)
+    contradictions.push('Nguyên tắc cao + Sáng tạo bay bổng → Mâu thuẫn giữa quy chuẩn và phá cách');
+  if (traitValues['Hướng ngoại'] > 80 && traitValues['Điềm tĩnh'] > 80)
+    contradictions.push('Nhu cầu giao thiệp lớn + Nội tâm tĩnh lặng → Dễ bị kiệt sức năng lượng (Social Burnout)');
+  if (traitValues['Cẩn trọng'] > 80 && traitValues['Thách thức'] < 30)
+    contradictions.push('Cẩn trọng quá mức + Tinh thần thách thức thấp → Ngại rủi ro, khó đổi mới');
 
   const contradictionNote = contradictions.length > 0
     ? `\nMÂU THUẪN ĐÁNG LƯU Ý:\n${contradictions.map(c => `  - ${c}`).join('\n')}`
     : '';
 
-  // Job fit từ calcDutySuitability
+  // Job fit từ calcDutySuitability (SMA Algorithm)
   const topDuties = duties
     .sort((a, b) => b.score - a.score)
     .slice(0, 3)
@@ -121,60 +66,69 @@ function buildPrompt(
     .join(', ');
 
   const langNote = lang === 'vi'
-    ? 'Viết HOÀN TOÀN bằng tiếng Việt. Giọng văn chuyên nghiệp, thẳng thắn, mang tính cố vấn cấp cao.'
+    ? 'Viết HOÀN TOÀN bằng tiếng Việt. Giọng văn chuyên nghiệp, sắc sảo, mang tính cố vấn chiến lược.'
     : lang === 'ja'
-    ? '全て日本語で。プロフェッショナルで直接的なコンサルタントの口調。'
-    : 'Write entirely in English. Professional, direct, senior consultant tone.';
+    ? '全て日本語で。プロフェッショナルで鋭いコンサルタントの口調。'
+    : 'Write entirely in English. Professional, sharp, strategic consultant tone.';
 
   return `Bạn là "Cố vấn Nghề nghiệp Chiến lược" cao cấp của Techzen, chuyên trách đọc vị nhân sự theo hệ thống SOTA Universal V4.
 ${langNote}
 
 NHIỆM VỤ CỐT LÕI:
 1. Thẩm định tính khách quan của dữ liệu bài làm (dựa trên Lie Scale và Consistency).
-2. Vẽ chân dung bản ngã chuyên sâu (Persona), đặc biệt là các mâu thuẫn nội tại trong tính cách.
-3. Phân loại mức độ tương thích (Job-Fit) cho 4 nhóm ngành chính: Technical, Business, Operations, Management.
-4. QUAN TRỌNG: Với mỗi nhóm ngành, không chỉ đưa ra đánh giá chung, bạn phải đề xuất các "VAI TRÒ NGÁCH" (Niche specialization) cụ thể mà người này sẽ tỏa sáng nhất (Ví dụ: Thay vì chỉ nói 'Lập trình viên', hãy gợi ý 'Kỹ sư giải thuật tối ưu' hoặc 'Product Engineer tập trung trải nghiệm').
+2. Vẽ chân dung bản ngã chuyên sâu (Persona) của ứng viên, tập trung vào cách "Bạn" vận hành trong tổ chức.
+3. Phân loại mức độ tương thích (Job-Fit) cho 4 nhóm ngành: Technical, Business, Operations, Management.
+4. QUAN TRỌNG: Với mỗi nhóm ngành, không chỉ đưa ra điểm số, bạn phải phân tích sâu và đề xuất các "VAI TRÒ NGÁCH" (Niche roles) cụ thể mà người này sẽ tỏa sáng nhất (Ví dụ: Thay vì chỉ 'Lập trình viên', hãy gợi ý 'Kỹ sư hạ tầng chịu tải lớn' hoặc 'Frontend Engineer hướng UX').
+5. Đọc vị các mâu thuẫn trong điểm số (Nếu có) để đưa ra cảnh báo về rủi ro hành vi.
 
-DỮ LIỆU ĐẦU VÀO:
+DỮ LIỆU ĐẦU VÀO CỦA ỨNG VIÊN:
 - Chỉ số nói dối (Lie Scale): ${lieScore10}/10 ${lieScore10 > 7 ? '⚠️ CAO — nghi ngờ tô hồng' : '✓ Trong ngưỡng an toàn'}
 - Độ nhất quán: ${result.reliability.consistencyScore}%
 - Top 5 điểm mạnh: ${top5.join('; ')}
 - Top 3 điểm yếu: ${bottom3.join('; ')}
-- Combat Power: ${combatPower.total}/100 — ${combatPower.label}
+- Combat Power: ${combatPower.total}/100 — Tầng bậc: ${combatPower.label}
 - Persona hệ thống: ${persona.emoji} ${persona.title}
-- Gợi ý vai trò (quy tắc hệ thống): ${topDuties}
+- Gợi ý vai trò (SMA Algorithm): ${topDuties}
 ${contradictionNote}
 
-ĐÂY LÀ CẤU TRÚC OUTPUT BẮT BUỘC (JSON thuần, không markdown):
+QUY TẮC NGÔN NGỮ (BẮT BUỘC):
+1. NGÔI THỨ HAI: Luôn sử dụng "Bạn" (Ví dụ: "Bạn có khả năng...", "Thách thức của Bạn là..."). Tuyệt đối không dùng "Người này", "Đối tượng" hay "Tôi".
+2. TRUNG TÍNH (NEUTRAL): Loại bỏ toàn bộ các tính từ mang tính "văn chương" hoặc "phóng đại" (Ví dụ: KHÔNG dùng "ngọc ngà", "vạn quy tắc", "kiếp nào", "dịch chuyển thế giới", "đam mề", "tư tài", "hiệu lực hiệu quả" - nếu không rõ ràng). Hãy dùng từ vựng chuyên môn nhân sự thực tế.
+3. CẤU TRÚC PHÂN TÍCH: Áp dụng công thức "1 Hành vi + 1 Kết quả" cho mỗi câu nhận xét. (Ví dụ: "Bạn thường xuyên kiểm tra chi tiết công việc (Hành vi) giúp giảm thiểu sai sót trong các báo cáo tài chính (Kết quả)").
+4. SỬA LỖI CHÍNH TẢ: Rà soát kỹ chính tả tiếng Việt (Tránh các lỗi như "cùa", "đam mề", "팀").
+
+ĐÂY LÀ CẤU TRÚC OUTPUT BẮT BUỘC (JSON thuần):
 
 {
-  "reliabilityVerdict": "Nhận định về độ trung thực dựa trên lieScore và consistency (2-3 câu).",
+  "reliabilityVerdict": "Nhận định về độ trung thực của Bạn dựa trên lieScore và consistency (2-3 câu).",
   "reliabilityAlert": ${lieScore10 > 7 ? 'true' : 'false'},
-  "personaTitle": "Tên bản ngã 3-5 từ (Sáng tạo, sắc bén)",
-  "personaEmoji": "1 emoji phù hợp",
-  "personaDescription": "Mô tả cốt cách tổng thể, bản chất con người trong công việc (60-80 từ).",
-  "personaCombination": "Phân tích sự cộng hưởng hoặc mâu thuẫn giữa các nhóm điểm. ${contradictions.length > 0 ? 'Tập trung vào các mâu thuẫn: ' + contradictions.join(', ') : 'Tập trung vào các điểm nổi trội.'}",
-  "strengths": [
-    {"title": "Tên năng lực nổi trội 1", "behavior": "Hành vi thực tế giúp tạo ra kết quả xuất sắc (25-35 từ)."},
-    {"title": "Tên năng lực nổi trội 2", "behavior": "Hành vi thực tế giúp tạo ra kết quả xuất sắc (25-35 từ)."},
-    {"title": "Tên năng lực nổi trội 3", "behavior": "Hành vi thực tế giúp tạo ra kết quả xuất sắc (25-35 từ)."}
-  ],
-  "blindSpots": [
-    {"title": "Điểm mù chí mạng 1", "risk": "Rủi ro cụ thể trong môi trường làm việc thực tế (25-35 từ)."},
-    {"title": "Điểm mù chí mạng 2", "risk": "Rủi ro cụ thể trong môi trường làm việc thực tế (25-35 từ)."}
-  ],
+  "personaTitle": "Tên bản ngã (3-5 từ, sáng tạo nhưng chuyên nghiệp)",
+  "personaEmoji": "1 emoji",
+  "personaDescription": "Phân tích cốt cách tổng thể của Bạn (60-80 từ). Sử dụng ngôi 'Bạn'. Tuân thủ quy tắc Hành vi + Kết quả.",
+  "personaCombination": "Phân tích sự cộng hưởng hoặc mâu thuẫn giữa các nhóm điểm của Bạn. ${contradictions.length > 0 ? 'Đặc biệt lưu ý mâu thuẫn: ' + contradictions.join(', ') : 'Tập trung vào sự cộng hưởng các điểm mạnh.'} Sử dụng ngôi 'Bạn'.",
+  "strengthsBlindSpots": {
+    "strengths": [
+      {"title": "Điểm mạnh 1", "behavior": "Hành vi thực tế + Kết quả thực tế giúp Bạn thành công (1 câu duy nhất)."},
+      {"title": "Điểm mạnh 2", "behavior": "Hành vi thực tế + Kết quả thực tế giúp Bạn thành công (1 câu duy nhất)."},
+      {"title": "Điểm mạnh 3", "behavior": "Hành vi thực tế + Kết quả thực tế giúp Bạn thành công (1 câu duy nhất)."}
+    ],
+    "blindSpots": [
+      {"title": "Điểm mù 1", "risk": "Hành vi rủi ro + Kết quả tiêu cực Bạn có thể gặp phải (1 câu duy nhất)."},
+      {"title": "Điểm mù 2", "risk": "Hành vi rủi ro + Kết quả tiêu cực Bạn có thể gặp phải (1 câu duy nhất)."}
+    ]
+  },
   "jobFit": {
-    "technical":  {"score": số_0_đến_100, "comment": "Gợi ý vai trò ngách như Backend/QA/Data/Architect... kèm lý do (30-40 từ)."},
-    "business":   {"score": số_0_đến_100, "comment": "Gợi ý vai trò ngách như Sales Hunter/Account/Growth/Marketing... kèm lý do (30-40 từ)."},
-    "operations": {"score": số_0_đến_100, "comment": "Gợi ý vai trò ngách như Tài chính/Pháp chế/Vận hành/HR... kèm lý do (30-40 từ)."},
-    "management": {"score": số_0_đến_100, "comment": "Gợi ý vai trò ngách như Quản lý thực thi/Truyền cảm hứng/Chiến lược... kèm lý do (30-40 từ)."}
+    "technical":  {"score": số_0_đến_100, "comment": "Vai trò ngách cụ thể (Ví dụ: Security Auditor) + Lý do dựa trên năng lực (1-2 câu)."},
+    "business":   {"score": số_0_đến_100, "comment": "Vai trò ngách cụ thể (Ví dụ: Strategic Partnership) + Lý do dựa trên năng lực (1-2 câu)."},
+    "operations": {"score": số_0_đến_100, "comment": "Vai trò ngách cụ thể (Ví dụ: Compliance Officer) + Lý do dựa trên năng lực (1-2 câu)."},
+    "management": {"score": số_0_đến_100, "comment": "Vai trò ngách cụ thể (Ví dụ: Operational Manager) + Lý do dựa trên năng lực (1-2 câu)."}
   },
   "coachingAdvice": [
-    {"action": "Hành động cụ thể 2 (có thể thực hiện ngay)", "rationale": "Lý do và kết quả kỳ vọng (20-25 từ)"}
+    {"action": "Hành động 1", "rationale": "Lý do và kết quả kỳ vọng cho Bạn (1 câu)."},
+    {"action": "Hành động 2", "rationale": "Lý do và kết quả kỳ vọng cho Bạn (1 câu)."}
   ]
 }
-
-Chú ý: Hãy đặc biệt phân tích sự mâu thuẫn trong dữ liệu.`;
+`;
 }
 
 // ─── RETRY LOGIC ───────────────────────────────────────────────
@@ -192,11 +146,11 @@ async function callOpenAIWithRetry(
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: 'gpt-4o-mini',
+          model: 'gpt-4o',
           messages: [{ role: 'user', content: prompt }],
-          max_tokens: 2200, // Đủ cho 6 JSON sections tiếng Việt
-          temperature: 0.65,
-          response_format: { type: 'json_object' }, // Đảm bảo JSON thuần
+          max_tokens: 2500,
+          temperature: 0.6,
+          response_format: { type: 'json_object' },
         }),
       });
 
@@ -205,25 +159,18 @@ async function callOpenAIWithRetry(
           await new Promise(r => setTimeout(r, 1200 * (attempt + 1)));
           continue;
         }
-        console.error(`[AIReport] OpenAI error ${response.status} after ${retries} retries`);
         return null;
       }
 
-      if (!response.ok) {
-        console.error('[AIReport] OpenAI API error:', response.status);
-        return null;
-      }
+      if (!response.ok) return null;
 
-      const data = (await response.json()) as {
-        choices: Array<{ message: { content: string } }>;
-      };
+      const data = (await response.json()) as any;
       return data.choices[0]?.message?.content ?? null;
     } catch (err) {
       if (attempt < retries) {
         await new Promise(r => setTimeout(r, 1200 * (attempt + 1)));
         continue;
       }
-      console.error('[AIReport] Fetch error:', err);
       return null;
     }
   }
@@ -239,10 +186,7 @@ export async function generateAIReport(
   lang: 'vi' | 'en' | 'ja' = 'vi',
 ): Promise<AIReport | null> {
   const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    console.warn('[AIReport] No OPENAI_API_KEY found. Skipping AI report.');
-    return null;
-  }
+  if (!apiKey) return null;
 
   const prompt = buildPrompt(result, persona, combatPower, duties, lang);
   const content = await callOpenAIWithRetry(apiKey, prompt);
@@ -250,7 +194,7 @@ export async function generateAIReport(
   if (!content) return null;
 
   try {
-    const parsed = JSON.parse(content) as Omit<AIReport, 'language' | 'generatedAt' | 'fromCache'>;
+    const parsed = JSON.parse(content) as any;
     return {
       ...parsed,
       language: lang,
@@ -258,7 +202,6 @@ export async function generateAIReport(
       fromCache: false,
     };
   } catch (err) {
-    console.error('[AIReport] Failed to parse OpenAI response:', err);
     return null;
   }
 }

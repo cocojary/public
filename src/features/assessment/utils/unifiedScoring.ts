@@ -45,6 +45,7 @@ export interface SuitabilityRole {
   matchLevel: 'strong' | 'moderate' | 'weak';
   positions: string[];
   badge: string;
+  description: string;
 }
 
 export interface CombatPowerResult {
@@ -255,12 +256,53 @@ function buildGroups(dims: DimensionScore[], lieScore: number, consistencyScore:
   return groups;
 }
 
-// ── Profile Matching — 10 RoleTypes ──────────────────────────
-//
-// Nguyên lý: mỗi vai trò có hồ sơ lý tưởng với:
-//   required  — trait CẦN: dưới ngưỡng bị trừ điểm
-//   penalty   — trait NGƯỢC: vượt ngưỡng bị trừ điểm
-//
+// ── Selective Matching Algorithm (SMA) — SOTA V4.0 ────────────────
+
+function calculateSMA(
+  essentials: { value: number; threshold: number }[],
+  supportive: { value: number; weight: number; threshold: number }[],
+  negative: { value: number; threshold: number; penalty: number }[] = []
+): number {
+  // 1. Kiểm tra Kill Zone (Chỉ số "Chí mạng")
+  for (const e of essentials) {
+    if (e.value < 3.5) return Math.round(e.value * 2); 
+  }
+
+  // 2. Tính Điểm Gốc (Base Score) từ Essentials - 80% trọng số tối đa
+  // Sử dụng Gate mechanism: Nếu không đạt Threshold, điểm bị nhân hệ số phạt lũy thừa
+  let essentialMultiplier = 1.0;
+  for (const e of essentials) {
+    if (e.value < e.threshold) {
+      essentialMultiplier *= Math.pow(e.value / e.threshold, 1.5);
+    }
+  }
+
+  // Nếu đạt mọi threshold, base là 80 điểm.
+  const baseScore = 80 * essentialMultiplier;
+
+  // 3. Tính Điểm thưởng (Bonus) từ Supportive Traits - 20% trọng số tối đa
+  let supportiveBonus = 0;
+  for (const s of supportive) {
+    if (s.value > s.threshold) {
+      const bonusRatio = (s.value - s.threshold) / (10 - s.threshold || 1);
+      supportiveBonus += bonusRatio * (s.weight / 100) * 20; 
+    }
+  }
+
+  const rawScore = baseScore + supportiveBonus;
+
+  // 4. Áp dụng Penalty từ Negative Traits (Khấu trừ phi tuyến)
+  let negativeMultiplier = 1.0;
+  for (const n of negative) {
+    if (n.value > n.threshold) {
+      const over = Math.min((n.value - n.threshold) / (10 - n.threshold || 1), 1);
+      negativeMultiplier *= (1.0 - n.penalty * over); 
+    }
+  }
+
+  return Math.round(Math.max(0, Math.min(100, rawScore * negativeMultiplier)));
+}
+
 function calcSuitability(groups: UnifiedGroup[]): SuitabilityRole[] {
   const getItem = (groupId: string, itemId: string): number =>
     groups.find(g => g.id === groupId)?.items.find(i => i.id === itemId)?.score ?? 5;
@@ -285,183 +327,169 @@ function calcSuitability(groups: UnifiedGroup[]): SuitabilityRole[] {
   const gro  = getItem('culture',     'loyalty');       // stability_orientation composite
   const pro  = getItem('culture',     'proactivity');   // autonomy
 
-  type Criterion = { value: number; weight: number; threshold: number };
-  type PenaltyCriterion = { value: number; threshold: number; deduct: number };
-
-  function profileScore(required: Criterion[], penalty: PenaltyCriterion[] = []): number {
-    let score = 100;
-
-    for (const r of required) {
-      if (r.value < r.threshold) {
-        const gap = (r.threshold - r.value) / r.threshold;
-        score -= r.weight * gap;
-      } else {
-        const over = Math.min((r.value - r.threshold) / (10 - r.threshold), 1);
-        score += r.weight * 0.05 * over;
-      }
-    }
-
-    for (const p of penalty) {
-      if (p.value > p.threshold) {
-        const over = Math.min((p.value - p.threshold) / (10 - p.threshold), 1);
-        score -= p.deduct * over;
-      }
-    }
-
-    return Math.round(Math.max(0, Math.min(100, score)));
-  }
-
-  const rolesData: { role: RoleType; score: number; positions: string[]; badge: string }[] = [
-
+  const rolesData: { role: RoleType; score: number; positions: string[]; badge: string; description: string }[] = [
     // 1. Người Mở cõi (Hunter / Trailblazer)
     {
       role: 'Người Mở cõi',
-      score: profileScore(
+      score: calculateSMA(
         [
-          { value: ext, weight: 30, threshold: 6.5 },
-          { value: chl, weight: 30, threshold: 6.5 },
-          { value: spd, weight: 20, threshold: 6.0 },
-          { value: emo, weight: 20, threshold: 6.0 },
+          { value: ext, threshold: 6.5 },
+          { value: chl, threshold: 6.5 },
         ],
         [
-          { value: cau,      threshold: 8, deduct: 25 }, // Thận trọng quá -> chậm
-          { value: 10 - ext, threshold: 5, deduct: 30 }, // Hướng nội -> khó giao tiếp
+          { value: spd, weight: 50, threshold: 6.0 },
+          { value: emo, weight: 50, threshold: 6.0 },
+        ],
+        [
+          { value: cau, threshold: 7.5, penalty: 0.4 },
         ]
       ),
       positions: ['Sales', 'Business Development', 'Tăng trưởng (Growth)'],
       badge: '🎯',
+      description: 'Những người tiên phong khai phá thị trường và cơ hội mới. Họ có tinh thần chiến đấu mạnh mẽ, không ngại bị từ chối và luôn hướng tới kết quả.',
     },
-
     // 2. Người Cầm lái (Leader / Driver)
     {
       role: 'Người Cầm lái',
-      score: profileScore(
+      score: calculateSMA(
         [
-          { value: aut, weight: 30, threshold: 7.0 },
-          { value: emp, weight: 25, threshold: 6.5 },
-          { value: log, weight: 25, threshold: 6.5 },
-          { value: emo, weight: 20, threshold: 6.0 },
+          { value: aut, threshold: 7.0 },
+          { value: emo, threshold: 6.5 },
         ],
         [
-          { value: 10 - aut, threshold: 5, deduct: 30 }, // Thiếu tự chủ -> không ra quyết định được
-          { value: agr,      threshold: 9, deduct: 15 }, // Quá dễ dãi -> không kỷ luật được
+          { value: log, weight: 40, threshold: 6.5 },
+          { value: emp, weight: 40, threshold: 6.0 },
+          { value: ach, weight: 20, threshold: 7.0 },
+        ],
+        [
+          { value: agr, threshold: 8.5, penalty: 0.3 },
         ]
       ),
       positions: ['Team Lead', 'Manager', 'CEO'],
       badge: '👑',
+      description: 'Nhà điều hành quyết đoán với tầm nhìn bao quát. Họ giỏi quản trị mục tiêu, đưa ra quyết định dựa trên dữ liệu và dẫn dắt đội ngũ thực thi.',
     },
-
     // 3. Chuyên gia Đào sâu (Deep Specialist)
     {
       role: 'Chuyên gia Đào sâu',
-      score: profileScore(
+      score: calculateSMA(
         [
-          { value: log, weight: 40, threshold: 7.0 },
-          { value: cau, weight: 30, threshold: 6.5 },
-          { value: con, weight: 20, threshold: 6.5 },
-          { value: lrn, weight: 10, threshold: 6.0 },
+          { value: log, threshold: 7.5 },
+          { value: cau, threshold: 7.0 },
         ],
         [
-          { value: spd, threshold: 8, deduct: 25 }, // Quá vội -> sai sót
-          { value: chl, threshold: 8.5, deduct: 15 }, // Quá liều lĩnh
+          { value: con, weight: 60, threshold: 7.0 },
+          { value: lrn, weight: 40, threshold: 7.0 },
+        ],
+        [
+          { value: spd, threshold: 8.5, penalty: 0.2 },
         ]
       ),
       positions: ['Backend Dev', 'System Architect', 'Kế toán trưởng', 'QA/QC'],
       badge: '🔬',
+      description: 'Các chuyên gia tư duy logic sắc bén, tập trung vào sự chính xác và chiều sâu kiến thức. Họ là xương sống kỹ thuật cho những hệ thống phức tạp.',
     },
-
     // 4. Người Chăm chút (Optimizer / Operator)
     {
       role: 'Người Chăm chút',
-      score: profileScore(
+      score: calculateSMA(
         [
-          { value: con, weight: 40, threshold: 7.0 },
-          { value: cau, weight: 30, threshold: 6.5 },
-          { value: emo, weight: 20, threshold: 6.0 },
-          { value: agr, weight: 10, threshold: 5.5 },
+          { value: con, threshold: 7.0 },
+          { value: gro, threshold: 6.5 },
         ],
         [
-          { value: chl, threshold: 7.5, deduct: 25 }, // Thích rủi ro -> chán việc lặp lại
-          { value: 10 - con, threshold: 5, deduct: 30 }, // Thiếu tỉ mỉ -> không vận hành được
+          { value: cau, weight: 50, threshold: 7.0 },
+          { value: agr, weight: 30, threshold: 6.0 },
+          { value: emo, weight: 20, threshold: 6.0 },
+        ],
+        [
+          { value: chl, threshold: 7.5, penalty: 0.3 },
         ]
       ),
       positions: ['Hành chính', 'Kế toán viên', 'C&B', 'Nhập liệu'],
       badge: '⚙️',
+      description: 'Người bảo đảm sự ổn định và trơn tru cho bộ máy vận hành. Họ tỉ mỉ, trung thành và kiên trì với những quy trình lặp đi lặp lại đòi hỏi độ chuẩn xác cao.',
     },
-
     // 5. Nhà Sáng tạo (The Innovator)
     {
       role: 'Nhà Sáng tạo',
-      score: profileScore(
+      score: calculateSMA(
         [
-          { value: opn, weight: 40, threshold: 7.0 },
-          { value: lrn, weight: 25, threshold: 6.5 },
-          { value: ext, weight: 20, threshold: 6.0 },
-          { value: emp, weight: 15, threshold: 5.5 },
+          { value: opn, threshold: 7.5 },
         ],
         [
-          { value: cau,      threshold: 8.0, deduct: 25 }, // Quá cẩn thận -> không sáng tạo
-          { value: 10 - opn, threshold: 5, deduct: 35 }, // Thiếu cởi mở -> không đổi mới
+          { value: lrn, weight: 40, threshold: 7.0 },
+          { value: ext, weight: 30, threshold: 6.0 },
+          { value: emp, weight: 30, threshold: 6.0 },
+        ],
+        [
+          { value: cau, threshold: 8.5, penalty: 0.4 },
         ]
       ),
       positions: ['Creative/Designer', 'Marketing', 'Content Creator', 'UI/UX'],
       badge: '🎨',
+      description: 'Tâm hồn bay bổng với khả năng nhìn nhận vấn đề khác biệt. Họ mang lại sự đổi mới, tập trung vào thẩm mỹ và trải nghiệm cảm xúc của khách hàng.',
     },
-
     // 6. Người Kiến tạo (Product Builder)
     {
       role: 'Người Kiến tạo',
-      score: profileScore(
+      score: calculateSMA(
         [
-          { value: ach, weight: 30, threshold: 6.5 },
-          { value: opn, weight: 25, threshold: 6.5 },
-          { value: spd, weight: 25, threshold: 6.0 },
-          { value: log, weight: 20, threshold: 6.0 },
+          { value: ach, threshold: 7.0 },
+          { value: spd, threshold: 7.0 },
         ],
         [
-          { value: cau, threshold: 8.5, deduct: 20 }, // Quá cẩn thận -> chậm release
-        ]
+          { value: log, weight: 40, threshold: 6.5 },
+          { value: opn, weight: 40, threshold: 6.5 },
+          { value: con, weight: 20, threshold: 6.0 },
+        ],
+        []
       ),
       positions: ['Product Manager', 'Frontend Dev', 'Growth Hacker'],
       badge: '⚡',
+      description: 'Người biến ý tưởng thành sản phẩm thực tế một cách nhanh chóng. Họ cân bằng tốt giữa tư duy đổi mới và khả năng thực thi quyết liệt để tạo kết quả hữu hình.',
     },
-
     // 7. Cố vấn Phân tích (The Analyst)
     {
       role: 'Cố vấn Phân tích',
-      score: profileScore(
+      score: calculateSMA(
         [
-          { value: log, weight: 40, threshold: 7.0 },
-          { value: cau, weight: 30, threshold: 6.5 },
-          { value: aut, weight: 20, threshold: 6.0 },
-          { value: con, weight: 10, threshold: 6.0 },
+          { value: log, threshold: 7.5 },
+          { value: aut, threshold: 6.0 },
         ],
         [
-          { value: ext,      threshold: 8.5, deduct: 15 }, // Hướng ngoại -> mất tập trung xử lý dữ liệu
-          { value: 10 - log, threshold: 5, deduct: 35 }, // Thiếu logic -> không phân tích được
+          { value: cau, weight: 50, threshold: 7.0 },
+          { value: con, weight: 30, threshold: 6.5 },
+          { value: lrn, weight: 20, threshold: 7.0 },
+        ],
+        [
+          { value: ext, threshold: 8.5, penalty: 0.2 },
         ]
       ),
       positions: ['Data Analyst', 'Business Analyst', 'Nghiên cứu (R&D)'],
       badge: '📊',
+      description: 'Những bộ óc phân tích dựa trên bằng chứng dữ liệu. Họ giúp tổ chức nhìn thấu các xu hướng, rủi ro và cơ hội thông qua các mô hình tư duy khách quan.',
     },
-
     // 8. Chất Kết Dính (The Connector)
     {
       role: 'Chất Kết Dính',
-      score: profileScore(
+      score: calculateSMA(
         [
-          { value: emp, weight: 40, threshold: 7.0 },
-          { value: agr, weight: 30, threshold: 6.5 },
-          { value: ext, weight: 15, threshold: 6.0 },
-          { value: emo, weight: 15, threshold: 6.0 },
+          { value: emp, threshold: 7.5 },
+          { value: agr, threshold: 7.0 },
         ],
         [
-          { value: 10 - emp, threshold: 4, deduct: 30 }, // Thiếu thấu cảm -> khó làm support
-          { value: aut,      threshold: 8.5, deduct: 20 }, // Tự chủ quá, cái tôi cao -> khó hỗ trợ
+          { value: ext, weight: 40, threshold: 6.5 },
+          { value: emo, weight: 40, threshold: 6.0 },
+          { value: con, weight: 20, threshold: 6.0 },
+        ],
+        [
+          { value: aut, threshold: 8.5, penalty: 0.3 },
         ]
       ),
       positions: ['Customer Success', 'HR Tuyển dụng', 'Trợ lý', 'Account Executive'],
       badge: '🤝',
+      description: 'Người giữ vai trò kết nối con người và xây dựng văn hóa chung. Họ thấu cảm, khéo léo và luôn nỗ lực vì sự hài lòng của khách hàng cũng như nội bộ.',
     },
   ];
 
@@ -472,6 +500,7 @@ function calcSuitability(groups: UnifiedGroup[]): SuitabilityRole[] {
       matchLevel: (r.score >= 75 ? 'strong' : r.score >= 55 ? 'moderate' : 'weak') as 'strong' | 'moderate' | 'weak',
       positions: r.positions,
       badge: r.badge,
+      description: r.description,
     }))
     .sort((a, b) => b.matchScore - a.matchScore);
 }
