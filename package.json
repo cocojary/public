@@ -45,7 +45,12 @@
     "postcss": "^8.5.10",
     "prisma": "^5.22.0",
     "tailwindcss": "^3.4.19",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.58.0"
+  },
+  "prisma": {
+    "seed": "node --no-warnings --loader ts-node/esm prisma/seed-dev.ts"
   }
 }

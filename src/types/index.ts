@@ -2,7 +2,7 @@
 // TYPES — Techzen HR Assessment v2
 // ============================================================
 
-import type { AssessmentResult } from './data/scoring';
+import type { AssessmentResult } from '@/features/assessment/data/scoring';
 
 export interface UserInfo {
   fullName: string;

@@ -2,7 +2,7 @@
 // STORAGE — localStorage persistence cho HR Dashboard
 // ============================================================
 
-import type { AssessmentRecord } from '../types';
+import type { AssessmentRecord } from '@/types';
 
 const STORAGE_KEY = 'techzen_hr_assessments';
 

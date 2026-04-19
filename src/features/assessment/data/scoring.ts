@@ -1,8 +1,7 @@
 // ============================================================
-// SCORING ENGINE — Techzen HR Assessment
+// SCORING ENGINE — Techzen HR Assessment v2.1
 // ============================================================
 
-import { QUESTIONS, CONSISTENCY_PAIRS, LIE_QUESTION_IDS } from './questions';
 import { DIMENSIONS } from './dimensions';
 
 export interface DimensionScore {
@@ -17,9 +16,10 @@ export type ReliabilityLevel = 'high' | 'medium' | 'low' | 'invalid';
 
 export interface ReliabilityResult {
   level: ReliabilityLevel;
-  lieScore: number;        // 0–100
-  consistencyScore: number; // 0–100 (nhất quán)
-  speedFlag: boolean;       // true nếu trả lời quá nhanh
+  lieScore: number;         // 0–100 (cao = tô vẽ bản thân)
+  consistencyScore: number; // 0–100 (cao = nhất quán)
+  speedFlag: boolean;
+  avgSecondsPerQ: number;
   details: string;
 }
 
@@ -30,22 +30,29 @@ export interface AssessmentResult {
   durationSeconds: number;
 }
 
-/** Tính điểm từng dimension */
+/**
+ * Tính điểm từng dimension từ DB questions (UUID id).
+ * answers: { [questionUUID]: 1-5 }
+ * questions: array từ DB (có fields: id, dimensionId, reversed, isLieScale, consistencyGroup)
+ */
 export function calculateScores(
-  answers: Record<number, number>, // { questionId: 1-5 }
-  questions: any[],                // Dynamic questions from DB
+  answers: Record<string, number>,
+  questions: any[],
   startTime: number,
   endTime: number,
-  questionTimestamps: Record<number, number>,
+  _questionTimestamps: Record<string, number>,
 ): AssessmentResult {
+  // 1. Tổng điểm từng dimension
   const dimensionScores: Record<string, { raw: number; count: number }> = {};
 
-  // 1. Tổng điểm từng dimension (bỏ Lie Scale)
   for (const q of questions) {
     if (q.isLieScale) continue;
-    if (!answers[q.id]) continue;
+    const ans = answers[q.id];
+    if (ans === undefined || ans === null) continue;
 
-    const score = q.reversed ? (6 - answers[q.id]) : answers[q.id];
+    // Điểm thực = thuận: ans, nghịch: 6 - ans
+    const score = q.reversed ? 6 - ans : ans;
+
     if (!dimensionScores[q.dimensionId]) {
       dimensionScores[q.dimensionId] = { raw: 0, count: 0 };
     }
@@ -53,107 +60,174 @@ export function calculateScores(
     dimensionScores[q.dimensionId].count += 1;
   }
 
-  // 2. Scale sang 1–10
+  // 2. Scale sang 1–10  (percentile 0–100 → scaled 1–10)
+  // Công thức chuẩn: percentile 0-9% → 1, 10-19% → 2, ..., 90-100% → 10
   const dimensions: DimensionScore[] = DIMENSIONS.map(dim => {
-    const data = dimensionScores[dim.id] || { raw: 0, count: 1 };
-    const min = data.count;        // min: mọi câu = 1
-    const max = data.count * 5;    // max: mọi câu = 5
-    const percentile = max > min ? ((data.raw - min) / (max - min)) * 100 : 50;
-    const scaled = Math.max(1, Math.min(10, Math.round(percentile / 10) + 1));
+    const data = dimensionScores[dim.id];
+
+    if (!data || data.count === 0) {
+      // Không có câu hỏi nào cho dimension này → giữ nguyên = null (không có dữ liệu)
+      return { dimensionId: dim.id, raw: 0, max: 0, scaled: 0, percentile: 0 };
+    }
+
+    const minPossible = data.count;     // Tất cả câu = 1
+    const maxPossible = data.count * 5; // Tất cả câu = 5
+    const range = maxPossible - minPossible;
+
+    // Percentile: vị trí tương đối trong khoảng [0, 100]
+    const percentile = range > 0
+      ? Math.max(0, Math.min(100, ((data.raw - minPossible) / range) * 100))
+      : 50;
+
+    // Scale 1–10: ceil(percentile/10), minimum 1
+    const scaled = Math.max(1, Math.min(10, Math.ceil(percentile / 10)));
 
     return {
       dimensionId: dim.id,
       raw: data.raw,
-      max,
+      max: maxPossible,
       scaled,
       percentile: Math.round(percentile),
     };
   });
 
-  // 3. Lie Scale
+  // 3. Lie Scale — các câu isLieScale luôn là forward (càng đồng ý = càng tô vẽ)
   let lieRaw = 0;
   let lieMax = 0;
-  const lieQuestions = questions.filter(q => q.isLieScale);
-  for (const q of lieQuestions) {
-    if (answers[q.id] !== undefined) {
-      lieRaw += q.reversed ? (6 - answers[q.id]) : answers[q.id];
+  for (const q of questions) {
+    if (!q.isLieScale) continue;
+    const ans = answers[q.id];
+    if (ans !== undefined && ans !== null) {
+      lieRaw += ans; // Lie scale KHÔNG reversed
       lieMax += 5;
     }
   }
   const lieScore = lieMax > 0 ? Math.round((lieRaw / lieMax) * 100) : 0;
 
-  // 4. Consistency Check (Simplified for dynamic questions: Variance measure)
-  // Trong tương lai có thể thêm metadata cặp câu hỏi để check kỹ hơn
-  const consistencyScore = 100; // Mặc định 100 cho bản động (placeholder)
-  const inconsistencyRate = 0; 
+  // 4. Consistency Check — dùng consistencyGroup, không phụ thuộc numeric ID
+  // Nhóm questions theo consistencyGroup, tính độ mâu thuẫn giữa các cặp trong nhóm
+  const groups: Record<string, any[]> = {};
+  for (const q of questions) {
+    if (!q.consistencyGroup) continue;
+    const ans = answers[q.id];
+    if (ans === undefined || ans === null) continue;
+    if (!groups[q.consistencyGroup]) groups[q.consistencyGroup] = [];
+    groups[q.consistencyGroup].push({ ...q, ans });
+  }
 
+  let totalInconsistency = 0;
+  let pairsCount = 0;
 
-  // 5. Speed Check
-  const durationSeconds = Math.round((endTime - startTime) / 1000);
+  for (const group of Object.values(groups)) {
+    if (group.length < 2) continue;
+    // So sánh tất cả cặp trong nhóm
+    for (let i = 0; i < group.length - 1; i++) {
+      for (let j = i + 1; j < group.length; j++) {
+        const q1 = group[i];
+        const q2 = group[j];
+        // Effective score sau khi áp dụng reversed
+        const v1 = q1.reversed ? 6 - q1.ans : q1.ans;
+        const v2 = q2.reversed ? 6 - q2.ans : q2.ans;
+        totalInconsistency += Math.abs(v1 - v2);
+        pairsCount++;
+      }
+    }
+  }
+
+  // Max inconsistency per pair = 4 (1 vs 5 after reversal)
+  const maxInconsistency = pairsCount * 4;
+  const consistencyScore = pairsCount > 0
+    ? Math.round(100 - (totalInconsistency / maxInconsistency) * 100)
+    : 100;
+  const inconsistencyRate = 100 - consistencyScore;
+
+  // 5. Speed Check — ngưỡng chuẩn psychometric: < 2.0s/câu là quá nhanh
+  const durationSeconds = Math.max(1, Math.round((endTime - startTime) / 1000));
   const totalAnswered = Object.keys(answers).length;
   const avgSecondsPerQ = totalAnswered > 0 ? durationSeconds / totalAnswered : 999;
-  const speedFlag = avgSecondsPerQ < 2.5; // < 2.5 giây/câu là quá nhanh
+  const speedFlag = avgSecondsPerQ < 2.0;
 
-  // 6. Reliability Level
+  // 6. Reliability Level — ngưỡng chuẩn hóa theo Scouter SS
   let level: ReliabilityLevel = 'high';
-  let details = 'Kết quả đáng tin cậy, nhân viên trả lời nghiêm túc và nhất quán.';
+  let details = '✅ Kết quả đáng tin cậy. Ứng viên trả lời nghiêm túc và nhất quán.';
 
   if (speedFlag) {
     level = 'invalid';
-    details = `⚠️ Phát hiện trả lời quá nhanh (${avgSecondsPerQ.toFixed(1)}s/câu). Kết quả không đáng tin cậy.`;
-  } else if (lieScore > 70 || inconsistencyRate > 40) {
+    details = `⚠️ Trả lời quá nhanh (${avgSecondsPerQ.toFixed(1)}s/câu, chuẩn tối thiểu 2.0s). Kết quả không đáng tin cậy — cần làm lại.`;
+  } else if (lieScore > 80 || inconsistencyRate > 40) {
     level = 'invalid';
-    details = '❌ Phát hiện câu trả lời không nhất quán hoặc có xu hướng chọn đáp án "lý tưởng". Cần làm lại.';
-  } else if (lieScore > 55 || inconsistencyRate > 25) {
+    details = '❌ Phát hiện mức độ tô vẽ bản thân quá cao hoặc trả lời mâu thuẫn nghiêm trọng. Cần phỏng vấn lại để xác minh.';
+  } else if (lieScore > 65 || inconsistencyRate > 30) {
     level = 'low';
-    details = '⚠️ Có một số dấu hiệu lo ngại về độ chân thực. HR cần xem xét thêm trong buổi phỏng vấn.';
-  } else if (lieScore > 40 || inconsistencyRate > 15) {
+    details = '⚠️ Có dấu hiệu muốn tạo ấn tượng tốt hoặc trả lời chưa nhất quán. HR cần xác minh thêm trong phỏng vấn.';
+  } else if (lieScore > 50 || inconsistencyRate > 15) {
     level = 'medium';
-    details = '🟡 Kết quả tương đối đáng tin cậy. Một số câu trả lời cần xác nhận thêm.';
+    details = '🟡 Kết quả tương đối đáng tin cậy. Một số điểm cần xác nhận thêm — xem xét trong phỏng vấn.';
   }
 
   return {
     dimensions,
-    reliability: {
-      level,
-      lieScore,
-      consistencyScore,
-      speedFlag,
-      details,
-    },
+    reliability: { level, lieScore, consistencyScore, speedFlag, avgSecondsPerQ, details },
     completedAt: new Date().toISOString(),
     durationSeconds,
   };
 }
 
-/** Lấy nhận xét tự động dựa trên điểm */
+/**
+ * Diễn giải điểm theo 5 mức — chuẩn hóa với DIMENSIONS.descLow / descHigh
+ */
 export function getInterpretation(dimId: string, scaled: number): string {
   const dim = DIMENSIONS.find(d => d.id === dimId);
   if (!dim) return '';
-  if (scaled <= 3) return dim.descLow;
-  if (scaled >= 8) return dim.descHigh;
-  return `Mức trung bình — ${dim.descHigh.split(',')[0].toLowerCase()}.`;
+
+  if (scaled === 0) return 'Không có dữ liệu cho chiều đánh giá này.';
+  if (scaled <= 2) return dim.descLow;
+  if (scaled <= 4) {
+    const lowSnippet = dim.descLow.split('.')[0].toLowerCase();
+    return `Hơi thiên về: ${lowSnippet}. Vẫn có khả năng ở phía kia tùy ngữ cảnh.`;
+  }
+  if (scaled <= 6) {
+    const highSnippet = dim.descHigh.split(',')[0].toLowerCase();
+    return `Cân bằng — có khả năng ${highSnippet} nhưng không nổi bật. Phù hợp nhiều môi trường.`;
+  }
+  if (scaled <= 8) {
+    const highSnippet = dim.descHigh.split('.')[0].toLowerCase();
+    return `Thiên rõ về: ${highSnippet}. Biểu hiện tích cực trong phần lớn tình huống.`;
+  }
+  return dim.descHigh;
 }
 
-/** Top 3 điểm mạnh */
+/** Top 3 điểm mạnh (chỉ lấy dimensions có dữ liệu) */
 export function getTopStrengths(dimensions: DimensionScore[]): DimensionScore[] {
   return [...dimensions]
-    .filter(d => !['lie_scale'].includes(d.dimensionId))
+    .filter(d => d.scaled > 0 && d.dimensionId !== 'lie_scale')
     .sort((a, b) => b.scaled - a.scaled)
     .slice(0, 3);
 }
 
-/** Top 2 điểm cần cải thiện */
+/** Top 2 điểm cần cải thiện (chỉ lấy dimensions có dữ liệu) */
 export function getTopWeaknesses(dimensions: DimensionScore[]): DimensionScore[] {
   return [...dimensions]
-    .filter(d => !['lie_scale'].includes(d.dimensionId))
+    .filter(d => d.scaled > 0 && d.dimensionId !== 'lie_scale')
     .sort((a, b) => a.scaled - b.scaled)
     .slice(0, 2);
 }
 
-/** Gợi ý vị trí phù hợp */
-export function getSuitableRoles(dimensions: DimensionScore[]): string[] {
-  const get = (id: string) => dimensions.find(d => d.dimensionId === id)?.scaled ?? 5;
+/**
+ * Gợi ý vị trí phù hợp — chỉ chạy khi reliability đủ tin cậy
+ */
+export function getSuitableRoles(
+  dimensions: DimensionScore[],
+  reliability?: ReliabilityResult,
+): string[] {
+  if (reliability && (reliability.level === 'invalid' || reliability.level === 'low')) {
+    return ['⚠️ Không thể đề xuất vị trí do kết quả chưa đủ độ tin cậy. Cần phỏng vấn trực tiếp để xác định.'];
+  }
+
+  const get = (id: string) => {
+    const d = dimensions.find(x => x.dimensionId === id);
+    return d && d.scaled > 0 ? d.scaled : 5; // 5 nếu không có dữ liệu
+  };
 
   const roles: string[] = [];
 
@@ -166,5 +240,7 @@ export function getSuitableRoles(dimensions: DimensionScore[]): string[] {
   if (get('social_contribution') >= 7 && get('empathy') >= 7) roles.push('Công tác xã hội / ESG / CSR');
   if (get('stress_mental') >= 7 && get('stress_physical') >= 7) roles.push('Vị trí áp lực cao / Môi trường tốc độ nhanh');
 
-  return roles.length > 0 ? roles.slice(0, 4) : ['Phù hợp nhiều vị trí — cần phỏng vấn thêm để xác định'];
+  return roles.length > 0
+    ? roles.slice(0, 4)
+    : ['Phù hợp nhiều vị trí — cần phỏng vấn thêm để xác định rõ hướng phát triển'];
 }

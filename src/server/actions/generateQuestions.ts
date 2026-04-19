@@ -40,31 +40,35 @@ export async function generateQuestionSet(roleCode: string, roleName: string) {
     try {
       console.log(`Đang sinh 7 câu hỏi SOTA cho Dimension: ${dim.nameVi} (${roleCode})...`);
       const response = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: "gpt-4o",
         response_format: { type: "json_object" },
         messages: [
           {
             role: "system",
-            content: `You are a world-class Industrial/Organizational (I/O) Psychologist.
-Task: Create 7 high-fidelity assessment questions for dimension '${dim.nameEn} (${dim.nameVi})' tailored for the role of '${roleName}'.
+            content: `You are a world-class Industrial/Organizational (I/O) Psychologist specializing in high-fidelity personality assessment for the Tech Industry.
 
-Core Quality Standards:
-1. Reliability & Consistency: All questions must measure ${dim.nameEn} through diverse yet related scenarios.
-2. Validity: Questions must reflect specific situations a ${roleName} actually faces.
-3. Discrimination: Avoid obvious "good" answers.
-4. Bias-free: Neutral professional language.
-5. Anti-fake (Scenario-based): Use contextual dilemmas rather than abstract statements.
-6. Key Balance: 4 Positive-keyed, 3 Negative-keyed (reversed: true).
+Task: Create 7 sophisticated Self-Report Personality Inventory (SPI) items for the dimension '${dim.nameEn}' tailored for a ${roleName}.
 
-Output Requirement:
-- You MUST provide translations in 3 languages: Vietnamese (textVi), English (textEn), and Japanese (textJa).
-- ALL 3 language fields are MANDATORY. Do not omit any field.
+## CRITICAL FORMAT RULE
+Every item MUST be a FIRST-PERSON DECLARATIVE STATEMENT starting with "Tôi" (I).
+- YES: "Tôi thường xuyên rà soát lại các rủi ro kỹ thuật trước khi bắt đầu một tính năng phức tạp."
+- NO: "Bạn có hay rà soát..." or "Khi có rủi ro, tôi..."
+
+## Item Writing Standards (SOTA Quality)
+1. Behavioral Nuance: Avoid obvious "good/bad" answers. Use subtle, realistic professional situations (e.g., code reviews, technical debt, mentoring, architectural disputes).
+2. Cognitive Depth: Reflect the mindset of a developer (e.g., focus on logic, efficiency, scalability, and long-term maintainability).
+3. Single Construct: Each item must measure ONLY this dimension. No compound statements.
+4. Keying: 4 forward-keyed (reversed: false), 3 reverse-keyed (reversed: true).
+5. Language: Use natural, professional Vietnamese. Avoid translated-sounding phrases.
+
+## Output Requirement
+Mandatory: Vietnamese (textVi), English (textEn), Japanese (textJa).
 
 Response Format (Strict JSON):
 { "questions": [ { "textVi": "string", "textEn": "string", "textJa": "string", "reversed": boolean } ] }`
           }
         ],
-        temperature: 0.7,
+        temperature: 0.8,
       });
 
       const rawJson = response.choices[0].message.content || "{}";
@@ -90,18 +94,23 @@ Response Format (Strict JSON):
   try {
     console.log(`Đang sinh 7 câu hỏi Validation (Lie Scale) cho Role: ${roleName}...`);
     const lieResponse = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-4o",
       response_format: { type: "json_object" },
       messages: [
         {
           role: "system",
-          content: `Create 7 sophisticated Validation questions (Lie Scale) for the role of '${roleName}'.
-Standards:
-- Reliability: Test for unrealistically perfect behavior.
-- Anti-fake: Use impossible absolute claims (e.g., "I have never once made a mistake in a professional report").
-- Consistency: 7 questions must form a coherent lie-detection battery.
-- Trilingual output: Vietnamese, English, and Japanese.
-- JSON: { "questions": [ { "textVi": "", "textEn": "", "textJa": "", "reversed": false } ] }`
+          content: `You are an I/O Psychologist. Create 7 Lie Scale (social desirability) items for a ${roleName}.
+
+## CRITICAL FORMAT RULE
+All items MUST start with "Tôi".
+
+## Lie Scale Standards
+- Describe unrealistically perfect behaviors that virtually NO developer actually exhibits 100% of the time.
+- Examples: Never making a syntax error, always liking all feedback, having zero bias.
+- All items are forward-keyed (reversed: false).
+- Trilingual: Vietnamese, English, Japanese.
+
+JSON: { "questions": [ { "textVi": "", "textEn": "", "textJa": "", "reversed": false } ] }`
         }
       ]
     });

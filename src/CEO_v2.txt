@@ -1,0 +1,211 @@
+1) TẦM NHÌN CHIẾN LƯỢC
+
+CEO-001 [+] Tôi sẵn sàng đóng cửa mảng kinh doanh đang có lãi nếu nó đi lệch định hướng ba năm tới.
+CEO-002 [-] Tôi ưu tiên dồn nguồn lực để đạt chỉ tiêu doanh thu quý thay vì ấp ủ dự án dài hạn.
+CEO-003 [+] Tôi từ chối các cơ hội kiếm tiền nhanh nếu chúng phá vỡ cấu trúc thương hiệu cốt lõi.
+CEO-004 [-] Định hướng dài hạn thường là hệ quả của việc làm tốt từng dự án ngắn hạn gộp lại.
+CEO-005 [+] Khi ra kế hoạch năm, tôi chấp nhận tăng chi phí R&D dù nó có thể làm giảm biên lợi nhuận hiện tại.
+CEO-006 [-] Việc xác định chiến lược dài hạn dễ gây lãng phí thời gian vì thị trường thay đổi quá nhanh.
+CEO-007 [+] Tôi thường bị hội đồng quản trị gây áp lực vì các quyết định hy sinh doanh thu trước mắt để giữ tầm nhìn.
+CEO-008 [-] Tôi đánh giá thành công của công ty chủ yếu dựa trên báo cáo lãi lỗ của mười hai tháng gần nhất.
+CEO-009 [+] Tôi kiên trì giữ mục tiêu gốc dù phải đối mặt với hai quý liên tiếp sụt giảm doanh số.
+CEO-010 [-] Khi gặp cơ hội trúng thầu lớn, tôi sẽ uốn nắn chiến lược công ty để phù hợp với dự án đó.
+
+2) RA QUYẾT ĐỊNH
+
+CEO-011 [+] Tôi thà đưa ra một quyết định sai và sửa chữa còn hơn chậm trễ chờ bảng dữ liệu hoàn hảo.
+CEO-012 [-] Tôi thường hoãn việc chốt phương án đến sát hạn cuối để có thêm thời gian thu thập thông tin.
+CEO-013 [+] Tôi tự tay ký duyệt những khoản chi rủi ro dù có thể nhận chỉ trích nếu dự án thất bại.
+CEO-014 [-] Khi đứng trước rủi ro lớn, tôi ưu tiên dồn trách nhiệm quyết định cho một hội đồng biểu quyết.
+CEO-015 [+] Tôi thiết lập sẵn các điểm giới hạn buộc phải cắt lỗ trước khi rót tiền vào dự án mới.
+CEO-016 [-] Tôi tin vào cảm nhận trực giác của mình hơn là hệ thống khung tiêu chí cứng nhắc khi giải quyết khủng hoảng.
+CEO-017 [+] Tôi bảo vệ quyết định của mình đến cùng trước cổ đông nếu tôi tin đó là lựa chọn ít tệ nhất.
+CEO-018 [-] Nếu một hướng xử lý gặp sự phản đối số đông từ các phòng ban, tôi thường ưu tiên nhượng bộ.
+CEO-019 [+] Tôi cắt đứt mối quan hệ với đối tác lớn nếu họ vi phạm nghiêm trọng giá trị cốt lõi của công ty.
+CEO-020 [-] Tôi dặn dò cấp dưới tự xử lý các vấn đề nhạy cảm để giữ vị thế trung lập cho bản thân.
+
+3) OWNERSHIP VÀ TRÁCH NHIỆM CUỐI CÙNG
+
+CEO-021 [+] Khi lợi nhuận sụt giảm, tôi là người đầu tiên chủ động làm đơn xin cắt giảm lương thưởng cá nhân.
+CEO-022 [-] Nếu cấp dưới làm hỏng dự án quan trọng, tôi quy trách nhiệm rõ cho họ trước hội đồng quản trị.
+CEO-023 [+] Tôi đền bù thiệt hại bằng ngân sách công ty ngay lập tức khi phát hiện lỗi hệ thống ảnh hưởng khách hàng.
+CEO-024 [-] Khi sự cố pháp lý xảy ra, tôi giao toàn quyền phát ngôn cho bộ phận xử lý rủi ro để tránh liên đới.
+CEO-025 [+] Tôi dùng chính khoản dự phòng cá nhân để duy trì dòng tiền khi công ty gặp khó khăn bất ngờ.
+CEO-026 [-] Tôi tin rằng người trực tiếp thực thi phải là người chịu mức phạt cao nhất khi hiệu suất kém.
+CEO-027 [+] Tôi chấp nhận mất uy tín cá nhân để bảo vệ một nhân sự cấp cao lỡ phạm sai lầm nghề nghiệp.
+CEO-028 [-] Khi công ty không đạt KPI, tôi giải thích cặn kẽ các lý do khách quan đến từ biến động thị trường.
+CEO-029 [+] Ngay cả khi nguyên nhân do nhà cung cấp, tôi vẫn công khai xin lỗi khách hàng dưới tư cách người đứng đầu.
+CEO-030 [-] Tôi giữ khoảng cách với các dự án đang có rủi ro đình trệ để không ảnh hưởng hình ảnh điều hành.
+
+4) LÃNH ĐẠO CON NGƯỜI
+
+CEO-031 [+] Tôi thà để một dự án thất bại một lần còn hơn can thiệp trực tiếp vào cách làm của quản lý cấp trung.
+CEO-032 [-] Tôi thường phải xắn tay áo vào làm thay khi thấy cấp dưới xử lý công việc không đúng ý mình.
+CEO-033 [+] Tôi sẵn sàng sa thải một nhân sự kiếm nhiều tiền nhất nhì nếu người đó phá hoại văn hóa tập thể.
+CEO-034 [-] Trong giai đoạn khó khăn, tôi ưu tiên giữ lại người mang về doanh thu lớn dù họ có thái độ trịch thượng.
+CEO-035 [+] Tôi thăng chức cho những người dám tranh luận gay gắt với tôi thay vì những người chỉ biết phục tùng.
+CEO-036 [-] Tôi thấy không gian làm việc hiệu quả nhất là khi cấp dưới thực thi chính xác những gì tôi vẽ ra.
+CEO-037 [+] Tôi chấp nhận cấp dưới làm việc chỉ sáu tiếng một ngày miễn là họ hoàn thành khối lượng mục tiêu đã chốt.
+CEO-038 [-] Tôi cảm thấy bất an khi không nhìn thấy nhân viên có mặt đầy đủ quanh khu vực văn phòng hằng ngày.
+CEO-039 [+] Tôi loại bỏ định kiến cá nhân để giữ lại những quản lý thực hiện tốt dù tôi không thân thiết với họ.
+CEO-040 [-] Tôi khó lòng tin tưởng giao việc lớn cho những cấp dưới có thói quen làm việc khác biệt hoàn toàn với tôi.
+
+5) XÂY DỰNG TỔ CHỨC
+
+CEO-041 [+] Khi phát sinh lỗi vận hành, phản xạ đầu tiên của tôi là lật lại khung quy trình xem điểm mù nằm ở đâu.
+CEO-042 [-] Khi có một nút thắt công việc, tôi thường gọi nhân sự đó vào tận phòng để chỉnh đốn thái độ.
+CEO-043 [+] Tôi thuê những chuyên gia được trả lương cao hơn cả tôi để lấp đầy những năng lực tổ chức còn thiếu.
+CEO-044 [-] Khi quy mô tăng nhanh, tôi ưu tiên tuyển thêm nhiều nhân viên phổ thông hơn là đập đi xây lại cấu trúc vận hành.
+CEO-045 [+] Tôi đập bỏ một cơ cấu đang chạy êm nhưng có nguy cơ phình to chi phí khi scale gấp mười lần.
+CEO-046 [-] Tôi thích mô hình quản trị hình sao nơi mọi trưởng nhóm đều cần báo cáo trực tiếp để tôi nắm trọn thông tin.
+CEO-047 [+] Tôi yêu cầu mọi vị trí chủ chốt đều phải có tài liệu đóng gói bàn giao để tránh tổ chức phụ thuộc cá nhân.
+CEO-048 [-] Những nhân sự giỏi nhất được phép nắm giữ công thức riêng để duy trì thế độc tôn của họ trong công ty.
+CEO-049 [+] Tôi chi trả mạnh tay cho hệ thống phần mềm quản trị dù biết mất nhiều thời gian để đào tạo nhân viên dùng mới.
+CEO-050 [-] Tôi tin rằng quy trình nội bộ không cần quá phức tạp nếu tổ chức tuyển được toàn những cá nhân xuất sắc.
+
+6) QUẢN TRỊ HIỆU SUẤT
+
+CEO-051 [+] Tôi mạnh tay cắt hoa hồng của nhóm kinh doanh nếu họ mang về hợp đồng sinh lời thấp hoặc khó đòi.
+CEO-052 [-] Tôi ưu tiên đánh giá hiệu suất nhân sự bằng cường độ làm việc thực tế của họ thay vì các con số lạnh lùng.
+CEO-053 [+] Tôi đình chỉ áp dụng các chỉ tiêu doanh số mới nếu hệ thống chưa sẵn sàng để giao hàng đúng chất lượng.
+CEO-054 [-] Nếu một phòng ban làm việc xuyên đêm thường xuyên, tôi coi đó là biểu hiện của một bộ máy đang cống hiến tốt.
+CEO-055 [+] Tôi sa thải những cá nhân có kpi đạt mức tròn vai nhưng từ chối chia sẻ mục tiêu chung của công ty.
+CEO-056 [-] Miễn là nhân viên tạo ra con số tốt vào cuối tháng, kỷ luật giờ giấc không phải là vấn đề tôi để tâm.
+CEO-057 [+] Tôi bắt buộc các bộ phận phải thống nhất một chỉ số cốt lõi duy nhất bằng mọi giá để dễ đánh giá.
+CEO-058 [-] Khi một dự án trễ hạn quá lâu, tôi thường gia hạn lùi ngày thay vì trừng phạt hệ thống quản trị dự án.
+CEO-059 [+] Tôi đánh giá lại toàn bộ cơ chế khoán việc khi tỷ lệ lỗi vận hành vượt quá ba phần trăm trong tuần.
+CEO-060 [-] Tôi cảm thấy công ty đang vận hành xuất sắc nếu lợi nhuận được báo cáo tăng trưởng dù tỷ lệ nhân viên từ chức đột biến.
+
+7) QUẢN TRỊ TÀI CHÍNH
+
+CEO-061 [+] Tôi đánh đổi biên lợi nhuận mỏng hơn để đối tác thanh toán tiền mặt ngay lập tức thay vì ghi nhận công nợ lớn.
+CEO-062 [-] Khi cần thúc đẩy đà tăng trưởng, tôi ưu tiên gạt qua các kiểm soát tài chính để đội ngũ tiếp thị chạy nhanh nhất.
+CEO-063 [+] Tôi duy trì quỹ dự phòng sáu tháng hoạt động dù khoản tiền đó có thể đầu tư sinh lời ở mảng khác.
+CEO-064 [-] Phân tích biến động chi tiết giữa dòng tiền và doanh thu là việc của giám đốc CFO, không phải của tôi.
+CEO-065 [+] Tôi sẵn sàng chịu lãi suất cao để vay quỹ tái cấu trúc hệ thống máy móc trước đợt cao điểm thị trường.
+CEO-066 [-] Khi thấy dòng tiền vào đang mạnh, tôi thường linh động nới lỏng quỹ chiêu đãi khách hàng mà không cần quy trình duyệt.
+CEO-067 [+] Tôi từ chối các hợp đồng trị giá lớn nếu dòng tiền ứng trước của khách hàng không đáp ứng điểm hòa vốn.
+CEO-068 [-] Tôi xem tăng trưởng doanh thu ròng là chỉ số sinh tồn của công ty thay vì cặm cụi gọt giũa tỷ suất lợi nhuận gộp.
+CEO-069 [+] Tôi can thiệp sâu vào cấu trúc giá bán để đảm bảo nó gánh được quỹ dự phòng tăng lương cho đội ngũ lõi.
+CEO-070 [-] Tôi thích chia thưởng định kỳ dựa trên cảm tính lợi nhuận thấy được hơn là bám sát mô hình phân bổ chiết khấu rườm rà.
+
+8) QUẢN TRỊ KHÁCH HÀNG VÀ ĐỐI TÁC
+
+CEO-071 [+] Tôi chấm dứt cung cấp dịch vụ cho khách hàng lớn nếu họ liên tục có hành vi chèn ép đội ngũ nhân viên.
+CEO-072 [-] Tôi yêu cầu nhân viên nhượng bộ mọi yêu sách từ khách hàng nhóm VIP để không vuột mất nguồn doanh thu chiến lược.
+CEO-073 [+] Tôi minh bạch ngay lập tức về sự cố sản phẩm với khách hàng dù có thể đối mặt với yêu cầu bồi thường lớn.
+CEO-074 [-] Khi tính năng lỗi chưa bị khách hàng phát hiện, tôi chỉ thị âm thầm sửa chữa thay vì chủ động thông báo rủi ro.
+CEO-075 [+] Tôi sẵn sàng giới thiệu đối thủ cạnh tranh nếu hệ thống của công ty tôi không phù hợp để giúp khách hàng thành công.
+CEO-076 [-] Ưu tiên hàng đầu của đội kinh doanh là chốt bằng được hợp đồng, kỳ vọng của khách hàng có thể được xử lý lại sau.
+CEO-077 [+] Tôi chấp nhận chịu lỗ hợp đồng đầu tiên để chứng minh năng lực lõi với một đối tác chiến lược cấp cao.
+CEO-078 [-] Tôi hạn chế các điều khoản phạt chéo trong hợp đồng vì e ngại sẽ gây tổn thương đến cảm xúc của bên mua.
+CEO-079 [+] Khi hợp tác, tôi công khai biên lợi nhuận của mình để đàm phán một cuộc chơi công bằng cho nhà cung cấp phụ.
+CEO-080 [-] Tôi giữ bí mật tối đa các cấu trúc chi phí với đối tác nhằm giành lợi thế lớn nhất trên bàn đàm phán cuối năm.
+
+9) GIAO TIẾP ĐIỀU HÀNH
+
+CEO-081 [+] Trong các buổi họp báo cáo, tôi ngắt lời cấp dưới sáu mươi giây nếu họ trình bày sai trọng tâm câu hỏi.
+CEO-082 [-] Tôi thường kể chuyện dài dòng trong họp giao ban vì tin rằng nó giúp định hướng tầm nhìn cho toàn bộ công ty.
+CEO-083 [+] Tôi dùng các con số đo lường lạnh lùng để thông báo việc sa thải nhân viên chuyên môn kém thay vì lời nói giảm.
+CEO-084 [-] Tôi gửi những email định hướng chiến lược rất dài và mặc định người có năng lực sẽ tự chắt lọc thông điệp chính.
+CEO-085 [+] Tôi công khai thông báo số liệu quỹ lương sụt giảm để toàn thể tổ chức hiểu được áp lực tồn tại hiện thời.
+CEO-086 [-] Để giữ tinh thần phòng ban ổn định, tôi che giấu những chỉ số tài chính đang nằm trong vùng màu đỏ cảnh báo.
+CEO-087 [+] Tôi yêu cầu mọi phòng ban tóm tắt vấn đề khó khăn thành một trang giấy duy nhất trước khi đặt lịch gặp tôi.
+CEO-088 [-] Tôi thích văn hóa mở, mọi người có gõ cửa phòng và trình bày ý tưởng mới với tôi bất cứ lúc nào trong ngày.
+CEO-089 [+] Khi ban hành quy chế thưởng phạt khắc nghiệt mới, tôi là người trực tiếp đứng ra diễn thuyết lý do thay vì ủy quyền.
+CEO-090 [-] Tôi thường giao bộ phận nhân sự truyền đạt các chính sách cắt giảm mà không cần lời nhắn trực tiếp từ giám đốc điều hành.
+
+10) QUẢN TRỊ THAY ĐỔI
+
+CEO-091 [+] Tôi đập đi xây lại mảng kinh doanh mũi nhọn ngay khi dữ liệu thị trường báo hiệu nó sẽ thoái trào trong mười tám tháng.
+CEO-092 [-] Nếu công thức lợi nhuận hiện tại mang về lượng tiền mặt dồi dào, tôi sẽ trì hoãn việc cải tiến quy trình mạo hiểm mới.
+CEO-093 [+] Tôi chấp nhận thay máu nguyên dàn quản lý cũ bảo thủ để đưa văn hóa công ty chuyển sang thế hệ vận hành số.
+CEO-094 [-] Tôi nương tay với những trưởng phòng cố tình đi ngược lại cải cách vì họ là cộng sự chung thủy từ thuở khởi nghiệp.
+CEO-095 [+] Tôi tự tay đánh sập quy trình phê duyệt do chính mình tạo ra ba năm trước vì nó đã trở thành điểm nghẽn cổ chai.
+CEO-096 [-] Khi đưa ra yêu cầu chuyển đổi số nội bộ, tôi thấy mệt mỏi và thường bỏ cuộc nếu bị nhân viên cự tuyệt quá gắt.
+CEO-097 [+] Tôi đình chỉ công tác những cá nhân phớt lờ việc áp dụng phần mềm mới dù năng lực chuyên môn của họ rất giỏi.
+CEO-098 [-] Miễn là KPI kinh doanh vẫn đạt mức khá, tôi làm ngơ trước việc phòng ban đó dùng phương pháp thủ công cũ kỹ lạc hậu.
+CEO-099 [+] Khi cần thích nghi với mô hình kinh doanh mới, tôi ép bản thân đi học thêm kỹ năng như một nhân sự thử việc bình thường.
+CEO-100 [-] Tôi thường áp đặt giải pháp định kiến kinh nghiệm từ công ty cũ thay vì tốn thời gian nghiên cứu cấu trúc thị trường mới hiện tại.
+
+11) QUẢN TRỊ RỦI RO
+
+CEO-101 [+] Tôi bỏ tiền mua các hợp đồng bảo hiểm rủi ro pháp lý đắt đỏ dù tỷ lệ xảy ra sự cố rất hiếm hoi.
+CEO-102 [-] Mối quan tâm về rủi ro bảo mật thông tin chỉ được tôi đưa vào cuộc họp sau khi công ty trải qua một lần dữ liệu bị hack.
+CEO-103 [+] Tôi kiên quyết dừng hợp tác với nhà thầu rớt tiêu chuẩn an toàn lao động dù điều này khiến dự án bị chậm ba tháng.
+CEO-104 [-] Trong giai đoạn khan hiếm nhân lực, tôi linh động hạ bớt tiêu chuẩn sàng lọc lý lịch để các bộ phận tuyển đủ quân số.
+CEO-105 [+] Tôi tổ chức diễn tập ứng phó khủng hoảng truyền thông định kỳ và chấm điểm nghiêm ngặt các cấp trưởng phòng xử lý giả định.
+CEO-106 [-] Tôi thấy việc lên kịch bản phá sản hoặc đứt gãy chuỗi cung ứng là động thái bi quan mang lại xúi quẩy cho tổ chức.
+CEO-107 [+] Khi một thử nghiệm mới tốn một mười phần trăm dòng tiền thất bại, tôi coi đó là chi phí bắt buộc của trò chơi đổi mới.
+CEO-108 [-] Cách tốt nhất để giữ công ty bình ổn là cấm tuyệt đối các hoạt động kinh doanh chưa có thông lệ mẫu trên thị trường.
+CEO-109 [+] Tôi trả lương cao hơn cho phòng pháp chế và tuân thủ để họ có quyền đình chỉ các sáng kiến rủi ro do tôi đề xuất.
+CEO-110 [-] Tôi tin rằng chức năng kiểm soát rủi ro chỉ đóng vai trò tư vấn, còn quyền chốt hạ bất chấp rủi ro nằm hết ở CEO.
+
+12) KỶ LUẬT CÁ NHÂN CEO
+
+CEO-111 [+] Tôi tự khóa lịch ba buổi sáng hằng tuần để suy nghĩ chiến lược và từ chối xử lý sự vụ dù bị hối thúc mạnh.
+CEO-112 [-] Do đặc thù áp lực cao, điện thoại của tôi luôn reo và tôi giải quyết các phát sinh theo luật việc nào to tiếng thì làm trước.
+CEO-113 [+] Tôi tự thi hành phạt cắt giảm quỹ thưởng cá nhân khi vô tình quên mất một cam kết định kỳ với nhân sự dưới quyền.
+CEO-114 [-] Lịch làm việc của tôi phụ thuộc chủ yếu vào sự linh hoạt, các buổi họp nhân sự định kỳ có thể nhường chỗ cho khách hàng.
+CEO-115 [+] Tôi từ chối tiếp khách hàng ăn nhậu quá khuya để đảm bảo năng lượng điều hành thể chất cho buổi làm việc chiến lược sáng hôm sau.
+CEO-116 [-] Việc duy trì kỷ luật tập thể dục hay ngủ nghỉ là chuyện cá nhân, nó rớt khỏi bảng ưu tiên nếu công ty bước vào giai đoạn thắt nút.
+CEO-117 [+] Tôi bắt buộc bản thân đọc hết tập tài liệu vài chục trang trước khi bước vào phòng ra quyết định đầu tư vốn hạt giống.
+CEO-118 [-] Nhờ sự nhạy bén tích lũy nhiều năm, tôi thường nghe báo cáo miệng và lướt qua nhanh các văn bản thay vì đọc chi tiết kỹ thuật.
+CEO-119 [+] Khi tôi đưa ra một điều luật phạt đi muộn cho tổ chức, tôi sẽ là người bị trừ lương gấp đôi nếu vi phạm vào ngày hôm sau.
+CEO-120 [-] Do khối lượng công việc đối ngoại bất định, người ở vị trí thủ lĩnh nên được nới lỏng kỷ luật giờ giấc so với phần còn lại.
+
+13) HỌC HỎI VÀ TỰ PHÁT TRIỂN
+
+CEO-121 [+] Tôi chủ động tìm người trẻ hơn mười tuổi để nhờ họ chỉ dạy về những xu hướng công nghệ mà tôi không nắm vững.
+CEO-122 [-] Việc nghiên cứu kiến thức mới là bổn phận của cố vấn, CEO chỉ lo phần quyết định dựa trên các bản tóm tắt của họ trình lên.
+CEO-123 [+] Tôi thừa nhận bản thân đã phân tích sai phương pháp marketing trước toàn thể công ty khi đọc được báo cáo phân tích mới đủ nặng.
+CEO-124 [-] Khi bị phê bình từ chuyên gia bên ngoài, bản năng đầu tiên của tôi là tìm bằng chứng chứng minh hệ thống của tôi độc thù khác biệt.
+CEO-125 [+] Tôi dùng tiền túi thuê huấn luyện viên cá nhân để rèn tư duy lãnh đạo, thay vì trừ vào tiền quỹ phát triển của công ty.
+CEO-126 [-] Tôi thấy các bài đánh giá hiệu năng góc nhìn ba trăm sáu mươi độ đối với vị trí điều hành cấp cao chỉ vẽ việc tốn kém thời gian.
+CEO-127 [+] Tôi chấp nhận đập đi tư duy quản lý mình tự hào mười năm nay để học framework quản trị linh hoạt do một nhân sự cấp trung yêu cầu.
+CEO-128 [-] Những nền tảng tư duy từng giúp tôi kiếm được hàng triệu đô la đầu tiên sẽ tiếp tục là phương châm sống bất di bất dịch của tôi.
+CEO-129 [+] Tôi dành ít nhất sáu tiếng mỗi tuần để đọc tài liệu học thuật dù phải hủy bỏ các phần nghỉ ngơi thư giãn cuối tuần gia đình.
+CEO-130 [-] Tốc độ học hỏi của tổ chức quyết định bởi cấu trúc bộ phận đào tạo, hành vi trau dồi cá nhân của tôi không mang tính định đoạt lắm.
+
+14) BẢN LĨNH VÀ CÂN BẰNG ÁP LỰC
+
+CEO-131 [+] Ngay cả khi vừa đánh mất một khách hàng chiếm ba mươi phần trăm doanh thu, tôi vẫn bước vào họp giao ban với thái độ sắc lạnh.
+CEO-132 [-] Khi có khiếu nại gay gắt rộ lên, cảm xúc trào dâng khiến tôi la mắng nhân viên trước mặt đối tác bị ảnh hưởng để thể hiện bản lĩnh.
+CEO-133 [+] Tôi kiên cường giữ nguyên quyết định thắt lưng buộc bụng dù phải đối mặt với hai mươi lá đơn nghỉ việc tập thể trong một tháng.
+CEO-134 [-] Đứng trước làn sóng tẩy chay dịch vụ từ dư luận, tôi thường nhanh chóng thay đổi lập trường để nhượng bộ nhằm cứu hình ảnh bản thân.
+CEO-135 [+] Tôi tách bạch hoàn toàn sự bực dọc mảng dự án gãy đổ để không trút giận lên đội ngũ đang làm mảng vận hành vốn bình thường.
+CEO-136 [-] Trong thời kỳ tiền mất giá, cảm xúc hồi hộp của tôi đôi khi biểu hiện rõ và làm những bộ phận vận hành lõi hoang mang lây lan.
+CEO-137 [+] Dù áp lực đáo hạn ngân hàng lơ lửng trên đầu, tôi vẫn thẳng thừng bác bỏ các giải pháp chiếm dụng vốn sai trái của nhà cung cấp.
+CEO-138 [-] Sự tự ái cá nhân của vị trí lãnh đạo khiến tôi khó lùi bước xin lỗi dù biết quyết định tung sản phẩm trước đó là hoàn toàn vội vã sai.
+CEO-139 [+] Tôi buộc mình phải chạy bộ mười cây số mỗi lần gặp bế tắc lớn để thiết lập lại vùng lý trí trước khi ngồi vào bàn thương lượng.
+CEO-140 [-] Áp lực công việc cao bào mòn tôi đến nỗi các ứng xử ngoại giao của tôi đôi lúc trở nên nóng vội bực tức dưới ngưỡng chuyên nghiệp.
+
+Hướng dẫn chấm điểm
+1. Thang điểm
+
+Với câu [+]:
+
+Rất đúng = 5
+Tương đối đúng = 4
+Bình thường = 3
+Không đúng lắm = 2
+Hoàn toàn không đúng = 1
+
+Với câu [-]: đảo điểm
+
+Rất đúng = 1
+Tương đối đúng = 2
+Bình thường = 3
+Không đúng lắm = 4
+Hoàn toàn không đúng = 5
+2. Điểm theo nhóm
+
+Mỗi nhóm có 10 câu, điểm tối đa 50.
+
+Gợi ý diễn giải:
+
+42–50: Đặc trưng CEO hệ thống, tư duy sắc, dám đánh đổi.
+35–41: Tiềm năng CEO, kỹ năng Lãnh đạo vững nhưng còn vài độ trễ.
+28–34: Người quản lý sự vụ, đang mắc kẹt ở level Manager/Micro-manager.
+20–27: Tư duy ngắn hạn, hạn chế tầm nhìn chiến lược, rủi ro đánh đổi lớn.
+<20: Cần tái thiết lập kiến thức quản trị, rủi ro vận hành cao.

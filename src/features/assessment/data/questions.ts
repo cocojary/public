@@ -182,10 +182,97 @@ export const QUESTIONS: Question[] = [
   { id: 125, text: 'Sau một buổi tối tụ họp đông người, tôi thường cần thời gian một mình để hồi phục năng lượng.', dimensionId: 'extraversion', reversed: true, consistencyGroup: 'EXT' },
   // Pair 2 — Conscientiousness (câu 21 ↔ 126): "trì hoãn đến phút cuối"
   { id: 126, text: 'Tôi thường bắt đầu làm công việc ngay trước deadline thay vì lên kế hoạch từ sớm.', dimensionId: 'conscientiousness', reversed: true, consistencyGroup: 'CON' },
-  // Pair 3 — Agreeableness (câu 12 ↔ 127): "nhường bộ để giữ hòa khí"
-  { id: 127, text: 'Tôi thường chọn cách hòa giải hơn là tiếp tục tranh luận đến cùng.', dimensionId: 'agreeableness', reversed: false, consistencyGroup: 'AGR' },
+  // Pair 3 — Agreeableness (câu 12 ↔ 127): câu 12 forward, câu 127 REVERSED để detect mâu thuẫn
+  { id: 127, text: 'Tôi sẵn sàng giữ vững lập trường của mình đến cùng, kể cả khi điều đó làm người khác khó chịu.', dimensionId: 'agreeableness', reversed: true, consistencyGroup: 'AGR' },
   // Pair 4 — Stress mental (câu 109 ↔ 128): "áp lực gây mất ngủ"
   { id: 128, text: 'Khi gặp áp lực cao ở công việc, tôi thường bị ảnh hưởng đến giấc ngủ và tâm trạng cá nhân.', dimensionId: 'stress_mental', reversed: true, consistencyGroup: 'STR' },
+
+  // ─── NHÓM F: NĂNG LỰC LÃNH ĐẠO (14 dimensions × 4 câu = 56 câu) ────────────
+  // IDs: 200–255
+
+  // ── STRATEGIC VISION (4 câu) ──────────────────────────────────
+  { id: 200, text: 'Tôi thường suy nghĩ về hướng đi của tổ chức trong 3–5 năm tới và chủ động đề xuất định hướng.', dimensionId: 'strategic_vision', reversed: false },
+  { id: 201, text: 'Tôi sẵn sàng từ bỏ lợi ích ngắn hạn để bảo vệ lợi thế cạnh tranh dài hạn của doanh nghiệp.', dimensionId: 'strategic_vision', reversed: false },
+  { id: 202, text: 'Tôi nhận ra các xu hướng thị trường và công nghệ trước khi chúng ảnh hưởng đến ngành của mình.', dimensionId: 'strategic_vision', reversed: false },
+  { id: 203, text: 'Tôi thường tập trung vào việc giải quyết vấn đề hàng ngày hơn là xây dựng tầm nhìn dài hạn.', dimensionId: 'strategic_vision', reversed: true },
+
+  // ── DECISION MAKING (4 câu) ───────────────────────────────────
+  { id: 204, text: 'Tôi có thể đưa ra quyết định quan trọng ngay cả khi thông tin chưa đầy đủ, chấp nhận rủi ro có tính toán.', dimensionId: 'decision_making', reversed: false },
+  { id: 205, text: 'Tôi không do dự khi cần hành động quyết liệt, kể cả khi điều đó làm nhiều người không hài lòng.', dimensionId: 'decision_making', reversed: false },
+  { id: 206, text: 'Sau khi ra quyết định, tôi cam kết thực thi triệt để và không dao động trừ khi có bằng chứng mới rõ ràng.', dimensionId: 'decision_making', reversed: false },
+  { id: 207, text: 'Tôi thường trì hoãn các quyết định khó và chờ ý kiến đồng thuận từ nhiều người trước.', dimensionId: 'decision_making', reversed: true },
+
+  // ── OWNERSHIP (4 câu) ─────────────────────────────────────────
+  { id: 208, text: 'Khi có sự cố trong phạm vi của mình, tôi nhận trách nhiệm trực tiếp và đưa ra giải pháp — không đổ lỗi.', dimensionId: 'ownership', reversed: false },
+  { id: 209, text: 'Tôi xem thành bại của tổ chức như thành bại của bản thân — dù tôi không phải người thực thi trực tiếp.', dimensionId: 'ownership', reversed: false },
+  { id: 210, text: 'Tôi sẵn sàng đầu tư nguồn lực cá nhân (thời gian, uy tín) khi tổ chức cần, không đợi được yêu cầu.', dimensionId: 'ownership', reversed: false },
+  { id: 211, text: 'Khi dự án thất bại, tôi thường phân tích xem ai chịu trách nhiệm thay vì tự hỏi mình có thể làm gì khác.', dimensionId: 'ownership', reversed: true },
+
+  // ── PEOPLE LEADERSHIP (4 câu) ─────────────────────────────────
+  { id: 212, text: 'Tôi trao quyền cho cấp dưới và tin tưởng họ tự ra quyết định trong phạm vi được giao.', dimensionId: 'people_leadership', reversed: false },
+  { id: 213, text: 'Tôi đầu tư thời gian cá nhân để phát triển từng thành viên trong đội nhóm, không chỉ giao việc.', dimensionId: 'people_leadership', reversed: false },
+  { id: 214, text: 'Tôi không ngần ngại thay thế nhân sự không phù hợp, kể cả khi họ là người thân thiết.', dimensionId: 'people_leadership', reversed: false },
+  { id: 215, text: 'Tôi thường kiểm tra từng bước công việc của cấp dưới để đảm bảo mọi thứ đúng như ý mình.', dimensionId: 'people_leadership', reversed: true },
+
+  // ── ORGANIZATION BUILDING (4 câu) ────────────────────────────
+  { id: 216, text: 'Tôi xây dựng quy trình và hệ thống để tổ chức vận hành tốt ngay cả khi tôi vắng mặt.', dimensionId: 'organization_building', reversed: false },
+  { id: 217, text: 'Tôi chủ động chuẩn hóa quy trình và tài liệu hóa kiến thức thay vì dựa vào cá nhân giỏi.', dimensionId: 'organization_building', reversed: false },
+  { id: 218, text: 'Tôi thiết kế cấu trúc tổ chức và phân công trách nhiệm rõ ràng, có thể mở rộng khi cần.', dimensionId: 'organization_building', reversed: false },
+  { id: 219, text: 'Tổ chức của tôi phụ thuộc vào một vài cá nhân then chốt — nếu họ nghỉ, hoạt động sẽ bị ảnh hưởng lớn.', dimensionId: 'organization_building', reversed: true },
+
+  // ── PERFORMANCE MANAGEMENT (4 câu) ───────────────────────────
+  { id: 220, text: 'Tôi thiết lập KPI rõ ràng và đánh giá hiệu suất một cách khách quan, dựa trên dữ liệu thực tế.', dimensionId: 'performance_management', reversed: false },
+  { id: 221, text: 'Tôi khen thưởng người làm tốt và xử lý thẳng thắn người không đạt yêu cầu, bất kể mối quan hệ.', dimensionId: 'performance_management', reversed: false },
+  { id: 222, text: 'Tôi phản hồi hiệu suất của cấp dưới thường xuyên, không chờ đến cuối kỳ đánh giá.', dimensionId: 'performance_management', reversed: false },
+  { id: 223, text: 'Tôi thường tránh đưa ra nhận xét tiêu cực vì sợ ảnh hưởng đến cảm xúc của cấp dưới.', dimensionId: 'performance_management', reversed: true },
+
+  // ── FINANCIAL MANAGEMENT (4 câu) ─────────────────────────────
+  { id: 224, text: 'Tôi kiểm soát chặt chẽ dòng tiền và có thể dự báo tình hình tài chính tổ chức trong 3–6 tháng tới.', dimensionId: 'financial_management', reversed: false },
+  { id: 225, text: 'Tôi từ chối các cơ hội doanh thu nếu nhận thấy rủi ro tài chính vượt mức chấp nhận được.', dimensionId: 'financial_management', reversed: false },
+  { id: 226, text: 'Tôi thường xuyên review P&L và biết rõ lý do đằng sau từng biến động chi phí lớn.', dimensionId: 'financial_management', reversed: false },
+  { id: 227, text: 'Tôi ưu tiên tăng doanh thu mà không chú trọng nhiều vào kiểm soát chi phí và biên lợi nhuận.', dimensionId: 'financial_management', reversed: true },
+
+  // ── CUSTOMER/PARTNER MANAGEMENT (4 câu) ──────────────────────
+  { id: 228, text: 'Tôi minh bạch với khách hàng và đối tác ngay cả khi thông tin không có lợi cho mình.', dimensionId: 'customer_partner_management', reversed: false },
+  { id: 229, text: 'Tôi cắt bỏ mối quan hệ với đối tác vi phạm giá trị cốt lõi, dù họ mang lại doanh thu lớn.', dimensionId: 'customer_partner_management', reversed: false },
+  { id: 230, text: 'Tôi xây dựng quan hệ đối tác dựa trên sự công bằng và lợi ích hai chiều dài hạn.', dimensionId: 'customer_partner_management', reversed: false },
+  { id: 231, text: 'Tôi thường giữ thông tin bất lợi lại và chỉ chia sẻ khi không còn cách nào khác.', dimensionId: 'customer_partner_management', reversed: true },
+
+  // ── EXECUTIVE COMMUNICATION (4 câu) ──────────────────────────
+  { id: 232, text: 'Tôi truyền đạt ý kiến ngắn gọn, trực tiếp và đi thẳng vào vấn đề — không dài dòng hay vòng vo.', dimensionId: 'executive_communication', reversed: false },
+  { id: 233, text: 'Tôi có thể diễn đạt vấn đề phức tạp theo cách mà cả Board lẫn nhân viên cấp thấp đều hiểu được.', dimensionId: 'executive_communication', reversed: false },
+  { id: 234, text: 'Tôi không né tránh thông tin xấu — tôi truyền đạt rõ ràng và đưa ra giải pháp đi kèm.', dimensionId: 'executive_communication', reversed: false },
+  { id: 235, text: 'Tôi thường dùng nhiều câu chữ để đảm bảo không ai hiểu sai, kể cả khi điều đó khiến thông điệp dài hơn cần thiết.', dimensionId: 'executive_communication', reversed: true },
+
+  // ── CHANGE MANAGEMENT (4 câu) ────────────────────────────────
+  { id: 236, text: 'Tôi chủ động dẫn dắt thay đổi trong tổ chức và xử lý sự kháng cự một cách có hệ thống.', dimensionId: 'change_management', reversed: false },
+  { id: 237, text: 'Tôi sẵn sàng phá bỏ quy trình cũ không còn hiệu quả, kể cả khi nó đã tồn tại lâu năm.', dimensionId: 'change_management', reversed: false },
+  { id: 238, text: 'Tôi không cả nể những người có công lớn nhưng đang cản trở sự thay đổi cần thiết.', dimensionId: 'change_management', reversed: false },
+  { id: 239, text: 'Tôi thường giữ nguyên cách làm cũ vì thay đổi sẽ tạo ra xáo trộn và rủi ro không cần thiết.', dimensionId: 'change_management', reversed: true },
+
+  // ── RISK MANAGEMENT (4 câu) ───────────────────────────────────
+  { id: 240, text: 'Tôi chủ động nhận diện rủi ro trước khi chúng xảy ra và có kế hoạch phòng ngừa cụ thể.', dimensionId: 'risk_management', reversed: false },
+  { id: 241, text: 'Tôi sẵn sàng đầu tư chi phí phòng ngừa rủi ro dù chưa có dấu hiệu sự cố rõ ràng.', dimensionId: 'risk_management', reversed: false },
+  { id: 242, text: 'Tôi tuân thủ nghiêm ngặt các yêu cầu pháp lý và an toàn, kể cả khi điều đó làm chậm tốc độ.', dimensionId: 'risk_management', reversed: false },
+  { id: 243, text: 'Tôi thường xử lý rủi ro theo kiểu "đến đâu hay đến đó" thay vì lập kế hoạch từ trước.', dimensionId: 'risk_management', reversed: true },
+
+  // ── SELF DISCIPLINE (4 câu) ───────────────────────────────────
+  { id: 244, text: 'Tôi duy trì thói quen làm việc và sức khỏe nghiêm túc — kể cả trong giai đoạn bận rộn nhất.', dimensionId: 'self_discipline', reversed: false },
+  { id: 245, text: 'Tôi áp dụng chính mình các tiêu chuẩn tôi đặt ra cho người khác — không có ngoại lệ cho bản thân.', dimensionId: 'self_discipline', reversed: false },
+  { id: 246, text: 'Tôi tự phạt hoặc công khai thừa nhận khi vi phạm cam kết của chính mình trước đội nhóm.', dimensionId: 'self_discipline', reversed: false },
+  { id: 247, text: 'Tôi đôi khi cho phép bản thân ngoại lệ những quy tắc tôi đặt ra vì hoàn cảnh đặc biệt.', dimensionId: 'self_discipline', reversed: true },
+
+  // ── CONTINUOUS LEARNING (4 câu) ───────────────────────────────
+  { id: 248, text: 'Tôi dành thời gian học hỏi về công nghệ và xu hướng mới ngay cả khi công việc hiện tại không yêu cầu.', dimensionId: 'continuous_learning', reversed: false },
+  { id: 249, text: 'Tôi sẵn sàng phủ nhận những gì mình biết để tiếp thu kiến thức và phương pháp mới hơn.', dimensionId: 'continuous_learning', reversed: false },
+  { id: 250, text: 'Tôi tìm kiếm mentor và người giỏi hơn mình để học hỏi liên tục, không giới hạn ở vị trí hiện tại.', dimensionId: 'continuous_learning', reversed: false },
+  { id: 251, text: 'Tôi cảm thấy kinh nghiệm và kiến thức hiện tại đã đủ để điều hành tổ chức mà không cần học thêm nhiều.', dimensionId: 'continuous_learning', reversed: true },
+
+  // ── PRESSURE BALANCE (4 câu) ─────────────────────────────────
+  { id: 252, text: 'Tôi duy trì sự tĩnh lặng và ra quyết định sáng suốt ngay cả trong khủng hoảng — không để cảm xúc chi phối.', dimensionId: 'pressure_balance', reversed: false },
+  { id: 253, text: 'Tôi kiên định với chiến lược bất chấp áp lực từ nhiều phía — cổ đông, đội nhóm, hay thị trường.', dimensionId: 'pressure_balance', reversed: false },
+  { id: 254, text: 'Trong giai đoạn khủng hoảng, tôi là người giữ bình tĩnh và trở thành điểm tựa cho đội nhóm.', dimensionId: 'pressure_balance', reversed: false },
+  { id: 255, text: 'Khi bị nhiều phía phản đối, tôi thường thay đổi quyết định để xoa dịu áp lực thay vì bảo vệ chiến lược đúng.', dimensionId: 'pressure_balance', reversed: true },
 ];
 
 // ─── LIE SCALE IDs ────────────────────────────────────────────

@@ -4,7 +4,7 @@
 // ============================================================
 
 import type { DimensionScore } from '../data/scoring';
-import type { AssessmentRecord } from '../types';
+import type { AssessmentRecord } from '@/types';
 
 export interface NormedScore {
   dimensionId: string;

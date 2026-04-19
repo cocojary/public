@@ -153,6 +153,105 @@ const NARRATIVES: Record<string, string[]> = {
     'Sức bền thể chất tốt. Duy trì năng lượng tốt suốt ngày làm việc và có thể xử lý giai đoạn bận rộn mà không bị ảnh hưởng nhiều.',
     'Sức bền thể chất xuất sắc. Hiếm khi bị đánh gục bởi mệt mỏi thể chất. Phù hợp các vai trò đòi hỏi cường độ cao như sales field, operations manager, startup founder.',
   ],
+  // ── 統率力 LEADERSHIP (CEO/C-LEVEL) ──────────────────────────
+  strategic_vision: [
+    'Tầm nhìn hạn hẹp, bị cuốn vào sự vụ hàng ngày. Thiếu khả năng dự báo dài hạn, dễ khiến tổ chức lạc lối khi thị trường biến động.',
+    'Có ý thức về chiến lược nhưng dễ bị lung lay bởi áp lực doanh thu ngắn hạn. Cần sự hỗ trợ từ cố vấn để giữ vững định hướng.',
+    'Có khả năng lập kế hoạch dài hạn ổn định, cân bằng được mục tiêu ngắn hạn và dài hạn trong điều kiện bình thường.',
+    'Tầm nhìn xa, tư duy chiến lược sắc bén. Sẵn sàng đánh đổi lợi ích trước mắt để bảo vệ mục tiêu dài hạn của tổ chức.',
+    'Nhà chiến lược xuất chúng. Khả năng dự báo và thiết lập tương lai cho cả ngành. Dũng cảm thực hiện những cú chuyển đổi mang tính sống còn.',
+  ],
+  decision_making: [
+    'Thiếu quyết đoán, hay trì hoãn, sợ sai lầm. Thói quen đùn đẩy trách nhiệm ra quyết định cho hội đồng hoặc cấp dưới.',
+    'Ra quyết định chậm, phụ thuộc quá nhiều vào dữ liệu hoàn hảo. Dễ bỏ lỡ cơ hội do sự thận trọng quá mức.',
+    'Khả năng ra quyết định ổn định. Quyết đoán trong phạm vi chuyên môn nhưng có thể ngập ngừng trước các rủi ro lớn đột ngột.',
+    'Quyết đoán, hành động nhanh dựa trên xác suất rõ ràng. Dám chịu trách nhiệm về các quyết định mạo hiểm có tính toán.',
+    'Quyết đoán cực độ. Khả năng chốt hạ phương án sắc bén trong khủng hoảng. Bản lĩnh "chốt chặn cuối cùng" rất mạnh mẽ.',
+  ],
+  ownership: [
+    'Thiếu ý thức trách nhiệm tối cao. Có xu hướng đổ lỗi cho ngoại cảnh hoặc nhân sự dưới quyền khi kết quả không đạt.',
+    'Trách nhiệm ở mức trung bình. Thừa nhận sai sót nhưng đôi khi vẫn tìm cách giảm nhẹ vai trò cá nhân trong sự cố.',
+    'Có trách nhiệm với công việc điều hành. Cam kết thực hiện mục tiêu nhưng chưa sẵn sàng hy sinh lợi ích cá nhân vì tổ chức.',
+    'Ownership mạnh mẽ. Sẵn sàng hy sinh thu nhập, uy tín cá nhân để bảo vệ quyền lợi công ty và nhân viên.',
+    'Tinh thần "Skin in the game" tuyệt đối. Coi sinh mệnh công ty là sinh mệnh cá nhân. Chịu trách nhiệm cuối cùng trong mọi hoàn cảnh.',
+  ],
+  people_leadership: [
+    'Phong cách quản trị độc đoán, micromanagement mạnh. Dễ bóp chết sự sáng tạo và làm nhân sự giỏi nản lòng.',
+    'Có xu hướng kiểm soát chi tiết công việc của cấp dưới. Chưa tin tưởng giao quyền hoàn toàn, giao tiếp còn áp đặt.',
+    'Lãnh đạo ở mức ổn định. Trao quyền trong phạm vi kiểm soát, lắng nghe ý kiến nhưng vẫn giữ khoảng cách điều hành.',
+    'Trao quyền mạnh mẽ, khuyến khích phản biện gay gắt. Biết cách dùng người giỏi hơn mình và tạo không gian phát triển cho họ.',
+    'Bậc thầy về dùng người. Xây dựng văn hóa tin tưởng và tự chủ cực cao. Khả năng truyền cảm hứng và thay máu tổ chức tàn nhẫn khi cần.',
+  ],
+  organization_building: [
+    'Tư duy sự vụ, lười xây hệ thống. Tổ chức vận hành chắp vá, phụ thuộc hoàn toàn vào sự hiện diện của người lãnh đạo.',
+    'Đã bắt đầu ý thức xây dựng quy trình nhưng chưa đồng bộ. Tổ chức vẫn còn nhiều điểm nghẽn do cấu trúc cũ phình to.',
+    'Xây dựng hệ thống ở mức khá. Quy trình rõ ràng cho các mảng vận hành chính, giảm dần sự phụ thuộc vào cá nhân.',
+    'Tư duy hệ thống sắc bén. Xây dựng tổ chức tự vận hành với các Framework quản trị hiện đại. Đóng gói quy trình chuyên nghiệp.',
+    'Kiến trúc sư tổ chức tài ba. Xây dựng bộ máy có khả năng tự tiến hóa và scale-up không giới hạn mà không cần sự can thiệp trực tiếp.',
+  ],
+  performance_management: [
+    'Quản trị theo cảm xúc, nể nang thái quá hoặc trừng phạt không công bằng. Các chỉ số đo lường lỏng lẻo và dễ bị bóp méo.',
+    'Có KPI nhưng thực thi chưa triệt để. Còn nương tay với các nhân sự "công thần" có hiệu suất kém.',
+    'Quản trị hiệu suất dựa trên dữ liệu ổn định. Thưởng phạt minh bạch nhưng đôi khi còn thiếu sự linh hoạt trong đánh giá.',
+    'Quyết liệt với con số. Thưởng phạt phân minh, tàn nhẫn với sự trì trệ nhưng công bằng với sự cống hiến thực chất.',
+    'Kỷ luật thép trong điều hành. Thiết lập tiêu chuẩn hiệu suất cực cao. Khả năng xoay chuyển toàn bộ năng suất tổ chức bằng cơ chế khoán sắc lẹm.',
+  ],
+  financial_management: [
+    'Mù mờ về các chỉ số tài chính sống còn. Quản trị dòng tiền lỏng lẻo, dễ rơi vào bẫy phá sản kỹ thuật dù doanh thu cao.',
+    'Quản trị tài chính ở mức an toàn nhưng thiếu tư duy tối ưu hóa vốn. Thường bị động trước các biến động chi phí đột ngột.',
+    'Kiểm soát tài chính tốt. Cân bằng được dòng tiền và doanh thu, duy trì biên lợi nhuận ở mức chấp nhận được.',
+    'Tư duy tài chính sắc sảo. Kiểm soát biên lợi nhuận, chi phí R&D và quỹ dự phòng gắt gao. Luôn ưu tiên sức khỏe dòng tiền.',
+    'Chiến lược gia tài chính. Khả năng đọc vị bảng cân đối kế toán và tối ưu hóa cấu trúc vốn cực tốt. Bản lĩnh từ chối các cơ hội lớn nếu rủi ro thâm hụt.',
+  ],
+  customer_partner_management: [
+    'Coi trọng lợi ích trước mắt hơn uy tín. Dễ dàng nhượng bộ khách hàng lớn hoặc lừa dối đối tác để đạt mục tiêu kinh doanh.',
+    'Giao tiếp khách hàng tốt nhưng chưa xây dựng được mối quan hệ đối tác chiến lược công bằng. Đôi khi che giấu lỗi hệ thống.',
+    'Minh bạch với đối tác và khách hàng ở mức tiêu chuẩn. Xử lý sự cố đúng quy trình và giữ cam kết hợp đồng.',
+    'Xây dựng quan hệ dựa trên sự minh bạch tuyệt đối. Sẵn sàng chịu lỗ để giữ uy tín chiến lược. Cắt bỏ khách hàng/đối tác độc hại.',
+    'Tư duy Win-Win đẳng cấp. Xây dựng hệ sinh thái đối tác bền vững. Sự minh bạch và chính trực tạo nên lợi thế cạnh tranh vô hình cực lớn.',
+  ],
+  executive_communication: [
+    'Giao tiếp dài dòng, thiếu trọng tâm. Ngôn ngữ không thoát ý, gây hiểu lầm hoặc làm loãng thông điệp chiến lược.',
+    'Truyền đạt rõ ràng nhưng còn thiếu sức nặng và sự quyết đoán. Đôi khi né tránh các thông tin tiêu cực hoặc nhạy cảm.',
+    'Giao tiếp điều hành hiệu quả. Truyền tải thông điệp ngắn gọn, đúng người đúng việc trong hầu hết các cuộc họp.',
+    'Ngôn ngữ sắc bén, trực diện. Khả năng tóm tắt vấn đề phức tạp thành thông điệp đơn giản, đầy sức mạnh làm nhân viên nể phục.',
+    'Bậc thầy truyền thông điều hành. Khả năng diễn thuyết truyền cảm hứng đi đôi với sự sắc lẹm trong chỉ đạo công việc. Một từ nói ra có sức nặng ngàn cân.',
+  ],
+  change_management: [
+    'Sợ thay đổi, bám víu vào hào quang quá khứ. Ngại va chạm với những người cũ, làm trì trệ quá trình tiến hóa của tổ chức.',
+    'Muốn cải cách nhưng thiếu phương pháp. Dễ bỏ cuộc khi gặp sự phản kháng từ nội bộ hoặc vướng mắc về chi phí.',
+    'Thích nghi tốt với sự thay đổi của thị trường. Thực hiện các đợt cải tiến quy trình ổn định, có lộ trình rõ ràng.',
+    'Mạnh mẽ trong cải cách. Dám đập bỏ những gì đã lỗi thời, chấp nhận thay máu nhân sự để số hóa và hiện đại hóa tổ chức.',
+    'Nhà cách tân tàn nhẫn. Luôn ở trạng thái "phá hủy sáng tạo". Khả năng dẫn dắt toàn bộ tổ chức nhảy vọt qua các giai đoạn thoái trào thị trường.',
+  ],
+  risk_management: [
+    'Tư duy ngắn hạn, bỏ qua các dấu hiệu cảnh báo đỏ. Coi thường pháp lý và bảo mật, dễ đẩy công ty vào vòng lao lý.',
+    'Quản trị rủi ro theo kiểu "nước đến chân mới nhảy". Chỉ chú trọng phòng ngừa sau khi đã xảy ra sự cố nghiêm trọng.',
+    'Có ý thức phòng ngừa rủi ro tiêu chuẩn. Tuân thủ pháp lý và có kịch bản dự phòng cho các mảng kinh doanh chính.',
+    'Chủ động đầu tư cho hệ thống phòng ngừa rủi ro. Tuyệt đối thượng tôn pháp luật và an toàn. Có kịch bản khủng hoảng chi tiết.',
+    'Năng lực dự báo và quản trị rủi ro tuyệt đỉnh. Biến các kịch bản bất lợi thành cơ hội phản ứng nhanh. Bảo vệ tổ chức bằng sự thận trọng thông minh.',
+  ],
+  self_discipline: [
+    'Thiếu kỷ luật cá nhân, làm việc theo cảm hứng. Tự cho mình quyền đứng ngoài các quy định mà mình ban hành cho nhân viên.',
+    'Kỷ luật cá nhân ở mức trung bình. Thỉnh thoảng vẫn để áp lực sự vụ phá vỡ lịch trình chiến lược và nề nếp cá nhân.',
+    'Duy trì kỷ luật cá nhân tốt. Tuân thủ lịch làm việc và các cam kết nội bộ, làm gương cho nhân viên trong điều kiện bình thường.',
+    'Kỷ luật cá nhân khắt khe. Đi đầu trong việc thực hiện các quy chế thưởng phạt. Duy trì năng lượng và sự tập trung cực độ mỗi ngày.',
+    'Hình mẫu lý tưởng về sự tự quản. Kỷ luật bản thân là nền tảng cho quyền lực điều hành. Khả năng kiểm soát thời gian và năng lượng xuất sắc.',
+  ],
+  continuous_learning: [
+    'Ngừng học hỏi, tự mãn với kinh nghiệm cũ. Coi thường kiến thức mới hoặc những xu hướng công nghệ của thế hệ trẻ.',
+    'Học hỏi thụ động, chỉ cập nhật khi bắt buộc phải thay đổi. Phụ thuộc hoàn toàn vào đội ngũ tư vấn bên ngoài.',
+    'Có tinh thần học hỏi, tham khảo kiến thức mới để áp dụng vào công việc điều hành hiện tại.',
+    'Ham học hỏi mãnh liệt. Sẵn sàng phủ nhận bản thân để học những mảng kiến thức hoàn toàn mới. Đầu tư lớn cho phát triển trí tuệ cá nhân.',
+    'Tư duy "Học sinh vĩnh viễn". Luôn cập nhật những kiến thức tiên phong nhất toàn cầu. Khả năng tự học và thay đổi tư duy cực nhanh.',
+  ],
+  pressure_balance: [
+    'Dễ mất bình tĩnh dưới áp lực, hay trút giận lên nhân viên. Quyết định thường mang tính xoa dịu đám đông thay vì giải quyết gốc rễ.',
+    'Chịu được áp lực vừa phải nhưng dễ bị dao động cảm xúc khi gặp khủng hoảng lớn. Cần sự ổn định ngoại cảnh để sáng suốt.',
+    'Bản lĩnh ổn định dưới áp lực. Duy trì được sự tỉnh táo để ra quyết định trong hầu hết các tình huống khó khăn thông thường.',
+    'Lý trí sắc lạnh giữa giông bão. Kiên định với chiến lược bất chấp sự phản đối hay sóng gió thị trường. Kiểm soát cảm xúc tuyệt vời.',
+    'Tinh thần thép, tĩnh lặng tuyệt đối trước khủng hoảng sống còn. Sự điềm tĩnh của người lãnh đạo là điểm tựa vững chắc nhất cho toàn bộ tổ chức.',
+  ],
 };
 
 // ─── NEGATIVE TENDENCY ANALYSIS ───────────────────────────────
@@ -215,10 +314,13 @@ export function analyzeNegativeTendencies(result: AssessmentResult): NegativeTen
     hrNote: rel.speedFlag ? 'Yêu cầu làm lại trong điều kiện có giám sát.' : '',
   });
 
-  // 4. Ổn định cảm xúc thấp — nguy cơ burnout
+  // 4. Ổn định cảm xúc thấp — nguy cơ burnout (3 trụ cột: mental, emotional, physical)
   const emotionalStability = get('emotional_stability');
   const mentalStress = get('stress_mental');
-  const burnoutRisk = Math.round(((10 - emotionalStability) + (10 - mentalStress)) / 20 * 100);
+  const physicalStress = get('stress_physical');
+  const burnoutRisk = Math.round(
+    ((10 - emotionalStability) + (10 - mentalStress) + (10 - physicalStress)) / 30 * 100
+  );
   tendencies.push({
     id: 'burnout_risk',
     nameVi: 'Nguy Cơ Kiệt Sức (Burnout)',
@@ -249,18 +351,14 @@ export function analyzeNegativeTendencies(result: AssessmentResult): NegativeTen
     hrNote: conflictRisk > 65 ? 'Đánh giá thêm khả năng teamwork trong phỏng vấn.' : '',
   });
 
-  // 6. Nguy cơ từ bỏ sớm (Early Quit Risk)
+  // 6. Nguy cơ từ bỏ sớm (Early Quit Risk) — công thức liên tục, không bậc thang cứng
   const stability = get('stability_orientation');
   const challengeSpirit = get('challenge_spirit');
   const autonomy = get('autonomy');
-  // Người có stability thấp + challenge cao + autonomy cao → dễ nghỉ nếu cảm thấy bị kìm hãm
-  const quitRisk = stability < 4 && challengeSpirit > 7 && autonomy > 7
-    ? 75
-    : stability < 4 && (challengeSpirit > 6 || autonomy > 6)
-    ? 50
-    : stability < 4
-    ? 35
-    : 15;
+  // Unstability + high drive + high autonomy = người dễ nghỉ nếu bị kìm hãm
+  const instabilityFactor = Math.max(0, 10 - stability) / 9;         // 0–1
+  const driveFactor = Math.max(0, Math.max(challengeSpirit, autonomy) - 5) / 5; // 0–1
+  const quitRisk = Math.min(100, Math.round((instabilityFactor * 0.5 + driveFactor * 0.5) * 100));
   tendencies.push({
     id: 'early_quit_risk',
     nameVi: 'Nguy Cơ Rời Bỏ Sớm',
@@ -289,91 +387,141 @@ export function calcDutySuitability(dims: DimensionScore[]): DutyScore[] {
   const get = (id: string) => dims.find(d => d.dimensionId === id)?.scaled ?? 5;
   const pct = (val: number) => Math.round(val * 10); // scaled 1-10 → 0-100
 
-  return [
+  const duties = [
     {
-      duty: '🧑‍💻 Kỹ thuật / Lập trình',
-      score: Math.round((pct(get('logical_thinking')) * 0.4 + pct(get('conscientiousness')) * 0.3 + pct(get('caution')) * 0.3)),
-      description: 'Phân tích, lập trình, thiết kế hệ thống',
-      suitable: false, // Will be computed
+      duty: '🧑‍💻 Kỹ thuật / Lập trình (DEV)',
+      score: Math.round(pct(get('logical_thinking')) * 0.4 + pct(get('conscientiousness')) * 0.3 + pct(get('caution')) * 0.3),
+      description: 'Phân tích, lập trình, thiết kế hệ thống và giải quyết vấn đề kỹ thuật.',
     },
     {
-      duty: '📊 Phân tích dữ liệu',
-      score: Math.round((pct(get('logical_thinking')) * 0.5 + pct(get('openness')) * 0.3 + pct(get('conscientiousness')) * 0.2)),
-      description: 'Data analyst, business analyst, reporting',
-      suitable: false,
+      duty: '💰 Kế toán / Tài chính (Accountant)',
+      score: Math.round(pct(get('caution')) * 0.5 + pct(get('conscientiousness')) * 0.3 + pct(get('stability_orientation')) * 0.2),
+      description: 'Quản lý con số, tính toán chi tiết, đảm bảo tính tuân thủ và chính xác tài chính.',
     },
     {
-      duty: '🗣️ Sales / Kinh doanh',
-      score: Math.round((pct(get('extraversion')) * 0.4 + pct(get('challenge_spirit')) * 0.3 + pct(get('stress_mental')) * 0.3)),
-      description: 'Làm việc với khách hàng, đạt doanh số',
-      suitable: false,
+      duty: '🗣️ Kinh doanh / Bán hàng (SALES)',
+      score: Math.round(pct(get('extraversion')) * 0.4 + pct(get('challenge_spirit')) * 0.3 + pct(get('stress_mental')) * 0.3),
+      description: 'Mở rộng thị trường, thuyết phục khách hàng và chịu áp lực doanh số cao.',
     },
     {
-      duty: '🎨 Sáng tạo / Design',
-      score: Math.round((pct(get('openness')) * 0.5 + pct(get('autonomy')) * 0.3 + pct(get('achievement_drive')) * 0.2)),
-      description: 'UI/UX, content, creative direction',
-      suitable: false,
+      duty: '🎨 Sáng tạo / Truyền thông',
+      score: Math.round(pct(get('openness')) * 0.5 + pct(get('autonomy')) * 0.3 + pct(get('achievement_drive')) * 0.2),
+      description: 'UI/UX, sáng tạo nội dung, định hướng thương hiệu và đổi mới.',
     },
     {
-      duty: '👥 Quản lý / Leadership',
-      score: Math.round((pct(get('empathy')) * 0.3 + pct(get('achievement_drive')) * 0.3 + pct(get('emotional_stability')) * 0.2 + pct(get('extraversion')) * 0.2)),
-      description: 'Team lead, project manager, department head',
-      suitable: false,
+      duty: '👥 Nhân sự / Đào tạo (HR)',
+      score: Math.round(pct(get('empathy')) * 0.4 + pct(get('agreeableness')) * 0.3 + pct(get('social_contribution')) * 0.3),
+      description: 'Kết nối con người, xây dựng văn hóa và phát triển đội ngũ.',
     },
     {
-      duty: '📋 Hành chính / Quy trình',
-      score: Math.round((pct(get('conscientiousness')) * 0.4 + pct(get('caution')) * 0.4 + pct(get('stability_orientation')) * 0.2)),
-      description: 'Admin, compliance, operations',
-      suitable: false,
+      duty: '📋 Hành chính / Vận hành',
+      score: Math.round(pct(get('conscientiousness')) * 0.4 + pct(get('caution')) * 0.4 + pct(get('stability_orientation')) * 0.2),
+      description: 'Quản lý quy trình, đảm bảo bộ máy vận hành trơn tru và tuân thủ.',
     },
     {
-      duty: '❤️ Dịch vụ / Hỗ trợ khách hàng',
-      score: Math.round((pct(get('agreeableness')) * 0.4 + pct(get('empathy')) * 0.4 + pct(get('stress_mental')) * 0.2)),
-      description: 'Customer service, support, training',
-      suitable: false,
+      duty: '👑 CEO / Giám đốc điều hành',
+      score: Math.round(
+        pct(get('strategic_vision')) * 0.15 +
+        pct(get('decision_making')) * 0.15 +
+        pct(get('ownership')) * 0.15 +
+        pct(get('pressure_balance')) * 0.15 +
+        pct(get('logical_thinking')) * 0.1 +
+        pct(get('achievement_drive')) * 0.1 +
+        pct(get('emotional_stability')) * 0.1 +
+        pct(get('organization_building')) * 0.1
+      ),
+      description: 'Lãnh đạo tối cao, chịu trách nhiệm chiến lược và sinh mệnh tổ chức.',
     },
-    {
-      duty: '🔬 Nghiên cứu / R&D',
-      score: Math.round((pct(get('openness')) * 0.4 + pct(get('logical_thinking')) * 0.4 + pct(get('autonomy')) * 0.2)),
-      description: 'Nghiên cứu, phát triển sản phẩm mới',
-      suitable: false,
-    },
-  ].map(d => ({ ...d, suitable: d.score >= 50 }));
+  ];
+
+  return duties.map(d => ({ ...d, suitable: d.score >= 50 }));
 }
 
-// ─── COMBAT POWER (戦闘力) ─────────────────────────────────────
-// Tổng hợp sức mạnh tổng thể — đặc trưng của Scouter SS
+// ─── RELIABILITY ANALYTICS ────────────────────────────────────
+// Chuyển đổi các chỉ số Validation thành nhận xét chuyên sâu
+export function getReliabilityNarrative(reliability: any): { label: string; details: string[] } {
+  const { lieScore, consistencyScore, speedFlag } = reliability;
+  const details: string[] = [];
+
+  // 1. Lie Scale
+  if (lieScore > 75) details.push('⚠️ Độ lệch Lie Scale cao: Ứng viên có xu hướng chọn các đáp án mang tính "lý tưởng hóa" bản thân (Social Desirability Bias).');
+  else if (lieScore > 50) details.push('🟡 Cần lưu ý: Một số câu trả lời có dấu hiệu muốn tạo ấn tượng tốt một cách thiếu tự nhiên.');
+  else details.push('✅ Trung thực cao: Ứng viên sẵn sàng thừa nhận những thiếu sót thông thường của bản thân.');
+
+  // 2. Consistency
+  if (consistencyScore < 60) details.push('❌ Mâu thuẫn nội tại: Hệ thống phát hiện sự không đồng nhất giữa các cặp câu hỏi tương đồng. Có thể do ứng viên trả lời thiếu tập trung hoặc cố tình che giấu bản chất.');
+  else if (consistencyScore < 85) details.push('🟡 Tính nhất quán trung bình: Có một vài điểm mâu thuẫn nhỏ trong quan điểm hành vi.');
+  else details.push('✅ Nhất quán tuyệt đối: Các phản ứng vô thức và có ý thức có sự đồng bộ chặt chẽ.');
+
+  // 3. Speed
+  if (speedFlag) details.push('⚠️ Tốc độ phản ứng quá nhanh: Khả năng cao ứng viên trả lời theo quán tính mà không qua xử lý nhận thức sâu.');
+  else details.push('✅ Tốc độ phản ứng tiêu chuẩn: Đảm bảo thời gian đọc hiểu và phản hồi tự nhiên.');
+
+  let label = 'Kết quả Đáng tin';
+  if (speedFlag || lieScore > 70 || consistencyScore < 60) label = 'Độ tin cậy Thấp / Cần phỏng vấn lại';
+  else if (lieScore > 50 || consistencyScore < 80) label = 'Độ tin cậy Trung bình / Cần xác minh thêm';
+
+  return { label, details };
+}
+
+// ─── COMBAT POWER (戦闘力) v2 — Anthropological Model ────────
 export interface CombatPower {
-  total: number;     // 0-100
-  rank: string;       // S/A/B/C/D
+  total: number;
+  rank: string;
   label: string;
   description: string;
-  components: { name: string; score: number; weight: number }[];
+  pillars: Record<string, { name: string; value: number; desc: string }>;
+  penaltyFactor: number;
+  bonusPoints: number;
 }
 
 export function calcCombatPower(dims: DimensionScore[]): CombatPower {
   const get = (id: string) => dims.find(d => d.dimensionId === id)?.scaled ?? 5;
+  const isCEO = dims.some(d => d.dimensionId === 'strategic_vision');
+  
   const pct = (val: number) => val * 10;
 
-  const components = [
-    { name: '⚡ Ý chí hành động', score: Math.round((pct(get('achievement_drive')) + pct(get('challenge_spirit'))) / 2 * 100), weight: 0.25 },
-    { name: '🧠 Năng lực tư duy', score: Math.round((pct(get('logical_thinking')) + pct(get('empathy'))) / 2 * 100), weight: 0.25 },
-    { name: '🛡️ Sức chịu đựng', score: Math.round((pct(get('stress_mental')) + pct(get('stress_physical'))) / 2 * 100), weight: 0.25 },
-    { name: '🎯 Tính cách cốt lõi', score: Math.round((pct(get('conscientiousness')) + pct(get('emotional_stability'))) / 2 * 100), weight: 0.25 },
-  ];
+  // 4 Trụ cột Thực chiến (Pillars) - Anthropology Model
+  const vitalityVal = Math.round((pct(get('achievement_drive')) + pct(get('challenge_spirit')) + pct(get('autonomy'))) / 3);
+  const intelligenceVal = Math.round((pct(get('logical_thinking')) + pct(get('openness')) + (isCEO ? pct(get('strategic_vision')) : 50)) / 3);
+  const resilienceVal = Math.round((pct(get('emotional_stability')) + pct(get('stress_mental')) + pct(get('empathy'))) / 3);
+  const disciplineVal = Math.round((pct(get('conscientiousness')) + pct(get('caution')) + (isCEO ? pct(get('decision_making')) : pct(get('execution_speed')))) / 3);
 
-  const total = Math.round(components.reduce((sum, c) => sum + c.score * c.weight, 0));
+  const pillars = {
+    vitality: { name: '🔥 VITALITY', value: vitalityVal, desc: 'Sức sống, ý chí sinh tồn và khao khát khẳng định.' },
+    intelligence: { name: '🧠 INTELLIGENCE', value: intelligenceVal, desc: 'Trí tuệ hệ thống, khả năng thích nghi và tầm nhìn.' },
+    resilience: { name: '🛡️ RESILIENCE', value: resilienceVal, desc: 'Bản lĩnh, sức chịu đựng tâm lý và sự thấu cảm.' },
+    discipline: { name: '🎯 DISCIPLINE', value: disciplineVal, desc: 'Kỷ luật cá nhân, khả năng ra quyết định và thực thi.' },
+  };
+
+  // Logic Penalty (Gót chân Achilles)
+  // Nếu bất kỳ trụ cột nào < 30 (quá yếu), tổng lực giảm mạnh vì lỗ hổng chí mạng
+  const values = [vitalityVal, intelligenceVal, resilienceVal, disciplineVal];
+  const minPillar = Math.min(...values);
+  let penaltyFactor = 1.0;
+  if (minPillar < 30) penaltyFactor = 0.65;
+  else if (minPillar < 45) penaltyFactor = 0.85;
+
+  // Logic Bonus (Synergy - Cộng hưởng lãnh đạo)
+  let bonusPoints = 0;
+  if (isCEO && get('strategic_vision') >= 8 && get('decision_making') >= 8) {
+    bonusPoints = 500; // Cộng thẳng điểm thưởng cho sự kết hợp Tầm nhìn + Quyết đoán
+  }
+
+  const baseTotal = (vitalityVal + intelligenceVal + resilienceVal + disciplineVal) * 25; // Max 10000
+  const total = Math.round(baseTotal * penaltyFactor) + bonusPoints;
 
   let rank = 'D';
-  let label = 'Cần phát triển thêm';
-  let description = 'Tổng năng lực cần được đầu tư phát triển đáng kể.';
+  let label = 'Người thừa hành';
+  let description = 'Năng lực thực chiến ở mức cơ bản, cần được dẫn dắt chặt chẽ.';
 
-  if (total >= 8500) { rank = 'S'; label = 'Xuất sắc'; description = 'Khả năng tạo ra tác động lớn trong tổ chức.'; }
-  else if (total >= 7000) { rank = 'A'; label = 'Tốt'; description = 'Tiềm năng phát triển rõ ràng, sẵn sàng nhận trách nhiệm cao.'; }
-  else if (total >= 5500) { rank = 'B'; label = 'Khá'; description = 'Đảm nhận tốt vai trò hiện tại, phát triển thêm với sự hỗ trợ.'; }
-  else if (total >= 4000) { rank = 'C'; label = 'Trung bình'; description = 'Có một số điểm mạnh nhưng cần cải thiện rõ rệt.'; }
+  if (total >= 9000) { rank = 'S+'; label = 'Bậc thầy Chiến lược'; description = 'Sức mạnh áp đảo, có khả năng thay đổi vận mệnh doanh nghiệp.'; }
+  else if (total >= 8000) { rank = 'S'; label = 'Lãnh đạo Xuất chúng'; description = 'Năng lực thực chiến toàn diện, bản lĩnh điều hành vững vàng.'; }
+  else if (total >= 7000) { rank = 'A'; label = 'Cốt cán Thực chiến'; description = 'Hiệu suất cao, là trụ cột vững chắc của tổ chức.'; }
+  else if (total >= 5500) { rank = 'B'; label = 'Nhân sự Ổn định'; description = 'Có năng lực chuyên môn tốt, đáp ứng tốt kỳ vọng.'; }
+  else if (total >= 4000) { rank = 'C'; label = 'Cần được rèn luyện'; description = 'Hệ thống năng lực còn nhiều lỗ hổng, cần lộ trình đào tạo.'; }
 
-  return { total, rank, label, description, components };
+  return { total, rank, label, description, pillars, penaltyFactor, bonusPoints };
 }
 
 // ─── NARRATIVE GENERATOR ─────────────────────────────────────
@@ -449,5 +597,48 @@ export function detectPersona(dims: DimensionScore[]): PersonaType {
     traits: ['Linh hoạt và thích nghi', 'Phù hợp nhiều vai trò', 'Cân bằng giữa các tính cách'],
     bestEnvironment: 'Hầu hết môi trường làm việc thông thường',
     watchOut: 'Nên xác định rõ hơn điểm mạnh nổi bật để phát triển sâu hơn',
+  };
+}
+
+/**
+ * detectCEOPersona: Đặc quyền dành riêng cho role CEO
+ */
+export function detectCEOPersona(dims: DimensionScore[]): PersonaType | null {
+  const get = (id: string) => dims.find(d => d.dimensionId === id)?.scaled ?? 5;
+  
+  const vision = get('strategic_vision');
+  const decision = get('decision_making');
+  const owner = get('ownership');
+  const balance = get('pressure_balance');
+  const sys = get('organization_building');
+
+  if (vision < 4 && decision < 4) return null; // Không đủ dữ liệu leadership
+
+  if (vision >= 8 && owner >= 8 && balance >= 8) return {
+    title: 'Thủ Lĩnh Bản Lĩnh', emoji: '🎖️',
+    traits: ['Tầm nhìn vĩ đại', 'Ownership tuyệt đối', 'Tĩnh lặng trong bão'],
+    bestEnvironment: 'Tổ chức lớn, tái cấu trúc, hoặc giai đoạn khủng hoảng',
+    watchOut: 'Có thể bị coi là cực đoan hoặc quá khắt khe với tiêu chuẩn của mình'
+  };
+  
+  if (decision >= 8 && sys >= 8 && owner >= 7) return {
+    title: 'Nhà Kỹ Trị Hệ Thống', emoji: '⚙️',
+    traits: ['Quyết liệt thực thi', 'Xây dựng bộ máy tự chạy', 'Dựa trên dữ liệu'],
+    bestEnvironment: 'Scale-up nhanh, doanh nghiệp cần tính ổn định vận hành cao',
+    watchOut: 'Dễ sa vào máy móc, cần chú ý thêm yếu tố cảm xúc con người'
+  };
+
+  if (vision >= 7 && decision >= 8 && owner >= 6) return {
+    title: 'Sát Thủ Cơ Hội', emoji: '🦅',
+    traits: ['Nhạy bén thị trường', 'Ra đòn nhanh', 'Dám đánh đổi'],
+    bestEnvironment: 'Startup mạo hiểm, thị trường mới nổi, cạnh tranh khốc liệt',
+    watchOut: 'Rủi ro dòng tiền và rủi ro pháp lý cần được kiểm soát gắt gao'
+  };
+
+  return {
+    title: 'Giám Đốc Vận Hành', emoji: '👔',
+    traits: ['Quản trị sự vụ tốt', 'Ổn định hệ thống', 'Trách nhiệm cao'],
+    bestEnvironment: 'Doanh nghiệp SMEs, giai đoạn duy trì tăng trưởng ổn định',
+    watchOut: 'Cần nâng tầm tư duy chiến lược và năng lực thay đổi'
   };
 }

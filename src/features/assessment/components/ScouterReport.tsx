@@ -1,9 +1,24 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import type { AssessmentResult, DimensionScore } from "../data/scoring";
-import { detectPersona, calcCombatPower, calcDutySuitability, analyzeNegativeTendencies } from "../data/aiAnalysis";
+import { detectPersona, detectCEOPersona, calcCombatPower, calcDutySuitability, analyzeNegativeTendencies, getReliabilityNarrative } from "../data/aiAnalysis";
 import { DIMENSIONS } from "../data/dimensions";
+import type { AIReport } from "../utils/openaiService";
+import { DevReportContent } from "./DevReportContent";
+import { DevScoringResult } from "../utils/devScoring";
+import { buildUnifiedFromV2, buildUnifiedFromV3 } from "../utils/unifiedScoring";
+import { UnifiedReport } from "./UnifiedReport";
+
+export interface ScouterReportProps {
+  user: {
+    fullName?: string;
+    employeeId?: string;
+  } | null;
+  resultData: AssessmentResult;
+  date: string | number | Date;
+  aiReport?: AIReport | null;
+}
 
 // Helper components for the dense tables
 
@@ -126,25 +141,121 @@ const HorizontalBarMatrix = ({ dimensions, color = "bg-indigo-600" }: { dimensio
 };
 
 export default function ScouterReport({ user, resultData, date, aiReport }: ScouterReportProps) {
-  const getDims = (group: string) => resultData.dimensions.filter(d => {
+  const isDevV3 = (resultData as any).type === "SPI_DEV_V3" || !!(resultData as any).scores;
+  // State chuyển tab: 'classic' = báo cáo cũ, 'unified' = báo cáo hợp nhất mới
+  const [viewMode, setViewMode] = useState<"classic" | "unified">("unified");
+
+  if (!resultData) {
+    return (
+      <div className="p-10 text-center bg-white rounded-lg shadow-md">
+        <h2 className="text-xl font-bold text-red-600 mb-2">Lỗi Dữ Liệu</h2>
+        <p className="text-slate-600">Không tìm thấy thông tin kết quả đánh giá. Vui lòng thử lại sau.</p>
+      </div>
+    );
+  }
+
+  // ── Tab switcher UI ─────────────────────────────────────────
+  const TabSwitcher = () => (
+    <div className="flex bg-slate-100 p-1 rounded-xl gap-1 w-fit mx-auto mb-2">
+      <button
+        onClick={() => setViewMode("unified")}
+        className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+          viewMode === "unified"
+            ? "bg-indigo-600 text-white shadow-md"
+            : "text-slate-600 hover:bg-white"
+        }`}
+      >
+        📊 Báo cáo Hợp nhất
+      </button>
+      <button
+        onClick={() => setViewMode("classic")}
+        className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+          viewMode === "classic"
+            ? "bg-indigo-600 text-white shadow-md"
+            : "text-slate-600 hover:bg-white"
+        }`}
+      >
+        📋 Báo cáo Chi tiết
+      </button>
+    </div>
+  );
+
+  // Nếu là báo cáo DEV SOTA V3.0
+  if (isDevV3) {
+    const devResult = resultData as unknown as DevScoringResult;
+    const unifiedData = buildUnifiedFromV3(devResult);
+    return (
+      <div className="space-y-4">
+        <TabSwitcher />
+        {viewMode === "unified" ? (
+          <UnifiedReport
+            data={unifiedData}
+            candidateName={user?.fullName}
+            reportDate={date ? new Date(date) : undefined}
+          />
+        ) : (
+          <DevReportContent result={devResult} aiReport={aiReport} />
+        )}
+      </div>
+    );
+  }
+
+  if (!isDevV3 && !resultData.dimensions) {
+    return (
+      <div className="p-10 text-center bg-white rounded-lg shadow-md">
+        <h2 className="text-xl font-bold text-amber-600 mb-2">Dữ Liệu Không Tương Thích</h2>
+        <p className="text-slate-600">Báo cáo này có thể thuộc phiên bản cũ hoặc bị thiếu sơ đồ năng lực. Vui lòng liên hệ quản trị viên.</p>
+      </div>
+    );
+  }
+
+  // Tạo dữ liệu Unified cho V2 — luôn có sẵn để render theo tab
+  const unifiedDataV2 = buildUnifiedFromV2(resultData);
+
+  const getDims = (group: string) => (resultData.dimensions || []).filter((d: DimensionScore) => {
     const dimInfo = DIMENSIONS.find(x => x.id === d.dimensionId);
-    return dimInfo?.group === group;
+    return dimInfo?.group === group && d.scaled > 0;
   });
 
-  const getExactDims = (ids: string[]) => ids.map(id => resultData.dimensions.find(d => d.dimensionId === id)).filter(Boolean) as DimensionScore[];
+  const getExactDims = (ids: string[]) => ids.map(id => (resultData.dimensions || []).find((d: DimensionScore) => d.dimensionId === id)).filter((d): d is DimensionScore => !!d && d.scaled > 0);
 
   const personalityDims = getExactDims(['extraversion', 'agreeableness', 'conscientiousness', 'openness', 'emotional_stability', 'execution_speed']);
   const motivationDims = getExactDims(['achievement_drive', 'challenge_spirit', 'autonomy', 'learning_curiosity', 'recognition_need']);
   const thinkingDims = getExactDims(['logical_thinking', 'empathy', 'caution']);
   const stressDims = getExactDims(['stress_mental', 'stress_physical']);
   const valueDims = getExactDims(['growth_orientation', 'stability_orientation', 'social_contribution']);
+  const leadershipDims = getDims('leadership');
+
+  const isCEO = leadershipDims.length > 0;
+  const ceoPersona = isCEO ? detectCEOPersona(resultData.dimensions) : null;
 
   const negatives = useMemo(() => analyzeNegativeTendencies(resultData), [resultData]);
-  const combatPower = useMemo(() => calcCombatPower(resultData.dimensions), [resultData.dimensions]);
-  const duties = useMemo(() => calcDutySuitability(resultData.dimensions), [resultData.dimensions]);
+  const combatPower = useMemo(() => calcCombatPower(resultData.dimensions || []), [resultData]);
+  const duties = useMemo(() => calcDutySuitability(resultData.dimensions || []), [resultData]);
+
+  // Lấy diễn giải về độ tin cậy từ AI Engine
+  const reliabilityNarrative = useMemo(() => {
+    return getReliabilityNarrative(resultData.reliability);
+  }, [resultData.reliability]);
+
+  // Nếu đang ở chế độ Unified — render Unified Report thay vì Classic
+  if (viewMode === "unified") {
+    return (
+      <div className="space-y-4">
+        <TabSwitcher />
+        <UnifiedReport
+          data={unifiedDataV2}
+          candidateName={user?.fullName}
+          reportDate={date ? new Date(date) : undefined}
+        />
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-white text-slate-900 mx-auto max-w-5xl w-full shadow-2xl overflow-hidden font-sans border border-slate-200">
+    <div className="space-y-4">
+      <TabSwitcher />
+      <div className="bg-white text-slate-900 mx-auto max-w-5xl w-full shadow-2xl overflow-hidden font-sans border border-slate-200">
       {/* SCOUTER HEADER */}
       <div className="bg-gradient-to-br from-indigo-900 via-indigo-800 to-indigo-950 p-8 text-white relative overflow-hidden">
         {/* Decorative elements */}
@@ -154,13 +265,15 @@ export default function ScouterReport({ user, resultData, date, aiReport }: Scou
         <div className="flex flex-col md:flex-row md:items-center justify-between relative z-10 gap-4">
           <div className="space-y-1">
             <h1 className="text-5xl font-black tracking-tighter flex items-center">
-              SCOUTER <span className="text-indigo-400 ml-2">SS</span>
+              SCOUTER <span className={isCEO ? "text-amber-400 ml-2" : "text-indigo-400 ml-2"}>SS</span>
             </h1>
             <p className="text-indigo-200 font-medium tracking-widest text-xs uppercase">Powered by Techzen AI Assessment System</p>
           </div>
           <div className="bg-white/10 backdrop-blur-md border border-white/20 px-6 py-3 rounded-sm shadow-xl self-start md:self-center">
-            <span className="text-lg font-bold block leading-none">BÁO CÁO NĂNG LỰC NHÂN SỰ</span>
-            <span className="text-[10px] text-indigo-300 font-bold tracking-tighter uppercase whitespace-nowrap mt-1 block">HR Management Perspective Assessment</span>
+            <span className="text-lg font-bold block leading-none">{isCEO ? "BÁO CÁO CẤP LÃNH ĐẠO (CEO)" : "BÁO CÁO NĂNG LỰC NHÂN SỰ"}</span>
+            <span className="text-[10px] text-indigo-300 font-bold tracking-tighter uppercase whitespace-nowrap mt-1 block">
+              {isCEO ? "C-Level Strategic Perspective Assessment" : "HR Management Perspective Assessment"}
+            </span>
           </div>
         </div>
       </div>
@@ -182,44 +295,151 @@ export default function ScouterReport({ user, resultData, date, aiReport }: Scou
         </div>
       </div>
 
-      {/* 2-COLUMN GRID */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 px-8 py-10">
-        {/* LEFT COLUMN */}
-        <div className="space-y-6">
+      {/* 1-COLUMN LAYOUT */}
+      <div className="flex flex-col space-y-8 px-8 py-10">
           
-          {/* Section 1 */}
+          {/* Section 1: Validation - ĐỘ TIN CẬY DỮ LIỆU */}
           <div>
-            <BlockHeader num="1" title="Xu Hướng Tính Cách" desc="Mô phỏng phản ứng vô thức và hành vi tự nhiên" />
-            <ZigZagMatrix dimensions={personalityDims} />
-          </div>
+            <BlockHeader num="1" title="Độ Tin Cậy Của Dữ Liệu" desc="Phân tích tính trung thực và sự nhất quán trong phản ứng" />
+            <div className={`mt-4 p-6 rounded-sm border-l-4 ${resultData.reliability.level === 'high' ? 'bg-emerald-50 border-emerald-500' : 'bg-amber-50 border-amber-500'} shadow-sm`}>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">
+                {/* Lie Scale */}
+                <div className="space-y-2">
+                  <div className="flex justify-between text-[10px] font-black uppercase text-slate-500">
+                    <span>Độ lệch Lửa dối (Lie Scale)</span>
+                    <span className={resultData.reliability.lieScore > 50 ? "text-rose-600" : "text-emerald-600"}>{resultData.reliability.lieScore}%</span>
+                  </div>
+                  <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full transition-all duration-1000 ${resultData.reliability.lieScore > 50 ? 'bg-rose-500' : 'bg-emerald-500'}`} 
+                      style={{ width: `${resultData.reliability.lieScore}%` }}
+                    ></div>
+                  </div>
+                </div>
 
+                {/* Consistency */}
+                <div className="space-y-2">
+                  <div className="flex justify-between text-[10px] font-black uppercase text-slate-500">
+                    <span>Tính nhất quán (Consistency)</span>
+                    <span className={resultData.reliability.consistencyScore < 70 ? "text-amber-600" : "text-emerald-600"}>{resultData.reliability.consistencyScore}%</span>
+                  </div>
+                  <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full transition-all duration-1000 ${resultData.reliability.consistencyScore < 70 ? 'bg-amber-500' : 'bg-emerald-500'}`} 
+                      style={{ width: `${resultData.reliability.consistencyScore}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                {/* Speed */}
+                <div className="space-y-2">
+                  <div className="flex justify-between text-[10px] font-black uppercase text-slate-500">
+                    <span>Tốc độ phản ứng (Speed)</span>
+                    <span className={resultData.reliability.speedFlag ? "text-rose-600" : "text-emerald-600"}>{resultData.reliability.speedFlag ? "QUÁ NHANH" : "ỐN ĐỊNH"}</span>
+                  </div>
+                  <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full transition-all duration-1000 ${resultData.reliability.speedFlag ? 'bg-rose-500' : 'bg-emerald-500'}`} 
+                      style={{ width: '100%' }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white/80 p-4 rounded-sm border border-slate-200/50">
+                <div className="text-xs font-black text-slate-800 uppercase mb-2 flex items-center gap-2">
+                  <span className={`w-2 h-2 rounded-full ${resultData.reliability.level === 'high' ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
+                  Căn cứ đánh giá: {reliabilityNarrative.label}
+                </div>
+                <ul className="space-y-1.5">
+                  {reliabilityNarrative.details.map((detail: string, dIdx: number) => (
+                    <li key={dIdx} className="text-[11px] text-slate-600 flex items-start gap-2 leading-relaxed">
+                      <span className="text-indigo-400 mt-0.5">•</span>
+                      {detail}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+          
           {/* Section 2 */}
           <div>
-            <BlockHeader num="2" title="Động Lực Thúc Đẩy" desc="Cường độ của khao khát phát triển và năng lượng" />
-            <HorizontalBarMatrix dimensions={motivationDims} color="bg-slate-800" />
+            <BlockHeader num="2" title="Xu Hướng Tính Cách" desc="Mô phỏng phản ứng vô thức và hành vi tự nhiên" />
+            <ZigZagMatrix dimensions={personalityDims} />
           </div>
 
           {/* Section 3 */}
           <div>
-            <BlockHeader num="3" title="Khuynh Hướng Tư Duy" desc="Năng lực nhận thức, giải quyết vấn đề và đồng cảm" />
-            <HorizontalBarMatrix dimensions={thinkingDims} color="bg-slate-800" />
+            <BlockHeader num="3" title="Động Lực Thúc Đẩy" desc="Cường độ của khao khát phát triển và năng lượng" />
+            <HorizontalBarMatrix dimensions={motivationDims} color="bg-slate-800" />
           </div>
 
           {/* Section 4 */}
           <div>
-            <BlockHeader num="4" title="Sức Chịu Đựng Stress" desc="Giới hạn chịu đựng về mặt tâm lý và thể chất" />
-            <HorizontalBarMatrix dimensions={stressDims} color="bg-slate-800" />
+            <BlockHeader num="4" title="Khuynh Hướng Tư Duy" desc="Năng lực nhận thức, giải quyết vấn đề và đồng cảm" />
+            <HorizontalBarMatrix dimensions={thinkingDims} color="bg-slate-800" />
           </div>
-        </div>
 
-        {/* RIGHT COLUMN */}
-        <div className="space-y-6">
-          
           {/* Section 5 */}
           <div>
-            <BlockHeader num="5" title="Giá Trị Quan" desc="Khuynh hướng coi trọng đóng góp xã hội hay cá nhân" />
+            <BlockHeader num="5" title="Sức Chịu Đựng Stress" desc="Giới hạn chịu đựng về mặt tâm lý và thể chất" />
+            <HorizontalBarMatrix dimensions={stressDims} color="bg-slate-800" />
+          </div>
+
+          
+          {/* Section 6 */}
+          <div>
+            <BlockHeader num="6" title="Giá Trị Quan" desc="Khuynh hướng coi trọng đóng góp xã hội hay cá nhân" />
             <ZigZagMatrix dimensions={valueDims} />
           </div>
+
+          {/* Section CEO Leadership (Conditional) */}
+          {isCEO && (
+            <div className="bg-gradient-to-br from-slate-900 to-indigo-950 p-[1px] rounded-sm shadow-2xl">
+              <div className="bg-white p-6 rounded-sm">
+                <div className="flex items-center mb-6">
+                  <div className="bg-amber-500 text-white font-black text-xl w-10 h-10 flex items-center justify-center mr-3 shadow-lg rounded-sm shrink-0">
+                    7
+                  </div>
+                  <div className="flex-1 bg-gradient-to-r from-amber-50 to-transparent py-1.5 pl-3 border-l-4 border-amber-600">
+                    <div className="font-bold text-amber-950 text-base">
+                      Năng Lực Lãnh Đạo (CEO Strategy)
+                      <span className="text-amber-700 text-[10px] font-black uppercase ml-4 tracking-widest bg-amber-100 px-2 py-0.5 rounded-full">
+                        Exclusive C-Level Analytics
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* CEO Persona Card */}
+                {ceoPersona && (
+                  <div className="mb-6 bg-slate-900 text-white p-6 rounded-sm border-r-8 border-amber-500 shadow-xl relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-4 opacity-10 text-8xl grayscale-0">{ceoPersona.emoji}</div>
+                    <div className="relative z-10 flex flex-col gap-2">
+                      <div className="flex items-center gap-3">
+                         <span className="text-2xl">{ceoPersona.emoji}</span>
+                         <span className="text-xl font-black tracking-tight text-amber-400 uppercase italic">Danh hiệu: {ceoPersona.title}</span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-2">
+                         {ceoPersona.traits.map((t, idx) => (
+                           <div key={idx} className="bg-white/10 px-3 py-1.5 border border-white/20 rounded-sm text-xs font-bold text-indigo-100">
+                             • {t}
+                           </div>
+                         ))}
+                      </div>
+                      <div className="mt-4 text-[11px] leading-relaxed">
+                        <span className="text-amber-500 font-bold uppercase tracking-tighter mr-2">Bối cảnh tối ưu:</span>
+                        <span className="text-slate-300">{ceoPersona.bestEnvironment}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <HorizontalBarMatrix dimensions={leadershipDims} color="bg-amber-600" />
+              </div>
+            </div>
+          )}
 
           {/* Section 6 - Negatives */}
           <div>
@@ -253,61 +473,129 @@ export default function ScouterReport({ user, resultData, date, aiReport }: Scou
             </div>
           </div>
 
-          {/* Section 7 - Duty Suitability */}
-          <div>
-            <BlockHeader num="7" title="Độ Phù Hợp Nghề Nghiệp" desc="Xác suất tương thích với các vị trí công việc" />
-            <div className="mt-2 border border-slate-200 bg-white shadow-sm rounded-sm p-4 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
-              {duties.slice(0, 6).map((duty, idx) => (
-                <div key={idx} className="flex flex-col">
-                  <div className="flex justify-between items-baseline mb-1">
-                    <span className="text-xs font-bold text-slate-700">{duty.duty}</span>
-                    <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-sm ${duty.score > 70 ? 'bg-emerald-100 text-emerald-700' : duty.score > 40 ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700'}`}>
-                      {duty.score}%
-                    </span>
-                  </div>
-                  <div className="w-full h-2 bg-slate-100 rounded-full relative overflow-hidden border border-slate-200">
-                    <div className={`h-full transition-all duration-1000 ${duty.score > 70 ? 'bg-emerald-500' : duty.score > 40 ? 'bg-amber-400' : 'bg-rose-500'}`} style={{ width: `${duty.score}%` }}></div>
+          {/* Section 8 - Duty Suitability (Duy nhất 1 cột, thiết kế Premium) */}
+          <div className="space-y-4">
+            <BlockHeader num={isCEO ? "8" : "7"} title="Vị Trí Công Việc Phù Hợp" desc="Tương thích dựa trên Ma trận Năng lực & Thái độ" />
+            
+            <div className="mt-4 grid grid-cols-1 gap-4">
+              {duties.map((duty, idx) => (
+                <div 
+                  key={idx} 
+                  className={`relative p-4 rounded-sm border transition-all duration-300 ${
+                    duty.suitable 
+                      ? 'bg-gradient-to-r from-emerald-50 to-white border-emerald-200 shadow-sm' 
+                      : 'bg-white border-slate-200'
+                  }`}
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-4 flex-1">
+                      <div className={`w-12 h-12 rounded-sm flex items-center justify-center text-2xl shadow-inner ${
+                        duty.suitable ? 'bg-emerald-100' : 'bg-slate-100'
+                      }`}>
+                        {duty.duty.split(' ')[0]}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-black text-slate-800 text-sm uppercase tracking-tight">
+                            {duty.duty.split(' ').slice(1).join(' ')}
+                          </h4>
+                          {duty.suitable && (
+                            <span className="bg-emerald-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest animate-pulse">
+                              Highly Recommended
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-slate-500 mt-1 italic leading-snug">
+                          {duty.description}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-6 sm:w-64">
+                       <div className="flex-1 space-y-1">
+                          <div className="flex justify-between text-[10px] font-bold">
+                            <span className="text-slate-400">Match Score</span>
+                            <span className={duty.suitable ? "text-emerald-700" : "text-slate-600"}>{duty.score}%</span>
+                          </div>
+                          <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-200/50 p-[1px]">
+                            <div 
+                              className={`h-full rounded-full transition-all duration-1000 ${
+                                duty.suitable ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.3)]' : 'bg-slate-400'
+                              }`} 
+                              style={{ width: `${duty.score}%` }}
+                            ></div>
+                          </div>
+                       </div>
+                       <div className={`text-2xl font-black italic tracking-tighter ${
+                         duty.suitable ? 'text-emerald-600' : 'text-slate-300'
+                       }`}>
+                         {duty.score > 80 ? 'S' : duty.score > 70 ? 'A' : duty.score > 60 ? 'B' : 'C'}
+                       </div>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
+
+            {isCEO && (
+               <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-sm italic text-[11px] text-amber-900 leading-relaxed shadow-inner">
+                 <span className="font-bold uppercase mr-2">💡 Ghi chú:</span>
+                 Báo cáo này ưu tiên các vị trí trong Ban điều hành (C-Level). Điểm số phản ánh khả năng duy trì hiệu suất dưới áp lực cao và tư duy quản trị hệ thống.
+               </div>
+            )}
           </div>
 
           {/* Section 8 & 9 */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {/* Section 8 */}
+          <div className="flex flex-col gap-8">
+          {/* Section 9: Chỉ số Chiến Lực - Anthropology Model */}
+          <div className="flex flex-col gap-8">
             <div className="flex flex-col">
-              <BlockHeader num="8" title="Chỉ Số Chiến Lực" desc="Sức mạnh tổng hợp & Tiềm năng" />
-              <div className="flex-1 border border-indigo-200 mt-2 p-6 flex flex-col items-center justify-center bg-gradient-to-br from-indigo-50 to-white relative overflow-hidden rounded-sm shadow-inner min-h-[120px]">
-                <div className="absolute opacity-5 text-[100px] font-black top-[-20px] right-[-10px] text-indigo-900 pointer-events-none">{combatPower.rank}</div>
-                <div className="text-5xl font-black tracking-tighter text-indigo-800 drop-shadow-sm">{combatPower.total.toLocaleString()}</div>
-                <div className="mt-3 px-4 py-1 bg-indigo-700 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-md z-10 transition-transform hover:scale-105">
-                  HANG {combatPower.rank} — {combatPower.label}
+              <BlockHeader num={isCEO ? "9" : "8"} title="Chỉ Số Chiến Lực" desc="Sức mạnh tổng hợp dựa trên 4 trụ cột thực chiến (Anthropology Model)" />
+              
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
+                {/* Main Score Display */}
+                <div className="lg:col-span-1 border border-indigo-200 p-8 flex flex-col items-center justify-center bg-gradient-to-br from-indigo-900 to-indigo-950 relative overflow-hidden rounded-sm shadow-2xl text-white">
+                  <div className="absolute opacity-10 text-[120px] font-black top-[-20px] right-[-10px] pointer-events-none italic">{combatPower.rank}</div>
+                  <div className="text-[10px] font-bold tracking-widest uppercase mb-4 text-indigo-300">Total Strategic Power</div>
+                  <div className="text-6xl font-black tracking-tighter drop-shadow-lg mb-4">{combatPower.total.toLocaleString()}</div>
+                  <div className="px-6 py-2 bg-amber-500 text-slate-900 text-xs font-black uppercase tracking-widest rounded-full shadow-lg z-10">
+                    HẠNG {combatPower.rank} — {combatPower.label}
+                  </div>
                 </div>
-              </div>
-            </div>
 
-            {/* Section 9 */}
-            <div className="flex flex-col">
-              <BlockHeader num="9" title="Validation" desc="Mức độ tin cậy của dữ liệu" />
-              <div className="flex-1 border border-slate-200 mt-2 p-4 bg-white rounded-sm shadow-sm flex flex-col min-h-[120px]">
-                <div className="flex justify-between items-center text-xs font-bold border-b border-slate-100 pb-2 mb-3">
-                  <span className="text-slate-500 text-[10px] uppercase">Lie Scale Deviation</span>
-                  <span className={`px-2 py-0.5 rounded-sm text-[10px] font-black text-white shadow-sm ${resultData.reliability.lieScore > 60 ? 'bg-rose-500' : 'bg-indigo-600'}`}>
-                    {resultData.reliability.lieScore}%
-                  </span>
-                </div>
-                <div className="w-full h-3 bg-slate-100 rounded-full relative mb-3 overflow-hidden border border-slate-200">
-                  <div className={`h-full transition-all duration-700 ${resultData.reliability.lieScore > 60 ? 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.4)]' : 'bg-indigo-600'}`} style={{ width: `${resultData.reliability.lieScore}%` }}></div>
-                </div>
-                <div className="text-[11px] text-slate-600 font-medium leading-relaxed italic">
-                  <span className="font-bold text-slate-800 uppercase not-italic">Level {resultData.reliability.level}:</span> {resultData.reliability.details}
+                {/* 4 Pillars Details */}
+                <div className="lg:col-span-2 grid grid-cols-2 gap-4">
+                  {Object.entries(combatPower.pillars || {}).map(([key, val]: [string, any]) => (
+                    <div key={key} className="bg-white border border-slate-200 p-4 rounded-sm shadow-sm flex flex-col justify-between">
+                      <div className="flex justify-between items-start mb-2">
+                        <span className="text-[10px] font-black uppercase text-slate-400 tracking-tighter">{(val as any).name}</span>
+                        <span className="text-lg font-black text-indigo-700">{(val as any).value}</span>
+                      </div>
+                      <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-indigo-600" style={{ width: `${(val as any).value}%` }}></div>
+                      </div>
+                      <p className="text-[9px] text-slate-500 mt-2 leading-tight italic">{(val as any).desc}</p>
+                    </div>
+                  ))}
+                  
+                  {/* Penalty/Bonus Indicators */}
+                  {(combatPower.penaltyFactor && combatPower.penaltyFactor < 1) && (
+                    <div className="col-span-2 bg-rose-50 border border-rose-100 p-2 px-3 rounded-sm text-[10px] text-rose-700 flex items-center gap-2">
+                       <span className="font-black underline uppercase">Cảnh báo:</span>
+                       <span>Phát hiện "Gót chân Achilles" (Năng lực cốt lõi bị mất cân bằng trầm trọng).</span>
+                    </div>
+                  )}
+                  {(combatPower.bonusPoints && combatPower.bonusPoints > 0) && (
+                    <div className="col-span-2 bg-emerald-50 border border-emerald-100 p-2 px-3 rounded-sm text-[10px] text-emerald-700 flex items-center gap-2">
+                       <span className="font-black underline uppercase">Ưu thế:</span>
+                       <span>Sự cộng hưởng giữa các năng lực lãnh đạo tạo ra hiệu ứng khuếch đại sức mạnh.</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           </div>
-
-        </div>
+          </div>
       </div>
 
       {/* FOOTER COMMENT SECTION */}
@@ -349,6 +637,7 @@ export default function ScouterReport({ user, resultData, date, aiReport }: Scou
         )}
       </div>
 
+      </div>
     </div>
   );
 }

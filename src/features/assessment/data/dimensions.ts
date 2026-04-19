@@ -3,7 +3,7 @@
 // Tham chiếu: Big Five / Scouter SS / Stress Research
 // ============================================================
 
-export type DimensionGroup = 'personality' | 'motivation' | 'thinking' | 'values' | 'stress';
+export type DimensionGroup = 'personality' | 'motivation' | 'thinking' | 'values' | 'stress' | 'leadership';
 
 export interface Dimension {
   id: string;
@@ -216,6 +216,77 @@ export const DIMENSIONS: Dimension[] = [
     color: '#DC2626',
     icon: '💪',
   },
+  // ── NHÓM F: NĂNG LỰC LÃNH ĐẠO (C-LEVEL) ──────────────────────────────
+  {
+    id: 'strategic_vision', group: 'leadership',
+    nameVi: 'Tầm Nhìn Chiến Lược', nameEn: 'Strategic Vision',
+    descLow: 'Tập trung ngắn hạn, tối ưu hóa hiện diện, tránh rủi ro dài hạn.', descHigh: 'Tư duy dài hạn, sẵn sàng đánh đổi lợi ích trước mắt vì giá trị cốt lõi.', color: '#1E3A8A', icon: '🔭'
+  },
+  {
+    id: 'decision_making', group: 'leadership',
+    nameVi: 'Ra Quyết Định', nameEn: 'Decision Making',
+    descLow: 'Trì hoãn chờ thông tin hoàn hảo, dựa dẫm vào hội đồng.', descHigh: 'Hành động nhanh dựa trên xác suất, dám mạo hiểm và cam kết kết quả.', color: '#3B82F6', icon: '⚡'
+  },
+  {
+    id: 'ownership', group: 'leadership',
+    nameVi: 'Ownership', nameEn: 'Ownership',
+    descLow: 'Đẩy trách nhiệm cho cấp dưới hoặc ngoại cảnh khi có sự cố.', descHigh: 'Skin in the game, chịu trách nhiệm cuối cùng bằng tiền bạc & danh dự.', color: '#2563EB', icon: '🛡️'
+  },
+  {
+    id: 'people_leadership', group: 'leadership',
+    nameVi: 'Lãnh Đạo Con Người', nameEn: 'People Leadership',
+    descLow: 'Can thiệp tiểu tiết (micromanage), yêu cầu phục tùng tuyệt đối.', descHigh: 'Trao quyền, khuyến khích phản biện, dám mạnh tay thay thế.', color: '#60A5FA', icon: '👤'
+  },
+  {
+    id: 'organization_building', group: 'leadership',
+    nameVi: 'Xây Dựng Tổ Chức', nameEn: 'Organization Building',
+    descLow: 'Phụ thuộc cá nhân xuất sắc, quy trình lỏng lẻo.', descHigh: 'Xây dựng hệ thống tự vận hành, thiết lập các quy trình đóng gói vững chắc.', color: '#93C5FD', icon: '🏗️'
+  },
+  {
+    id: 'performance_management', group: 'leadership',
+    nameVi: 'Quản Trị Hiệu Suất', nameEn: 'Performance Management',
+    descLow: 'Đánh giá cảm tính, nhạy cảm khi xử lý nhân viên yếu kém.', descHigh: 'Thưởng phạt minh bạch dựa trên dữ liệu, tàn nhẫn với hiệu suất yếu.', color: '#047857', icon: '📈'
+  },
+  {
+    id: 'financial_management', group: 'leadership',
+    nameVi: 'Quản Trị Tài Chính', nameEn: 'Financial Management',
+    descLow: 'Bơm doanh thu mù quáng, bỏ qua rủi ro thâm hụt dòng tiền.', descHigh: 'Kiểm soát dòng tiền gắt gao, bảo vệ biên lợi nhuận, sẵn sàng từ chối deal rủi ro.', color: '#059669', icon: '💵'
+  },
+  {
+    id: 'customer_partner_management', group: 'leadership',
+    nameVi: 'Quản Trị Khách/Đối Tác', nameEn: 'Partner Management',
+    descLow: 'Dễ dàng nhượng bộ, che giấu lỗi lầm với khách hàng.', descHigh: 'Minh bạch kể cả tin xấu, hợp tác công bằng, cắt bỏ đối tác vi phạm giá trị lõi.', color: '#10B981', icon: '🤝'
+  },
+  {
+    id: 'executive_communication', group: 'leadership',
+    nameVi: 'Giao Tiếp Điều Hành', nameEn: 'Executive Comms',
+    descLow: 'Dài dòng, né tránh, truyền đạt cảm tính.', descHigh: 'Ngắn gọn, sắc lẹm, trực diện, không nói giảm nói tránh.', color: '#34D399', icon: '🗣️'
+  },
+  {
+    id: 'change_management', group: 'leadership',
+    nameVi: 'Quản Trị Thay Đổi', nameEn: 'Change Management',
+    descLow: 'Bảo thủ với thói quen cũ, cả nể công thần.', descHigh: 'Dám đập bỏ hệ thống cũ chắp vá, tàn nhẫn thay thế nhân sự ngáng đường số hóa.', color: '#D97706', icon: '🔄'
+  },
+  {
+    id: 'risk_management', group: 'leadership',
+    nameVi: 'Quản Trị Rủi Ro', nameEn: 'Risk Management',
+    descLow: 'Biết trước bỏ qua, tư duy nước đến chân mới nhảy.', descHigh: 'Chủ động bỏ chi phí phòng ngừa, tuyệt đối tuân thủ pháp lý và an toàn doanh nghiệp.', color: '#F59E0B', icon: '⚖️'
+  },
+  {
+    id: 'self_discipline', group: 'leadership',
+    nameVi: 'Kỷ Luật Cá Nhân', nameEn: 'Self Discipline',
+    descLow: 'Thiết lập luật nhưng tự cho mình quyền miễn trừ.', descHigh: 'Đi đầu tự phạt nếu sai, duy trì năng lượng cực kỳ khắt khe mỗi ngày.', color: '#EF4444', icon: '⏱️'
+  },
+  {
+    id: 'continuous_learning', group: 'leadership',
+    nameVi: 'Học Hỏi & Phát Triển', nameEn: 'Continuous Learning',
+    descLow: 'Giới hạn khả năng tiếp thu, ủy thác hoàn toàn viển vông khoa học.', descHigh: 'Sẵn sàng phủ nhận bản thân để học công nghệ mới, rèn giũa liên tục.', color: '#EC4899', icon: '🧠'
+  },
+  {
+    id: 'pressure_balance', group: 'leadership',
+    nameVi: 'Bản Lĩnh Dưới Áp Lực', nameEn: 'Pressure Balance',
+    descLow: 'Bị cảm xúc chi phối, thay đổi quyết định để xoa dịu đám đông.', descHigh: 'Lý trí tĩnh lặng giữa giông bão, kiên định chiến lược bất chấp áp lực vây quanh.', color: '#8B5CF6', icon: '🛡️'
+  }
 ];
 
 export const GROUP_LABELS: Record<DimensionGroup, { nameVi: string; color: string }> = {
@@ -224,4 +295,5 @@ export const GROUP_LABELS: Record<DimensionGroup, { nameVi: string; color: strin
   thinking: { nameVi: 'Tư Duy & Phong Cách', color: '#F59E0B' },
   values: { nameVi: 'Giá Trị & Định Hướng', color: '#10B981' },
   stress: { nameVi: 'Chịu Đựng Stress', color: '#7C3AED' },
+  leadership: { nameVi: 'Năng Lực Lãnh Đạo (CEO)', color: '#1E3A8A' },
 };
