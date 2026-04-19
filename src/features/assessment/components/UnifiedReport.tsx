@@ -198,12 +198,14 @@ const GROUP_META: Record<string, { label: string; icon: string; color: string }>
 };
 
 const ROLE_ICON: Record<string, string> = {
-  'Chuyên gia':        '💻',
-  'Kỹ sư Sản phẩm':   '🔧',
-  'Người dẫn dắt':     '🌟',
-  'Nhân sự Đa năng':  '👥',
-  'Chiến binh Sales':  '💰',
-  'Nhân sự Ổn định':  '⚓',
+  'Người Mở cõi':       '🎯',
+  'Người Cầm lái':      '👑',
+  'Chuyên gia Đào sâu': '🔬',
+  'Người Chăm chút':    '⚙️',
+  'Nhà Sáng tạo':       '🎨',
+  'Người Kiến tạo':     '⚡',
+  'Cố vấn Phân tích':   '📊',
+  'Chất Kết Dính':      '🤝',
 };
 
 // ─── MAIN COMPONENT ───────────────────────────────────────────
@@ -650,34 +652,11 @@ export default function UnifiedReport({ data, aiReport, candidateName, reportDat
               </div>
             )}
 
-            {/* ── 5. Câu hỏi Phỏng vấn kiểm chứng ───────────────── */}
-            {((aiReport as any).verificationQuestions ?? []).length > 0 && (
-              <div style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)', borderRadius: 12, padding: '16px 20px' }}>
-                <div style={{ fontWeight: 700, fontSize: 11, color: '#FCD34D', marginBottom: 12, letterSpacing: '0.07em' }}>
-                  5 · CÂU HỎI PHỎNG VẤN KIỂM CHỨNG
-                  <span style={{ fontWeight: 400, fontSize: 10, color: '#94A3B8', marginLeft: 8 }}>Dùng để kiểm chứng tính cách thật</span>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {(aiReport as any).verificationQuestions.map((q: any, i: number) => (
-                    <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', padding: '10px 14px', background: 'rgba(0,0,0,0.2)', borderRadius: 10 }}>
-                      <div style={{ width: 24, height: 24, borderRadius: 6, background: '#F59E0B', color: '#1F2937', fontWeight: 900, fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>Q{i + 1}</div>
-                      <div>
-                        <p style={{ margin: '0 0 5px', fontSize: 13, color: '#E2E8F0', lineHeight: 1.6 }}>{q.question}</p>
-                        <span style={{ fontSize: 10, fontWeight: 600, color: '#FBBF24', background: 'rgba(245,158,11,0.15)', padding: '2px 8px', borderRadius: 20 }}>
-                          🎯 Kiểm chứng: {q.targetTrait}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* ── 6. Coaching Advice ──────────────────────────────── */}
+            {/* ── 5. Coaching Advice ──────────────────────────────── */}
             {((aiReport as any).coachingAdvice ?? []).length > 0 && (
               <div style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.25)', borderRadius: 12, padding: '16px 20px' }}>
                 <div style={{ fontWeight: 700, fontSize: 11, color: '#A5B4FC', marginBottom: 12, letterSpacing: '0.07em' }}>
-                  6 · LỜI KHUYÊN PHÁT TRIỂN (COACHING ADVICE)
+                  5 · LỜI KHUYÊN PHÁT TRIỂN (COACHING ADVICE)
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                   {(aiReport as any).coachingAdvice.map((c: any, i: number) => (

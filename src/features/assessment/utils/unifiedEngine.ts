@@ -34,9 +34,12 @@ export interface UnifiedScoringResult {
     neutralBias:      QualityMetric; // Tỉ lệ câu trả lời "3"
     timeTracking:     QualityMetric;
     patternDetection: QualityMetric; // Straight-lining / Zig-zac
+    acquiescenceBias: QualityMetric; // Yes-saying / Nay-saying bias
+    extremeResponder: QualityMetric; // Tỉ lệ chọn điểm cực (1 hoặc 5)
+    quickAnswers:     QualityMetric; // Số câu trả lời dưới 2 giây
   };
   reliabilityLevel: 'reliable' | 'suspect' | 'invalid';
-  penaltyMultiplier: number; // 1.0 = không phạt, 0.85 = phạt 15%
+  penaltyMultiplier: number; // 1.0 = không phạt — chỉ áp vào Combat Power
 }
 
 // ── Hàm trợ giúp ─────────────────────────────────────────────
@@ -69,6 +72,7 @@ export function calculateUnifiedScores(
   }>,
   startTime: number,
   endTime: number,
+  answerTimes?: Record<string, number>, // questionId → ms để trả lời
 ): UnifiedScoringResult {
   const durationSeconds = (endTime - startTime) / 1000;
   const totalAnswered = Object.keys(answers).length;
@@ -135,8 +139,8 @@ export function calculateUnifiedScores(
       ? Math.max(0, Math.min(100, ((data.rawSum - minPossible) / range) * 100))
       : 50;
 
-    // Percentile 0–100 → scaled 1–10
-    const scaled = Math.max(1, Math.min(10, Math.round(percentile / 10) + 1));
+    // Percentile 0–100 → scaled 1–10 (bins đều nhau: mỗi 10% = 1 điểm)
+    const scaled = Math.min(10, Math.max(1, Math.floor(percentile / 10) + 1));
 
     return {
       dimensionId: dimId,
@@ -190,14 +194,19 @@ export function calculateUnifiedScores(
       'Sẵn sàng biểu đạt quan điểm.',
   };
 
-  // 3.4 Time Tracking
+  // 3.4 Time Tracking — ngưỡng tính động theo số câu chính (không tính lie)
+  const mainQCount    = questions.filter(q => !q.isLieScale).length;
+  const minRiskSec    = mainQCount * 3; // 3s/câu — chỉ đủ lướt mắt qua
+  const minWarnSec    = mainQCount * 5; // 5s/câu — đọc và suy nghĩ tối thiểu
   const timeMetric: QualityMetric = {
     score: `${Math.round(durationSeconds)} giây`,
-    status: durationSeconds < 360 ? 'Risk' : durationSeconds < 540 ? 'Warning' : 'Ok',
+    status: durationSeconds < minRiskSec ? 'Risk' : durationSeconds < minWarnSec ? 'Warning' : 'Ok',
     message:
-      durationSeconds < 360 ? 'Làm bài quá nhanh — không đủ thời gian đọc hiểu câu hỏi.' :
-      durationSeconds < 540 ? 'Tốc độ làm bài nhanh hơn trung bình.' :
-      'Thời gian làm bài hợp lý.',
+      durationSeconds < minRiskSec
+        ? `Làm bài quá nhanh (${Math.round(durationSeconds)}s / ${mainQCount} câu chính) — không đủ thời gian đọc hiểu.`
+      : durationSeconds < minWarnSec
+        ? 'Tốc độ làm bài nhanh hơn trung bình.'
+      : 'Thời gian làm bài hợp lý.',
   };
 
   // 3.5 Pattern Detection: Straight-lining (cùng giá trị liên tiếp) / Zig-zac (1-5-1-5)
@@ -233,11 +242,57 @@ export function calculateUnifiedScores(
       'Khuôn mẫu phản hồi tự nhiên.',
   };
 
-  // 4. Xác định độ tin cậy tổng quát
-  const riskCount = [lieMetric, consistencyMetric, neutralMetric, timeMetric, patternMetric]
-    .filter(m => m.status === 'Risk').length;
-  const warningCount = [lieMetric, consistencyMetric, neutralMetric, timeMetric, patternMetric]
-    .filter(m => m.status === 'Warning').length;
+  // 3.6 Acquiescence Bias: xu hướng đồng ý / phủ nhận tất cả (raw answers trước đảo chiều)
+  const rawMean = orderedValues.length > 0
+    ? orderedValues.reduce((a, b) => a + b, 0) / orderedValues.length
+    : 3;
+  const acquiescenceMetric: QualityMetric = {
+    score: rawMean.toFixed(2),
+    status:
+      rawMean > 4.2 || rawMean < 1.8 ? 'Risk' :
+      rawMean > 3.8 || rawMean < 2.2 ? 'Warning' : 'Ok',
+    message:
+      rawMean > 4.2 ? 'Cực đoan đồng ý (yes-saying) — câu trả lời mất khả năng phân biệt năng lực.' :
+      rawMean > 3.8 ? 'Xu hướng đồng ý với hầu hết phát biểu bất kể nội dung.' :
+      rawMean < 1.8 ? 'Cực đoan phủ nhận (nay-saying) — cố tình đánh thấp hoặc không hợp tác.' :
+      rawMean < 2.2 ? 'Xu hướng phủ nhận hầu hết phát biểu.' :
+      'Phân phối phản hồi cân bằng.',
+  };
+
+  // 3.7 Extreme Responder: tỉ lệ chọn điểm cực 1 hoặc 5
+  const extremeCount = orderedValues.filter(v => v === 1 || v === 5).length;
+  const extremeRatio  = orderedValues.length > 0 ? extremeCount / orderedValues.length : 0;
+  const extremeMetric: QualityMetric = {
+    score: `${Math.round(extremeRatio * 100)}%`,
+    status: extremeRatio > 0.9 ? 'Risk' : extremeRatio > 0.75 ? 'Warning' : 'Ok',
+    message:
+      extremeRatio > 0.9 ? 'Gần như chỉ chọn điểm cực (1 hoặc 5) — không có biến thiên tự nhiên, kết quả vô nghĩa.' :
+      extremeRatio > 0.75 ? 'Tỉ lệ điểm cực cao — phản hồi có thể không phản ánh thực tế.' :
+      'Biên độ phản hồi tự nhiên.',
+  };
+
+  // 3.8 Quick Answers: câu trả lời dưới 2 giây
+  const quickEntries   = answerTimes ? Object.entries(answerTimes) : [];
+  const quickCount     = quickEntries.filter(([, t]) => t < 2000).length;
+  const quickTotal     = quickEntries.length > 0 ? quickEntries.length : totalAnswered;
+  const quickRatio     = quickTotal > 0 ? quickCount / quickTotal : 0;
+  const quickMetric: QualityMetric = {
+    score: answerTimes ? `${quickCount}/${quickTotal} câu` : 'N/A',
+    status: !answerTimes ? 'Ok' : quickRatio > 0.4 ? 'Risk' : quickRatio > 0.2 ? 'Warning' : 'Ok',
+    message:
+      !answerTimes
+        ? 'Không có dữ liệu thời gian từng câu.' :
+      quickRatio > 0.4
+        ? `${Math.round(quickRatio * 100)}% câu trả lời dưới 2 giây — không đủ thời gian đọc hiểu nội dung.` :
+      quickRatio > 0.2
+        ? `${Math.round(quickRatio * 100)}% câu trả lời dưới 2 giây — có dấu hiệu làm vội một số phần.` :
+      'Thời gian phản hồi từng câu hợp lý.',
+  };
+
+  // 4. Xác định độ tin cậy tổng quát (8 chỉ số)
+  const allMetrics = [lieMetric, consistencyMetric, neutralMetric, timeMetric, patternMetric, acquiescenceMetric, extremeMetric, quickMetric];
+  const riskCount    = allMetrics.filter(m => m.status === 'Risk').length;
+  const warningCount = allMetrics.filter(m => m.status === 'Warning').length;
 
   let reliabilityLevel: UnifiedScoringResult['reliabilityLevel'] = 'reliable';
   let penaltyMultiplier = 1.0;
@@ -248,20 +303,11 @@ export function calculateUnifiedScores(
   } else if (warningCount >= 2) {
     reliabilityLevel = 'suspect';
     penaltyMultiplier = 0.85;
-  } else if (warningCount >= 1) {
-    reliabilityLevel = 'suspect';
-    penaltyMultiplier = 0.93;
   }
+  // warningCount === 1 → reliable, không phạt (spec: 1 warning = acceptable)
 
-  // 5. Áp dụng penalty vào scaled nếu cần
-  const finalDimensions: UnifiedDimensionScore[] = penaltyMultiplier < 1.0
-    ? dimensions.map(d => ({
-        ...d,
-        scaled: d.scaled > 0
-          ? Math.max(1, Math.round(d.scaled * penaltyMultiplier * 10) / 10)
-          : 0,
-      }))
-    : dimensions;
+  // 5. Dimensions giữ nguyên điểm thô — penalty chỉ áp vào Combat Power (unifiedScoring.ts)
+  const finalDimensions = dimensions;
 
   return {
     type: 'SPI_UNIFIED_V4',
@@ -272,6 +318,9 @@ export function calculateUnifiedScores(
       neutralBias:      neutralMetric,
       timeTracking:     timeMetric,
       patternDetection: patternMetric,
+      acquiescenceBias: acquiescenceMetric,
+      extremeResponder: extremeMetric,
+      quickAnswers:     quickMetric,
     },
     reliabilityLevel,
     penaltyMultiplier,

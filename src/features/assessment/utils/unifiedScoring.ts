@@ -12,16 +12,14 @@ import { DIMENSIONS } from '@/features/assessment/data/dimensions';
 // ── Kiểu dữ liệu đầu ra ──────────────────────────────────────
 
 export type RoleType =
-  | 'Chuyên gia'
-  | 'Kỹ sư Sản phẩm'
-  | 'Người dẫn dắt'
-  | 'Nhân sự Đa năng'
-  | 'Chiến binh Sales'
-  | 'Nhân sự Ổn định'
-  | 'Nhà phân tích'
-  | 'Creative & Content'
-  | 'Quản lý Trung cấp'
-  | 'Customer Success';
+  | 'Người Mở cõi'
+  | 'Người Cầm lái'
+  | 'Chuyên gia Đào sâu'
+  | 'Người Chăm chút'
+  | 'Nhà Sáng tạo'
+  | 'Người Kiến tạo'
+  | 'Cố vấn Phân tích'
+  | 'Chất Kết Dính';
 
 export interface UnifiedScoreItem {
   id: string;
@@ -315,196 +313,155 @@ function calcSuitability(groups: UnifiedGroup[]): SuitabilityRole[] {
 
   const rolesData: { role: RoleType; score: number; positions: string[]; badge: string }[] = [
 
-    // 1. Chuyên gia — cần logic cao, thận trọng, tận tâm, học hỏi
+    // 1. Người Mở cõi (Hunter / Trailblazer)
     {
-      role: 'Chuyên gia',
-      score: profileScore(
-        [
-          { value: log, weight: 35, threshold: 6.5 },
-          { value: cau, weight: 25, threshold: 6.0 },
-          { value: con, weight: 25, threshold: 6.0 },
-          { value: lrn, weight: 15, threshold: 5.5 },
-        ],
-        [
-          { value: ext,  threshold: 8.5, deduct: 15 }, // Quá hướng ngoại → xao nhãng
-          { value: chl,  threshold: 8.5, deduct: 10 }, // Liều lĩnh quá → không cẩn thận
-        ]
-      ),
-      positions: ['Lập trình viên (Core/System)', 'Tester / QC', 'R&D', 'Kiểm soát nội bộ', 'Kế toán chuyên sâu'],
-      badge: '🔬',
-    },
-
-    // 2. Kỹ sư Sản phẩm — cần openness, tốc độ, challenge, learning
-    {
-      role: 'Kỹ sư Sản phẩm',
-      score: profileScore(
-        [
-          { value: opn, weight: 30, threshold: 6.0 },
-          { value: chl, weight: 25, threshold: 6.0 },
-          { value: spd, weight: 25, threshold: 5.5 },
-          { value: lrn, weight: 20, threshold: 5.5 },
-        ],
-        [
-          { value: cau,       threshold: 8.5, deduct: 20 }, // Quá cẩn thận → chậm ship
-          { value: 10 - opn,  threshold: 5,   deduct: 15 }, // Thiếu openness → ngại thử mới
-        ]
-      ),
-      positions: ['Lập trình viên (Product/Frontend)', 'UX Designer', 'Marketing', 'Creative'],
-      badge: '⚡',
-    },
-
-    // 3. Người dẫn dắt — cần tự chủ cao, empathy, achievement, ổn định cảm xúc
-    {
-      role: 'Người dẫn dắt',
-      score: profileScore(
-        [
-          { value: aut, weight: 35, threshold: 7.0 },
-          { value: emp, weight: 25, threshold: 6.5 },
-          { value: ach, weight: 20, threshold: 6.5 },
-          { value: emo, weight: 20, threshold: 6.0 },
-        ],
-        [
-          { value: 10 - aut, threshold: 3, deduct: 30 }, // Thiếu tự chủ → không ra quyết định
-          { value: agr,      threshold: 9, deduct: 15 }, // Quá dễ tính → không kỷ luật được
-        ]
-      ),
-      positions: ['Team Lead', 'Quản lý dự án', 'Product Manager', 'CEO/Manager'],
-      badge: '👑',
-    },
-
-    // 4. Chiến binh Sales — cần hướng ngoại, challenge, ổn định cảm xúc, achievement
-    {
-      role: 'Chiến binh Sales',
+      role: 'Người Mở cõi',
       score: profileScore(
         [
           { value: ext, weight: 30, threshold: 6.5 },
-          { value: chl, weight: 25, threshold: 6.5 },
-          { value: emo, weight: 25, threshold: 6.0 },
-          { value: ach, weight: 20, threshold: 6.0 },
+          { value: chl, weight: 30, threshold: 6.5 },
+          { value: spd, weight: 20, threshold: 6.0 },
+          { value: emo, weight: 20, threshold: 6.0 },
         ],
         [
-          { value: 10 - ext, threshold: 4, deduct: 35 }, // Hướng nội → tốn năng lượng khi gặp khách
-          { value: cau,      threshold: 8, deduct: 20 }, // Quá thận trọng → ngại rủi ro/close deal
+          { value: cau,      threshold: 8, deduct: 25 }, // Thận trọng quá -> chậm
+          { value: 10 - ext, threshold: 5, deduct: 30 }, // Hướng nội -> khó giao tiếp
         ]
       ),
-      positions: ['Kinh doanh (Sales)', 'Business Development', 'Đại diện thương mại'],
+      positions: ['Sales', 'Business Development', 'Tăng trưởng (Growth)'],
       badge: '🎯',
     },
 
-    // 5. Nhân sự Đa năng — cần hòa đồng, empathy, tận tâm, ổn định
+    // 2. Người Cầm lái (Leader / Driver)
     {
-      role: 'Nhân sự Đa năng',
+      role: 'Người Cầm lái',
       score: profileScore(
         [
-          { value: agr, weight: 35, threshold: 6.5 },
-          { value: emp, weight: 25, threshold: 6.0 },
-          { value: con, weight: 20, threshold: 5.5 },
-          { value: emo, weight: 20, threshold: 5.5 },
+          { value: aut, weight: 30, threshold: 7.0 },
+          { value: emp, weight: 25, threshold: 6.5 },
+          { value: log, weight: 25, threshold: 6.5 },
+          { value: emo, weight: 20, threshold: 6.0 },
         ],
         [
-          { value: 10 - agr, threshold: 4, deduct: 30 }, // Thiếu hòa đồng → khó làm HR/hỗ trợ
-          { value: aut,      threshold: 9, deduct: 10 }, // Quá tự chủ → không muốn hỗ trợ người khác
+          { value: 10 - aut, threshold: 5, deduct: 30 }, // Thiếu tự chủ -> không ra quyết định được
+          { value: agr,      threshold: 9, deduct: 15 }, // Quá dễ dãi -> không kỷ luật được
         ]
       ),
-      positions: ['HR (Nhân sự)', 'Admin', 'Vận hành', 'Hành chính'],
-      badge: '🤝',
+      positions: ['Team Lead', 'Manager', 'CEO'],
+      badge: '👑',
     },
 
-    // 6. Nhân sự Ổn định — cần tận tâm cao, thận trọng, không thích thay đổi
+    // 3. Chuyên gia Đào sâu (Deep Specialist)
     {
-      role: 'Nhân sự Ổn định',
-      score: profileScore(
-        [
-          { value: con, weight: 40, threshold: 6.5 },
-          { value: cau, weight: 30, threshold: 6.0 },
-          { value: emo, weight: 20, threshold: 5.5 },
-          { value: agr, weight: 10, threshold: 5.0 },
-        ],
-        [
-          { value: chl, threshold: 7.5, deduct: 25 }, // Thích thách thức → chán việc lặp lại
-          { value: aut, threshold: 8.0, deduct: 20 }, // Quá tự chủ → dễ nghỉ việc
-          { value: opn, threshold: 8.5, deduct: 10 }, // Quá sáng tạo → chán việc quy trình
-        ]
-      ),
-      positions: ['Nhập liệu', 'Hỗ trợ vận hành', 'Lưu trữ hồ sơ', 'Công việc quy trình hóa'],
-      badge: '⚓',
-    },
-
-    // 7. Nhà phân tích — cần logic cao, thận trọng cao, tự chủ; ít cần social
-    {
-      role: 'Nhà phân tích',
+      role: 'Chuyên gia Đào sâu',
       score: profileScore(
         [
           { value: log, weight: 40, threshold: 7.0 },
           { value: cau, weight: 30, threshold: 6.5 },
-          { value: con, weight: 20, threshold: 6.0 },
-          { value: aut, weight: 10, threshold: 5.5 },
+          { value: con, weight: 20, threshold: 6.5 },
+          { value: lrn, weight: 10, threshold: 6.0 },
         ],
         [
-          { value: spd,      threshold: 8.5, deduct: 20 }, // Quá vội → bỏ sót chi tiết
-          { value: 10 - log, threshold: 4,   deduct: 25 }, // Thiếu logic → không phân tích được
+          { value: spd, threshold: 8, deduct: 25 }, // Quá vội -> sai sót
+          { value: chl, threshold: 8.5, deduct: 15 }, // Quá liều lĩnh
         ]
       ),
-      positions: ['Data Analyst', 'Business Analyst', 'Tài chính/Kế toán', 'Kiểm toán', 'Nghiên cứu'],
-      badge: '📊',
+      positions: ['Backend Dev', 'System Architect', 'Kế toán trưởng', 'QA/QC'],
+      badge: '🔬',
     },
 
-    // 8. Creative & Content — cần openness rất cao, empathy, tốc độ vừa
+    // 4. Người Chăm chút (Optimizer / Operator)
     {
-      role: 'Creative & Content',
+      role: 'Người Chăm chút',
+      score: profileScore(
+        [
+          { value: con, weight: 40, threshold: 7.0 },
+          { value: cau, weight: 30, threshold: 6.5 },
+          { value: emo, weight: 20, threshold: 6.0 },
+          { value: agr, weight: 10, threshold: 5.5 },
+        ],
+        [
+          { value: chl, threshold: 7.5, deduct: 25 }, // Thích rủi ro -> chán việc lặp lại
+          { value: 10 - con, threshold: 5, deduct: 30 }, // Thiếu tỉ mỉ -> không vận hành được
+        ]
+      ),
+      positions: ['Hành chính', 'Kế toán viên', 'C&B', 'Nhập liệu'],
+      badge: '⚙️',
+    },
+
+    // 5. Nhà Sáng tạo (The Innovator)
+    {
+      role: 'Nhà Sáng tạo',
       score: profileScore(
         [
           { value: opn, weight: 40, threshold: 7.0 },
-          { value: emp, weight: 25, threshold: 6.0 },
-          { value: ext, weight: 20, threshold: 5.5 },
-          { value: lrn, weight: 15, threshold: 5.5 },
+          { value: lrn, weight: 25, threshold: 6.5 },
+          { value: ext, weight: 20, threshold: 6.0 },
+          { value: emp, weight: 15, threshold: 5.5 },
         ],
         [
-          { value: cau,      threshold: 8.0, deduct: 25 }, // Quá cẩn thận → paralysis by perfection
-          { value: 10 - opn, threshold: 3,   deduct: 30 }, // Thiếu openness → không sáng tạo được
+          { value: cau,      threshold: 8.0, deduct: 25 }, // Quá cẩn thận -> không sáng tạo
+          { value: 10 - opn, threshold: 5, deduct: 35 }, // Thiếu cởi mở -> không đổi mới
         ]
       ),
-      positions: ['Content Creator', 'Copywriter', 'Designer', 'Brand Manager', 'Social Media'],
+      positions: ['Creative/Designer', 'Marketing', 'Content Creator', 'UI/UX'],
       badge: '🎨',
     },
 
-    // 9. Quản lý Trung cấp — balance giữa leadership + chuyên môn + empathy
+    // 6. Người Kiến tạo (Product Builder)
     {
-      role: 'Quản lý Trung cấp',
+      role: 'Người Kiến tạo',
       score: profileScore(
         [
-          { value: aut, weight: 25, threshold: 6.5 },
-          { value: emp, weight: 25, threshold: 6.5 },
+          { value: ach, weight: 30, threshold: 6.5 },
+          { value: opn, weight: 25, threshold: 6.5 },
+          { value: spd, weight: 25, threshold: 6.0 },
           { value: log, weight: 20, threshold: 6.0 },
-          { value: con, weight: 15, threshold: 6.0 },
+        ],
+        [
+          { value: cau, threshold: 8.5, deduct: 20 }, // Quá cẩn thận -> chậm release
+        ]
+      ),
+      positions: ['Product Manager', 'Frontend Dev', 'Growth Hacker'],
+      badge: '⚡',
+    },
+
+    // 7. Cố vấn Phân tích (The Analyst)
+    {
+      role: 'Cố vấn Phân tích',
+      score: profileScore(
+        [
+          { value: log, weight: 40, threshold: 7.0 },
+          { value: cau, weight: 30, threshold: 6.5 },
+          { value: aut, weight: 20, threshold: 6.0 },
+          { value: con, weight: 10, threshold: 6.0 },
+        ],
+        [
+          { value: ext,      threshold: 8.5, deduct: 15 }, // Hướng ngoại -> mất tập trung xử lý dữ liệu
+          { value: 10 - log, threshold: 5, deduct: 35 }, // Thiếu logic -> không phân tích được
+        ]
+      ),
+      positions: ['Data Analyst', 'Business Analyst', 'Nghiên cứu (R&D)'],
+      badge: '📊',
+    },
+
+    // 8. Chất Kết Dính (The Connector)
+    {
+      role: 'Chất Kết Dính',
+      score: profileScore(
+        [
+          { value: emp, weight: 40, threshold: 7.0 },
+          { value: agr, weight: 30, threshold: 6.5 },
+          { value: ext, weight: 15, threshold: 6.0 },
           { value: emo, weight: 15, threshold: 6.0 },
         ],
         [
-          { value: 10 - aut, threshold: 4, deduct: 20 }, // Thiếu tự chủ → cần chỉ đạo liên tục
-          { value: 10 - emp, threshold: 4, deduct: 15 }, // Thiếu empathy → không dẫn dắt được team
+          { value: 10 - emp, threshold: 4, deduct: 30 }, // Thiếu thấu cảm -> khó làm support
+          { value: aut,      threshold: 8.5, deduct: 20 }, // Tự chủ quá, cái tôi cao -> khó hỗ trợ
         ]
       ),
-      positions: ['Department Manager', 'Section Head', 'Senior Lead', 'Scrum Master'],
-      badge: '🔧',
-    },
-
-    // 10. Customer Success — cần empathy cao, hòa đồng, ổn định cảm xúc, resilience
-    {
-      role: 'Customer Success',
-      score: profileScore(
-        [
-          { value: emp, weight: 35, threshold: 7.0 },
-          { value: agr, weight: 25, threshold: 6.5 },
-          { value: emo, weight: 20, threshold: 6.5 },
-          { value: smt, weight: 20, threshold: 6.0 },
-        ],
-        [
-          { value: 10 - emp, threshold: 3, deduct: 30 }, // Thiếu empathy → không handle khách được
-          { value: 10 - emo, threshold: 4, deduct: 20 }, // Dễ bị cảm xúc chi phối → burn out nhanh
-        ]
-      ),
-      positions: ['Customer Success', 'Account Manager', 'Support Lead', 'Client Relation'],
-      badge: '💬',
+      positions: ['Customer Success', 'HR Tuyển dụng', 'Trợ lý', 'Account Executive'],
+      badge: '🤝',
     },
   ];
 

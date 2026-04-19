@@ -1,197 +1,198 @@
 import db from "../db";
 
-// 120 câu hỏi SOTA V3.0 cho Developer (Trích xuất từ file DEV)
-export const DEV_QUESTIONS = [
-  // ── NHÓM 1: Chất lượng mã (trait_01) ──────────────────────
-  { dimensionId: 'trait_01', reversed: false, isLieScale: false, textVi: 'Tôi chấp nhận dành thêm thời gian dọn dẹp các phần mã cũ ngay khi tìm ra cách trình bày gọn gàng hơn.' },
-  { dimensionId: 'trait_01', reversed: false, isLieScale: false, textVi: 'Tôi ưu tiên đặt tên các thành phần rõ ràng để người sau đọc là hiểu ngay mà không cần giải thích.' },
-  { dimensionId: 'trait_01', reversed: false, isLieScale: false, textVi: 'Tôi thường kiểm tra kỹ các trường hợp có thể gây lỗi ngay cả với những dòng mã đơn giản nhất.' },
-  { dimensionId: 'trait_01', reversed: false, isLieScale: false, textVi: 'Tôi sẵn sàng viết lại một đoạn mã nếu nhận thấy cách làm đó giúp hệ thống chạy ổn định hơn.' },
-  { dimensionId: 'trait_01', reversed: false, isLieScale: false, textVi: 'Tôi chủ động đề xuất dừng phát triển tính năng mới để tập trung xử lý dứt điểm các lỗi tồn đọng.' },
-  { dimensionId: 'trait_01', reversed: true, isLieScale: false, textVi: 'Tôi chấp nhận bàn giao những đoạn mã chưa tối ưu để đảm bảo đúng thời hạn cam kết với cấp trên.' },
-  { dimensionId: 'trait_01', reversed: true, isLieScale: false, textVi: 'Tôi thường bỏ qua việc ghi chú hướng dẫn nếu thấy phần việc đó đã hoạt động ổn định.' },
-  { dimensionId: 'trait_01', reversed: true, isLieScale: false, textVi: 'Tôi thấy việc dành thời gian làm đẹp mã nguồn là sự lãng phí tài nguyên của công ty.' },
-  { dimensionId: 'trait_01', reversed: true, isLieScale: false, textVi: 'Tôi thường để các hàm xử lý dài và phức tạp miễn là chúng hoàn thành đúng yêu cầu.' },
-  { dimensionId: 'trait_01', reversed: true, isLieScale: false, textVi: 'Tôi ưu tiên việc viết mã cho chương trình chạy được trước, việc sắp xếp gọn gàng tính sau.' },
+// 120 câu hỏi SOTA V3.0 (Đã được chuẩn hóa ngôn ngữ cho mọi vị trí - Universal Data)
+export const UNIVERSAL_QUESTIONS = [
+  // ── NHÓM 1: Chất lượng công việc (trait_01) ──────────────────────
+  { dimensionId: 'trait_01', reversed: false, isLieScale: false, textVi: 'Tôi sẵn sàng dành thêm thời gian kiểm tra lại công việc nhằm đảm bảo kết quả tốt nhất.' },
+  { dimensionId: 'trait_01', reversed: false, isLieScale: false, textVi: 'Tôi luôn sắp xếp và ghi chú tài liệu rõ ràng giúp đồng nghiệp dễ dàng tiếp nhận và xử lý.' },
+  { dimensionId: 'trait_01', reversed: false, isLieScale: false, textVi: 'Tôi thường rà soát kỹ các chi tiết nhỏ để phòng ngừa các lỗi phát sinh không đáng có.' },
+  { dimensionId: 'trait_01', reversed: false, isLieScale: false, textVi: 'Tôi chấp nhận làm lại nhiệm vụ nếu nhận thấy phương án mới mang lại chất lượng cao hơn.' },
+  { dimensionId: 'trait_01', reversed: false, isLieScale: false, textVi: 'Tôi chủ động đề xuất giải quyết dứt điểm các vấn đề cũ trước khi tiếp nhận thêm nhiệm vụ mới.' },
+  { dimensionId: 'trait_01', reversed: true, isLieScale: false, textVi: 'Tôi ưu tiên hoàn thành đúng thời hạn ngay cả khi kết quả chưa đạt mức độ hoàn hảo nhất.' },
+  { dimensionId: 'trait_01', reversed: true, isLieScale: false, textVi: 'Tôi thường bỏ qua việc ghi chép hướng dẫn nếu công việc đang được vận hành ổn định.' },
+  { dimensionId: 'trait_01', reversed: true, isLieScale: false, textVi: 'Tôi tối giản hóa hình thức báo cáo để dành thời gian cho các nội dung chuyên môn.' },
+  { dimensionId: 'trait_01', reversed: true, isLieScale: false, textVi: 'Tôi duy trì các quy trình hiện tại miễn là chúng đáp ứng được yêu cầu công việc cơ bản.' },
+  { dimensionId: 'trait_01', reversed: true, isLieScale: false, textVi: 'Tôi tập trung hoàn thành kết quả trước và sẽ thực hiện việc sắp xếp hệ thống sau.' },
 
   // ── NHÓM 2: Tư duy hệ thống (trait_02) ──────────────────────
-  { dimensionId: 'trait_02', reversed: false, isLieScale: false, textVi: 'Trước khi chỉnh sửa một phần nhỏ, tôi xem xét kỹ sự ảnh hưởng của nó đến toàn bộ hệ thống lớn.' },
-  { dimensionId: 'trait_02', reversed: false, isLieScale: false, textVi: 'Tôi dành thời gian phác thảo sơ đồ vận hành trên giấy hoặc bảng trước khi bắt đầu viết mã.' },
-  { dimensionId: 'trait_02', reversed: false, isLieScale: false, textVi: 'Tôi sẵn sàng thiết kế lại từ đầu nếu cấu trúc hiện tại gây khó khăn cho việc mở rộng về sau.' },
-  { dimensionId: 'trait_02', reversed: false, isLieScale: false, textVi: 'Tôi thường tìm hiểu cách các bộ phận khác kết nối với nhau thay vì chỉ tập trung việc của mình.' },
-  { dimensionId: 'trait_02', reversed: false, isLieScale: false, textVi: 'Tôi ưu tiên xây dựng các thành phần có tính dùng lại cao cho nhiều mục đích khác nhau.' },
-  { dimensionId: 'trait_02', reversed: true, isLieScale: false, textVi: 'Tôi thích tập trung giải quyết phần việc được giao thay vì quan tâm đến cấu trúc tổng thể.' },
-  { dimensionId: 'trait_02', reversed: true, isLieScale: false, textVi: 'Tôi thấy việc tính toán cho những tình huống giả định trong tương lai thường làm chậm tiến độ hiện tại.' },
-  { dimensionId: 'trait_02', reversed: true, isLieScale: false, textVi: 'Tôi ưu tiên sử dụng các phương pháp quen thuộc để an toàn hơn là thử nghiệm mô hình tổ chức mới.' },
-  { dimensionId: 'trait_02', reversed: true, isLieScale: false, textVi: 'Tôi thường cảm thấy khó khăn khi phải hình dung cách các khối dữ liệu tương tác với nhau.' },
-  { dimensionId: 'trait_02', reversed: true, isLieScale: false, textVi: 'Tôi thích bắt tay vào viết mã ngay thay vì dành thời gian cho việc thiết kế sơ đồ.' },
+  { dimensionId: 'trait_02', reversed: false, isLieScale: false, textVi: 'Trước khi thay đổi một chi tiết nhỏ, tôi luôn xem xét ảnh hưởng của nó tới toàn bộ quy trình.' },
+  { dimensionId: 'trait_02', reversed: false, isLieScale: false, textVi: 'Tôi dành thời gian phác thảo luồng công việc giúp việc triển khai thực tế diễn ra thuận lợi hơn.' },
+  { dimensionId: 'trait_02', reversed: false, isLieScale: false, textVi: 'Tôi sẵn sàng điều chỉnh lại cấu trúc dự án nếu việc đó giúp hệ thống dễ dàng mở rộng về sau.' },
+  { dimensionId: 'trait_02', reversed: false, isLieScale: false, textVi: 'Tôi chủ động tìm hiểu cách các bộ phận kết nối với nhau để phối hợp công việc hiệu quả hơn.' },
+  { dimensionId: 'trait_02', reversed: false, isLieScale: false, textVi: 'Tôi ưu tiên xây dựng các quy trình có tính ứng dụng cao để có thể tái sử dụng cho nhiều mục đích.' },
+  { dimensionId: 'trait_02', reversed: true, isLieScale: false, textVi: 'Tôi thích tập trung hoàn thành phần việc cá nhân thay vì bận tâm đến cấu trúc tổng thể của tổ chức.' },
+  { dimensionId: 'trait_02', reversed: true, isLieScale: false, textVi: 'Tôi thường bỏ qua việc tính toán các tình huống giả định để ưu tiên tiến độ công việc hiện tại.' },
+  { dimensionId: 'trait_02', reversed: true, isLieScale: false, textVi: 'Tôi ưu tiên sử dụng các phương pháp quen thuộc thay vì thử nghiệm các quy trình vận hành mới.' },
+  { dimensionId: 'trait_02', reversed: true, isLieScale: false, textVi: 'Tôi thường gặp khó khăn khi phải hình dung sự tương tác giữa các luồng thông tin trong tổ chức.' },
+  { dimensionId: 'trait_02', reversed: true, isLieScale: false, textVi: 'Tôi thường bắt tay vào làm việc ngay thay vì dành thời gian cho việc thiết kế sơ đồ tổng thể.' },
 
-  // ── NHÓM 3: Bảo mật (trait_03) ──────────────────────
-  { dimensionId: 'trait_03', reversed: false, isLieScale: false, textVi: 'Tôi thường xuyên tự kiểm tra các kẽ hở thông tin ngay cả khi chức năng đó không yêu cầu cao.' },
-  { dimensionId: 'trait_03', reversed: false, isLieScale: false, textVi: 'Tôi sẵn sàng phản đối một yêu cầu nếu nhận thấy nó gây nguy hiểm cho dữ liệu người dùng.' },
-  { dimensionId: 'trait_03', reversed: false, isLieScale: false, textVi: 'Tôi thường xuyên cập nhật và thay thế các thành phần hỗ trợ cũ để phòng ngừa nguy cơ tiềm ẩn.' },
-  { dimensionId: 'trait_03', reversed: false, isLieScale: false, textVi: 'Tôi coi việc bảo vệ thông tin khách hàng là nhiệm vụ ưu tiên hàng đầu trong mọi nhiệm vụ.' },
-  { dimensionId: 'trait_03', reversed: false, isLieScale: false, textVi: 'Tôi chủ động tìm hiểu các phương thức tấn công mạng mới để phòng tránh cho sản phẩm của mình.' },
-  { dimensionId: 'trait_03', reversed: true, isLieScale: false, textVi: 'Tôi chấp nhận tạm bỏ qua bước kiểm tra an toàn để việc thử nghiệm diễn ra nhanh chóng hơn.' },
-  { dimensionId: 'trait_03', reversed: true, isLieScale: false, textVi: 'Tôi cho rằng bảo mật là trách nhiệm của bộ phận kiểm soát thay vì của người viết mã.' },
-  { dimensionId: 'trait_03', reversed: true, isLieScale: false, textVi: 'Tôi đôi khi để các thông tin truy cập nhạy cảm ngay trong mã nguồn nhằm mục đích kiểm tra nhanh.' },
-  { dimensionId: 'trait_03', reversed: true, isLieScale: false, textVi: 'Tôi thường phớt lờ các cảnh báo về an toàn nếu chúng làm chậm tốc độ xử lý của hệ thống.' },
-  { dimensionId: 'trait_03', reversed: true, isLieScale: false, textVi: 'Tôi thấy việc cài đặt các lớp bảo vệ phức tạp thường gây phiền hà cho người sử dụng.' },
+  // ── NHÓM 3: Kiểm soát rủi ro & Bảo mật (trait_03) ──────────────────────
+  { dimensionId: 'trait_03', reversed: false, isLieScale: false, textVi: 'Tôi thường xuyên tự kiểm tra các rủi ro tiềm ẩn để đảm bảo tính an toàn cho công việc.' },
+  { dimensionId: 'trait_03', reversed: false, isLieScale: false, textVi: 'Tôi sẵn sàng phản đối các yêu cầu có thể gây ảnh hưởng tiêu cực tới dữ liệu hoặc uy tín công ty.' },
+  { dimensionId: 'trait_03', reversed: false, isLieScale: false, textVi: 'Tôi thường xuyên rà soát lại các quy trình cũ nhằm phòng ngừa các sự cố có thể xảy ra.' },
+  { dimensionId: 'trait_03', reversed: false, isLieScale: false, textVi: 'Tôi coi việc bảo mật thông tin nội bộ là trách nhiệm quan trọng hàng đầu trong mọi hành động.' },
+  { dimensionId: 'trait_03', reversed: false, isLieScale: false, textVi: 'Tôi chủ động tìm hiểu các nguy cơ mất an toàn mới để áp dụng biện pháp phòng tránh cho đơn vị.' },
+  { dimensionId: 'trait_03', reversed: true, isLieScale: false, textVi: 'Tôi chấp nhận lược bỏ một số bước kiểm tra an toàn để đảm bảo tiến độ triển khai công việc.' },
+  { dimensionId: 'trait_03', reversed: true, isLieScale: false, textVi: 'Tôi cho rằng việc kiểm soát rủi ro thuộc trách nhiệm của các bộ phận chuyên môn khác.' },
+  { dimensionId: 'trait_03', reversed: true, isLieScale: false, textVi: 'Tôi có thể chia sẻ thông tin nhạy cảm ở mức độ nhất định để giải quyết nhanh các đầu việc.' },
+  { dimensionId: 'trait_03', reversed: true, isLieScale: false, textVi: 'Tôi thường bỏ qua các bước rà soát sự cố nếu chúng làm chậm tốc độ xử lý công việc cá nhân.' },
+  { dimensionId: 'trait_03', reversed: true, isLieScale: false, textVi: 'Tôi thấy việc thiết lập các lớp kiểm soát phức tạp thường gây cản trở cho quá trình làm việc.' },
 
   // ── NHÓM 4: Chính trực (trait_04) ──────────────────────
-  { dimensionId: 'trait_04', reversed: false, isLieScale: false, textVi: 'Tôi sẵn sàng nhận trách nhiệm về mình khi dự án thất bại dù nguyên nhân từ thành viên khác.' },
-  { dimensionId: 'trait_04', reversed: false, isLieScale: false, textVi: 'Tôi chủ động báo cáo lỗi sai của mình ngay lập tức dù việc đó làm giảm điểm đánh giá.' },
-  { dimensionId: 'trait_04', reversed: false, isLieScale: false, textVi: 'Tôi sẵn sàng làm việc thêm giờ để khắc phục sự cố do mình gây ra mà không đòi hỏi.' },
-  { dimensionId: 'trait_04', reversed: false, isLieScale: false, textVi: 'Tôi thường thẳng thắn góp ý về những sai sót kỹ thuật của đồng nghiệp một cách chân thành.' },
-  { dimensionId: 'trait_04', reversed: false, isLieScale: false, textVi: 'Tôi giữ đúng cam kết về thời gian và chất lượng công việc trong mọi tình huống khó khăn.' },
-  { dimensionId: 'trait_04', reversed: true, isLieScale: false, textVi: 'Tôi thường đợi đến khi có người phát hiện ra lỗi rồi mới bắt đầu tìm cách xử lý.' },
-  { dimensionId: 'trait_04', reversed: true, isLieScale: false, textVi: 'Tôi ưu tiên bảo vệ lợi ích và uy tín cá nhân hơn là phơi bày những sai sót của tập thể.' },
-  { dimensionId: 'trait_04', reversed: true, isLieScale: false, textVi: 'Tôi có xu hướng báo cáo tiến độ tốt hơn thực tế để tránh những cuộc họp kéo dài.' },
-  { dimensionId: 'trait_04', reversed: true, isLieScale: false, textVi: 'Tôi thỉnh thoảng giấu đi những lỗi nhỏ nếu tự tin rằng chúng không gây hậu quả ngay lập tức.' },
-  { dimensionId: 'trait_04', reversed: true, isLieScale: false, textVi: 'Tôi thường đổ lỗi cho sự thiếu rõ ràng của yêu cầu khi công việc không đạt kết quả.' },
+  { dimensionId: 'trait_04', reversed: false, isLieScale: false, textVi: 'Tôi sẵn sàng chịu trách nhiệm khi kết quả công việc do tôi phụ trách chưa đạt yêu cầu.' },
+  { dimensionId: 'trait_04', reversed: false, isLieScale: false, textVi: 'Tôi chủ động báo cáo các lỗi cá nhân ngay lập tức để tìm giải pháp khắc phục kịp thời.' },
+  { dimensionId: 'trait_04', reversed: false, isLieScale: false, textVi: 'Tôi sẵn sàng dành thêm thời gian sửa chữa các sai sót do bản thân gây ra mà không đòi hỏi thêm.' },
+  { dimensionId: 'trait_04', reversed: false, isLieScale: false, textVi: 'Tôi luôn thẳng thắn đóng góp ý kiến về những điểm chưa tốt của đồng nghiệp trên tinh thần xây dựng.' },
+  { dimensionId: 'trait_04', reversed: false, isLieScale: false, textVi: 'Tôi nỗ lực giữ đúng cam kết về tiến độ và chất lượng bất kể gặp phải những khó khăn khách quan.' },
+  { dimensionId: 'trait_04', reversed: true, isLieScale: false, textVi: 'Tôi thường đợi đến khi nhận được yêu cầu giải trình mới bắt đầu xử lý các lỗi sai của bản thân.' },
+  { dimensionId: 'trait_04', reversed: true, isLieScale: false, textVi: 'Tôi ưu tiên giữ sự hòa đồng thay vì chỉ ra những thiếu sót trong công việc của các thành viên khác.' },
+  { dimensionId: 'trait_04', reversed: true, isLieScale: false, textVi: 'Tôi có xu hướng báo cáo kết quả tốt hơn thực tế để hạn chế các thủ tục giải trình phức tạp.' },
+  { dimensionId: 'trait_04', reversed: true, isLieScale: false, textVi: 'Tôi thỉnh thoảng bỏ qua các lỗi nhỏ nếu nhận thấy chúng chưa gây ra hậu quả trực tiếp.' },
+  { dimensionId: 'trait_04', reversed: true, isLieScale: false, textVi: 'Tôi thường cho rằng sự thất bại đến từ các yêu cầu chưa rõ ràng hơn là từ năng lực cá nhân.' },
 
   // ── NHÓM 5: Thích nghi (trait_05) ──────────────────────
-  { dimensionId: 'trait_05', reversed: false, isLieScale: false, textVi: 'Tôi giữ được sự bình tĩnh và làm việc hiệu quả khi yêu cầu thay đổi vào phút chót.' },
-  { dimensionId: 'trait_05', reversed: false, isLieScale: false, textVi: 'Tôi sẵn sàng chuyển sang một dự án hoàn toàn mới dù chưa kịp làm quen hết đồng nghiệp cũ.' },
-  { dimensionId: 'trait_05', reversed: false, isLieScale: false, textVi: 'Tôi thích nghi nhanh chóng với các quy trình quản lý mới khi công ty thay đổi cơ cấu.' },
-  { dimensionId: 'trait_05', reversed: false, isLieScale: false, textVi: 'Tôi coi những thay đổi bất ngờ là cơ hội để rèn luyện khả năng xử lý tình huống của mình.' },
-  { dimensionId: 'trait_05', reversed: false, isLieScale: false, textVi: 'Tôi có thể làm việc tốt với nhiều nhóm người có tính cách và phương pháp làm việc khác nhau.' },
-  { dimensionId: 'trait_05', reversed: true, isLieScale: false, textVi: 'Tôi cảm thấy khó chịu khi phải bỏ dở những phần việc đã dày công xây dựng vì kế hoạch thay đổi.' },
-  { dimensionId: 'trait_05', reversed: true, isLieScale: false, textVi: 'Tôi thường mất nhiều thời gian để làm quen khi phải sử dụng một bộ công cụ làm việc mới.' },
-  { dimensionId: 'trait_05', reversed: true, isLieScale: false, textVi: 'Tôi ưu tiên sự ổn định và ngại thay đổi các thói quen làm việc lâu năm của bản thân.' },
-  { dimensionId: 'trait_05', reversed: true, isLieScale: false, textVi: 'Tôi thường thấy lúng túng khi phải làm việc trong một môi trường thiếu quy trình rõ ràng.' },
-  { dimensionId: 'trait_05', reversed: true, isLieScale: false, textVi: 'Tôi cảm thấy mệt mỏi nếu phải liên tục cập nhật những quy định mới trong dự án.' },
+  { dimensionId: 'trait_05', reversed: false, isLieScale: false, textVi: 'Tôi duy trì được sự bình tĩnh và hiệu quả công việc ngay cả khi các yêu cầu thay đổi đột ngột.' },
+  { dimensionId: 'trait_05', reversed: false, isLieScale: false, textVi: 'Tôi sẵn sàng chuyển sang dự án hoặc nhóm làm việc mới theo sự điều động của tổ chức.' },
+  { dimensionId: 'trait_05', reversed: false, isLieScale: false, textVi: 'Tôi nhanh chóng bắt nhịp với các quy trình hoạt động hoặc công cụ quản trị mới của công ty.' },
+  { dimensionId: 'trait_05', reversed: false, isLieScale: false, textVi: 'Tôi xem những thay đổi ngoài dự kiến là cơ hội để rèn luyện kỹ năng xử lý tình huống.' },
+  { dimensionId: 'trait_05', reversed: false, isLieScale: false, textVi: 'Tôi có thể phối hợp làm việc hiệu quả với nhiều tính cách và bộ phận khác nhau.' },
+  { dimensionId: 'trait_05', reversed: true, isLieScale: false, textVi: 'Tôi cảm thấy không hài lòng khi phải thay đổi các kế hoạch mà bản thân đã dành nhiều công sức.' },
+  { dimensionId: 'trait_05', reversed: true, isLieScale: false, textVi: 'Tôi thường mất nhiều thời gian hơn mức trung bình để làm quen với một phần mềm mới.' },
+  { dimensionId: 'trait_05', reversed: true, isLieScale: false, textVi: 'Tôi thích làm việc theo các quy trình cố định và ngại thay đổi các thói quen cũ.' },
+  { dimensionId: 'trait_05', reversed: true, isLieScale: false, textVi: 'Tôi thường bị lúng túng khi làm việc trong những môi trường chưa có quy định hoặc cấu trúc rõ ràng.' },
+  { dimensionId: 'trait_05', reversed: true, isLieScale: false, textVi: 'Tôi gặp khó khăn trong việc bắt kịp các thay đổi liên tục về chiến lược hoặc quy trình của công ty.' },
 
   // ── NHÓM 6: Tự học (trait_06) ──────────────────────
-  { dimensionId: 'trait_06', reversed: false, isLieScale: false, textVi: 'Tôi thường tự học thêm các phương pháp lập trình mới vào thời gian rảnh dù không ai yêu cầu.' },
-  { dimensionId: 'trait_06', reversed: false, isLieScale: false, textVi: 'Tôi chủ động yêu cầu những lời nhận xét khắt khe để nhận ra điểm yếu của bản thân.' },
-  { dimensionId: 'trait_06', reversed: false, isLieScale: false, textVi: 'Tôi coi những sai sót trong công việc là bài học quy giá để nâng cao trình độ chuyên môn.' },
-  { dimensionId: 'trait_06', reversed: false, isLieScale: false, textVi: 'Tôi thường xuyên theo dõi tin tức về sự thay đổi của công nghệ để không bị lạc hậu.' },
-  { dimensionId: 'trait_06', reversed: false, isLieScale: false, textVi: 'Tôi sẵn sàng thử thách bản thân với những nhiệm vụ khó vượt quá khả năng hiện tại.' },
-  { dimensionId: 'trait_06', reversed: true, isLieScale: false, textVi: 'Tôi thấy hài lòng với những kiến thức mình đang có và không có nhu cầu học thêm cái mới.' },
-  { dimensionId: 'trait_06', reversed: true, isLieScale: false, textVi: 'Tôi tin rằng kinh nghiệm thực tế quan trọng hơn nhiều so với việc đọc sách hay học lý thuyết.' },
-  { dimensionId: 'trait_06', reversed: true, isLieScale: false, textVi: 'Tôi thường cảm thấy nản lòng khi phải đối mặt với một công nghệ hoàn toàn xa lạ.' },
-  { dimensionId: 'trait_06', reversed: true, isLieScale: false, textVi: 'Tôi chỉ học những gì thực sự cần thiết để hoàn thành công việc được giao hàng ngày.' },
-  { dimensionId: 'trait_06', reversed: true, isLieScale: false, textVi: 'Tôi thấy việc tham gia các buổi chia sẻ kiến thức thường làm tốn thời gian làm việc chính.' },
+  { dimensionId: 'trait_06', reversed: false, isLieScale: false, textVi: 'Tôi thường chủ động tìm hiểu các kỹ năng chuyên môn mới để phục vụ cho sự phát triển cá nhân.' },
+  { dimensionId: 'trait_06', reversed: false, isLieScale: false, textVi: 'Tôi mong muốn nhận được những nhận xét thẳng thắn về khuyết điểm để có hướng hoàn thiện bản thân.' },
+  { dimensionId: 'trait_06', reversed: false, isLieScale: false, textVi: 'Tôi coi các sai sót hoặc thất bại trong công việc là những bài học kinh nghiệm cần thiết.' },
+  { dimensionId: 'trait_06', reversed: false, isLieScale: false, textVi: 'Tôi thường xuyên theo dõi các xu hướng và kiến thức mới để cập nhật cho công việc hiện tại.' },
+  { dimensionId: 'trait_06', reversed: false, isLieScale: false, textVi: 'Tôi sẵn sàng tiếp nhận các nhiệm vụ khó khăn đòi hỏi trình độ cao hơn năng lực hiện tại.' },
+  { dimensionId: 'trait_06', reversed: true, isLieScale: false, textVi: 'Tôi nhận thấy kỹ năng hiện tại đã đủ đáp ứng công việc nên chưa có kế hoạch học thêm.' },
+  { dimensionId: 'trait_06', reversed: true, isLieScale: false, textVi: 'Tôi tin rằng kinh nghiệm thực tế của bản thân hiệu quả hơn các kiến thức từ sách vở hay đào tạo.' },
+  { dimensionId: 'trait_06', reversed: true, isLieScale: false, textVi: 'Tôi thường thấy nản lòng khi bắt gặp những khái niệm hoặc công nghệ hoàn toàn mới.' },
+  { dimensionId: 'trait_06', reversed: true, isLieScale: false, textVi: 'Tôi chỉ tham gia các hoạt động bồi dưỡng kỹ năng khi có sự yêu cầu bắt buộc từ phía quản lý.' },
+  { dimensionId: 'trait_06', reversed: true, isLieScale: false, textVi: 'Tôi hạn chế tham gia các buổi đào tạo nội bộ nếu thấy kiến thức chưa áp dụng được ngay.' },
 
   // ── NHÓM 7: Giải quyết vấn đề (trait_07) ──────────────────────
-  { dimensionId: 'trait_07', reversed: false, isLieScale: false, textVi: 'Tôi thích cảm giác tự mình mày mò tìm ra nguyên nhân của một lỗi hệ thống hóc búa.' },
-  { dimensionId: 'trait_07', reversed: false, isLieScale: false, textVi: 'Tôi thường đưa ra nhiều phương án dự phòng trước khi bắt tay vào giải quyết một vấn đề.' },
-  { dimensionId: 'trait_07', reversed: false, isLieScale: false, textVi: 'Tôi có khả năng tập trung cao độ trong nhiều giờ để tìm ra cách xử lý một sai sót kỹ thuật.' },
-  { dimensionId: 'trait_07', reversed: false, isLieScale: false, textVi: 'Tôi thường tìm cách phân tích vấn đề lớn thành những phần nhỏ để dễ dàng quản lý hơn.' },
-  { dimensionId: 'trait_07', reversed: false, isLieScale: false, textVi: 'Tôi ưu tiên tìm kiếm giải pháp triệt để thay vì chỉ dùng các biện pháp tạm thời.' },
-  { dimensionId: 'trait_07', reversed: true, isLieScale: false, textVi: 'Tôi thường cảm thấy bế tắc và thử các cách làm ngẫu nhiên khi gặp một lỗi phần mềm lạ.' },
-  { dimensionId: 'trait_07', reversed: true, isLieScale: false, textVi: 'Tôi có xu hướng nhờ người khác giải quyết giúp thay vì tự mình tìm hiểu quá lâu.' },
-  { dimensionId: 'trait_07', reversed: true, isLieScale: false, textVi: 'Tôi nhanh chóng bỏ cuộc nếu một cách làm không đem lại kết quả ngay lập tức.' },
-  { dimensionId: 'trait_07', reversed: true, isLieScale: false, textVi: 'Tôi thường cảm thấy áp lực và mất phương hướng khi khối lượng công việc phát sinh quá nhiều.' },
-  { dimensionId: 'trait_07', reversed: true, isLieScale: false, textVi: 'Tôi thích làm những việc đã có hướng dẫn sẵn hơn là phải tự tìm con đường mới.' },
+  { dimensionId: 'trait_07', reversed: false, isLieScale: false, textVi: 'Tôi thích tìm kiếm nguyên nhân cốt lõi và đề xuất giải pháp cho các vấn đề phức tạp.' },
+  { dimensionId: 'trait_07', reversed: false, isLieScale: false, textVi: 'Tôi luôn chuẩn bị sẵn các phương án dự phòng trước khi bắt đầu thực hiện một nhiệm vụ quan trọng.' },
+  { dimensionId: 'trait_07', reversed: false, isLieScale: false, textVi: 'Tôi có khả năng tập trung cao độ trong thời gian dài để giải quyết triệt để một sự cố.' },
+  { dimensionId: 'trait_07', reversed: false, isLieScale: false, textVi: 'Tôi thường phân tích các rủi ro lớn thành từng phần nhỏ để xử lý một cách có trình tự.' },
+  { dimensionId: 'trait_07', reversed: false, isLieScale: false, textVi: 'Tôi ưu tiên giải quyết các vấn đề từ gốc rễ thay vì sử dụng các biện pháp xử lý tạm thời.' },
+  { dimensionId: 'trait_07', reversed: true, isLieScale: false, textVi: 'Tôi thường lúng túng và thử nghiệm các cách giải quyết khác nhau một cách thiếu trình tự khi có sự cố.' },
+  { dimensionId: 'trait_07', reversed: true, isLieScale: false, textVi: 'Khi gặp vướng mắc khó giải quyết, tôi thường tìm sự hỗ trợ ngay lập tức thay vì tự mình suy nghĩ.' },
+  { dimensionId: 'trait_07', reversed: true, isLieScale: false, textVi: 'Tôi dễ dàng nản chí nếu phải dành nhiều thời gian suy nghĩ mà chưa tìm ra giải pháp khả thi.' },
+  { dimensionId: 'trait_07', reversed: true, isLieScale: false, textVi: 'Khi phát sinh nhiều vấn đề cùng một lúc, tôi thường bị quá tải và lúng túng trong hành động.' },
+  { dimensionId: 'trait_07', reversed: true, isLieScale: false, textVi: 'Tôi làm việc hiệu quả hơn khi đã có sẵn quy trình hướng dẫn cụ thể thay vì phải tự tìm giải pháp.' },
 
   // ── NHÓM 8: Cộng tác (trait_08) ──────────────────────
-  { dimensionId: 'trait_08', reversed: false, isLieScale: false, textVi: 'Tôi thấy vui khi hỗ trợ được thành viên mới làm quen với công việc nhanh chóng.' },
-  { dimensionId: 'trait_08', reversed: false, isLieScale: false, textVi: 'Tôi chủ động chia sẻ những cách làm hay hoặc công cụ tốt mà mình mới tìm thấy cho cả nhóm.' },
-  { dimensionId: 'trait_08', reversed: false, isLieScale: false, textVi: 'Tôi luôn lắng nghe và tôn trọng những ý kiến khác biệt của đồng nghiệp trong các buổi thảo luận.' },
-  { dimensionId: 'trait_08', reversed: false, isLieScale: false, textVi: 'Tôi sẵn sàng dừng việc cá nhân để giúp đỡ đồng đội đang gặp khó khăn gây tắc nghẽn chung.' },
-  { dimensionId: 'trait_08', reversed: false, isLieScale: false, textVi: 'Tôi ưu tiên lợi ích chung của tập thể hơn là việc chứng minh cái tôi cá nhân đúng.' },
-  { dimensionId: 'trait_08', reversed: true, isLieScale: false, textVi: 'Tôi thấy việc phải giải thích cách làm của mình cho người khác là một việc gây phiền hà.' },
-  { dimensionId: 'trait_08', reversed: true, isLieScale: false, textVi: 'Tôi thích làm việc độc lập trên một phần riêng biệt mà không cần tương tác nhiều với nhóm.' },
-  { dimensionId: 'trait_08', reversed: true, isLieScale: false, textVi: 'Tôi thường giữ lại những bí quyết làm việc riêng cho mình thay vì chia sẻ hết cho người khác.' },
-  { dimensionId: 'trait_08', reversed: true, isLieScale: false, textVi: 'Tôi cảm thấy việc hướng dẫn người mới là sự tiêu tốn thời gian quý giá của bản thân.' },
-  { dimensionId: 'trait_08', reversed: true, isLieScale: false, textVi: 'Tôi thường đưa ra những lời chỉ trích hơn là những hướng dẫn có tính xây dựng cho đồng nghiệp.' },
+  { dimensionId: 'trait_08', reversed: false, isLieScale: false, textVi: 'Tôi thấy hài lòng khi hỗ trợ các thành viên mới nhanh chóng hòa nhập với tiến độ của nhóm.' },
+  { dimensionId: 'trait_08', reversed: false, isLieScale: false, textVi: 'Tôi có thói quen chia sẻ các phương pháp làm việc hiệu quả giúp các thành viên cùng tiến bộ.' },
+  { dimensionId: 'trait_08', reversed: false, isLieScale: false, textVi: 'Tôi luôn nỗ lực lắng nghe và tôn trọng các góc nhìn của đồng nghiệp ngay cả khi chúng khác biệt.' },
+  { dimensionId: 'trait_08', reversed: false, isLieScale: false, textVi: 'Tôi sẵn sàng tạm dừng việc cá nhân để hỗ trợ đồng đội nếu việc đó mang lại lợi ích chung cho dự án.' },
+  { dimensionId: 'trait_08', reversed: false, isLieScale: false, textVi: 'Tôi có thể điều chỉnh cái tôi cá nhân vì mục tiêu chung của tập thể và tổ chức.' },
+  { dimensionId: 'trait_08', reversed: true, isLieScale: false, textVi: 'Tôi ưu tiên hoàn thành việc cá nhân thay vì dành thời gian hướng dẫn nghiệp vụ cho thành viên khác.' },
+  { dimensionId: 'trait_08', reversed: true, isLieScale: false, textVi: 'Tôi nhận thấy bản thân làm việc hiệu quả hơn khi hoạt động độc lập thay vì phối hợp nhóm.' },
+  { dimensionId: 'trait_08', reversed: true, isLieScale: false, textVi: 'Tôi ưu tiên giữ kín các phương pháp làm việc riêng biệt mà tôi đã tốn nhiều công sức để có được.' },
+  { dimensionId: 'trait_08', reversed: true, isLieScale: false, textVi: 'Tôi cho rằng việc đào tạo nhân sự mới là đang lãng phí thời gian quan trọng của bản thân.' },
+  { dimensionId: 'trait_08', reversed: true, isLieScale: false, textVi: 'Tôi thường đưa ra các nhận xét tiêu cực về đồng nghiệp thay vì tập trung vào sự phát triển chung của nhóm.' },
 
   // ── NHÓM 9: Quản lý thời gian (trait_09) ──────────────────────
-  { dimensionId: 'trait_09', reversed: false, isLieScale: false, textVi: 'Tôi thường chia nhỏ đầu việc lớn để đánh giá thời gian hoàn thành chính xác hơn.' },
-  { dimensionId: 'trait_09', reversed: false, isLieScale: false, textVi: 'Tôi chủ động từ chối các yêu cầu phát sinh nếu chúng làm ảnh hưởng xấu đến kế hoạch chung.' },
-  { dimensionId: 'trait_09', reversed: false, isLieScale: false, textVi: 'Tôi thường xuyên cập nhật tiến độ công việc một cách trung thực trên hệ thống quản lý.' },
-  { dimensionId: 'trait_09', reversed: false, isLieScale: false, textVi: 'Tôi biết cách sắp xếp thứ tự ưu tiên cho các nhiệm vụ dựa trên tầm quan trọng của chúng.' },
-  { dimensionId: 'trait_09', reversed: false, isLieScale: false, textVi: 'Tôi luôn hoàn thành các phần việc quan trọng nhất vào thời điểm mình tỉnh táo nhất trong ngày.' },
-  { dimensionId: 'trait_09', reversed: true, isLieScale: false, textVi: 'Tôi thường xuyên bị trễ hạn bàn giao vì đánh giá thấp độ phức tạp của công việc.' },
-  { dimensionId: 'trait_09', reversed: true, isLieScale: false, textVi: 'Tôi hay làm các việc vặt phát sinh thay vì tập trung vào nhiệm vụ quan trọng nhất.' },
-  { dimensionId: 'trait_09', reversed: true, isLieScale: false, textVi: 'Tôi cảm thấy khó khăn khi phải làm việc trong môi trường có quá nhiều cuộc họp ngắt quãng.' },
-  { dimensionId: 'trait_09', reversed: true, isLieScale: false, textVi: 'Tôi thường để nước đến chân mới nhảy và làm việc vội vàng khi sắp hết thời gian.' },
-  { dimensionId: 'trait_09', reversed: true, isLieScale: false, textVi: 'Tôi thường xuyên thay đổi kế hoạch làm việc vì bị xao nhãng bởi các yếu tố xung quanh.' },
+  { dimensionId: 'trait_09', reversed: false, isLieScale: false, textVi: 'Tôi luôn chia nhỏ nhiệm vụ lớn thành các đầu việc cụ thể để ước tính thời gian thực hiện chính xác.' },
+  { dimensionId: 'trait_09', reversed: false, isLieScale: false, textVi: 'Tôi có khả năng từ chối các nhiệm vụ phát sinh nếu chúng gây ảnh hưởng nghiêm trọng tới kế hoạch hiện tại.' },
+  { dimensionId: 'trait_09', reversed: false, isLieScale: false, textVi: 'Tôi thực hiện ghi nhận thời gian làm việc một cách trung thực trên các công cụ quản lý dự án.' },
+  { dimensionId: 'trait_09', reversed: false, isLieScale: false, textVi: 'Tôi thường xuyên ưu tiên các nhiệm vụ dựa trên mức độ quan trọng và tính khẩn cấp của chúng.' },
+  { dimensionId: 'trait_09', reversed: false, isLieScale: false, textVi: 'Tôi sắp xếp các công việc đòi hỏi sự tập trung cao vào thời điểm bản thân có năng suất tốt nhất trong ngày.' },
+  { dimensionId: 'trait_09', reversed: true, isLieScale: false, textVi: 'Tôi thường xuyên rơi vào tình trạng chậm tiến độ do đánh giá chưa đúng độ phức tạp của nhiệm vụ.' },
+  { dimensionId: 'trait_09', reversed: true, isLieScale: false, textVi: 'Tôi có xu hướng xử lý các việc đơn giản trước thay vì tập trung vào nhiệm vụ khó khăn nhất cần triển khai.' },
+  { dimensionId: 'trait_09', reversed: true, isLieScale: false, textVi: 'Việc tham gia vào các cuộc thảo luận phát sinh thường xuyên phá vỡ kế hoạch làm việc trong ngày của tôi.' },
+  { dimensionId: 'trait_09', reversed: true, isLieScale: false, textVi: 'Tôi chỉ đạt được hiệu suất làm việc cao nhất khi thời hạn hoàn thành công việc đã rất cận kề.' },
+  { dimensionId: 'trait_09', reversed: true, isLieScale: false, textVi: 'Tôi dễ bị xao nhãng bởi các thông báo từ điện thoại hoặc mạng xã hội trong lúc đang tập trung làm việc.' },
 
-  // ── NHÓM 10: Sản phẩm (trait_10) ──────────────────────
-  { dimensionId: 'trait_10', reversed: false, isLieScale: false, textVi: 'Tôi thường tự trải nghiệm sản phẩm của công ty dưới góc nhìn của một người sử dụng bình thường.' },
-  { dimensionId: 'trait_10', reversed: false, isLieScale: false, textVi: 'Tôi chủ động đề xuất thay đổi nếu thấy yêu cầu kỹ thuật có thể gây khó khăn cho người dùng.' },
-  { dimensionId: 'trait_10', reversed: false, isLieScale: false, textVi: 'Tôi ưu tiên xử lý các lỗi gây ảnh hưởng trực tiếp đến người dùng trước các lỗi kỹ thuật ẩn.' },
-  { dimensionId: 'trait_10', reversed: false, isLieScale: false, textVi: 'Tôi luôn tìm hiểu mục đích thực sự của khách hàng trước khi bắt tay vào viết mã nguồn.' },
-  { dimensionId: 'trait_10', reversed: false, isLieScale: false, textVi: 'Tôi coi sự hài lòng của người dùng cuối là thước đo thành công lớn nhất của một lập trình viên.' },
-  { dimensionId: 'trait_10', reversed: true, isLieScale: false, textVi: 'Tôi chỉ quan tâm đến việc mã nguồn chạy đúng yêu cầu mà không bận tâm sản phẩm có ích hay không.' },
-  { dimensionId: 'trait_10', reversed: true, isLieScale: false, textVi: 'Tôi thấy khó khăn khi phải giải thích các vấn đề kỹ thuật cho những người không có chuyên môn.' },
-  { dimensionId: 'trait_10', reversed: true, isLieScale: false, textVi: 'Tôi ưu tiên sự thuận tiện của người viết mã hơn là trải nghiệm mượt mà của khách hàng.' },
-  { dimensionId: 'trait_10', reversed: true, isLieScale: false, textVi: 'Tôi thường phớt lờ các ý kiến đóng góp của người dùng nếu thấy chúng không hợp ý mình về kỹ thuật.' },
-  { dimensionId: 'trait_10', reversed: true, isLieScale: false, textVi: 'Tôi cho rằng mình chỉ cần hoàn thành phần mã, việc sản phẩm thành công hay không là của bộ phận khác.' },
+  // ── NHÓM 10: Trải nghiệm khách hàng / Sản phẩm (trait_10) ──────────────────────
+  { dimensionId: 'trait_10', reversed: false, isLieScale: false, textVi: 'Tôi thường đặt mình vào vị trí người dùng để đánh giá và cải thiện chất lượng dịch vụ của công ty.' },
+  { dimensionId: 'trait_10', reversed: false, isLieScale: false, textVi: 'Tôi chủ động đề xuất điều chỉnh các quy trình nếu nhận thấy chúng gây khó khăn cho khách hàng.' },
+  { dimensionId: 'trait_10', reversed: false, isLieScale: false, textVi: 'Tôi ưu tiên xử lý các phản hồi chưa tốt từ người dùng để nâng cao sự hài lòng đối với sản phẩm.' },
+  { dimensionId: 'trait_10', reversed: false, isLieScale: false, textVi: 'Tôi luôn cố gắng hiểu rõ mục tiêu cuối cùng của khách hàng khi thực hiện bất kỳ nhiệm vụ nào.' },
+  { dimensionId: 'trait_10', reversed: false, isLieScale: false, textVi: 'Tôi tin rằng sự hài lòng của người sử dụng là thước đo quan trọng nhất cho kết quả công việc cá nhân.' },
+  { dimensionId: 'trait_10', reversed: true, isLieScale: false, textVi: 'Tôi ưu tiên hoàn thành yêu cầu của cấp trên hơn là bận tâm về tính hữu ích của nó đối với khách hàng.' },
+  { dimensionId: 'trait_10', reversed: true, isLieScale: false, textVi: 'Tôi thường thiếu kiên nhẫn khi phải giải thích các chuyên môn sâu cho những khách hàng chưa có kiến thức.' },
+  { dimensionId: 'trait_10', reversed: true, isLieScale: false, textVi: 'Tôi ưu tiên các giải pháp giúp nội bộ làm việc nhàn hơn mặc dù có thể làm giảm tiến độ phục vụ khách.' },
+  { dimensionId: 'trait_10', reversed: true, isLieScale: false, textVi: 'Tôi thường bỏ qua các góp ý từ khách hàng nếu bản thân tự đánh giá họ chưa hiểu rõ về chuyên môn.' },
+  { dimensionId: 'trait_10', reversed: true, isLieScale: false, textVi: 'Tôi cho rằng việc tư duy vì con người thuộc trách nhiệm của các bộ phận chức năng khác.' },
 
   // ── NHÓM 11: Sáng tạo (trait_11) ──────────────────────
-  { dimensionId: 'trait_11', reversed: false, isLieScale: false, textVi: 'Tôi thường tìm cách tự động hóa các công việc lặp đi lặp lại để tiết kiệm thời gian cho nhóm.' },
-  { dimensionId: 'trait_11', reversed: false, isLieScale: false, textVi: 'Tôi thích thử thách các quy trình cũ bằng những cách làm mới có hiệu quả cao hơn.' },
-  { dimensionId: 'trait_11', reversed: false, isLieScale: false, textVi: 'Tôi thường đưa ra những ý tưởng độc đáo để tối ưu hệ thống mà ít người nghĩ tới.' },
-  { dimensionId: 'trait_11', reversed: false, isLieScale: false, textVi: 'Tôi khuyến khích nhóm thử nghiệm các công cụ mới nếu chúng giải quyết tốt vấn đề hiện tại.' },
-  { dimensionId: 'trait_11', reversed: false, isLieScale: false, textVi: 'Tôi luôn tìm cách cải tiến quy trình làm việc để nâng cao năng suất chung của dự án.' },
-  { dimensionId: 'trait_11', reversed: true, isLieScale: false, textVi: 'Tôi thấy hài lòng với cách làm truyền thống và không muốn thay đổi thêm điều gì.' },
-  { dimensionId: 'trait_11', reversed: true, isLieScale: false, textVi: 'Tôi cho rằng việc sáng tạo quá mức trong kỹ thuật thường mang lại nhiều rủi ro hơn lợi ích.' },
-  { dimensionId: 'trait_11', reversed: true, isLieScale: false, textVi: 'Tôi hiếm khi đưa ra các sáng kiến mới và chỉ làm theo những gì đã được định sẵn.' },
-  { dimensionId: 'trait_11', reversed: true, isLieScale: false, textVi: 'Tôi thấy việc học các công cụ mới là một gánh nặng hơn là sự hứng thú.' },
-  { dimensionId: 'trait_11', reversed: true, isLieScale: false, textVi: 'Tôi ưu tiên sử dụng lại các giải pháp cũ dù biết chúng không còn thực sự hiệu quả.' },
+  { dimensionId: 'trait_11', reversed: false, isLieScale: false, textVi: 'Tôi luôn tìm kiếm các công cụ hoặc phương pháp mới để thay thế cho những công việc lặp lại.' },
+  { dimensionId: 'trait_11', reversed: false, isLieScale: false, textVi: 'Tôi thường xuyên đặt câu hỏi và tìm phương án thay thế cho những quy trình vận hành đã cũ.' },
+  { dimensionId: 'trait_11', reversed: false, isLieScale: false, textVi: 'Trong các cuộc thảo luận, tôi chủ động đưa ra những ý tưởng mới mẻ để giải quyết khó khăn của nhóm.' },
+  { dimensionId: 'trait_11', reversed: false, isLieScale: false, textVi: 'Tôi khuyến khích các thành viên thử nghiệm những cách làm mới thay vì luôn đi theo những lối mòn cũ.' },
+  { dimensionId: 'trait_11', reversed: false, isLieScale: false, textVi: 'Tôi thường xuyên tư duy về việc cải tiến quy trình nhằm mang lại hiệu quả công việc cao hơn cho tập thể.' },
+  { dimensionId: 'trait_11', reversed: true, isLieScale: false, textVi: 'Tôi thích thực hiện công việc theo đúng hướng dẫn có sẵn thay vì dành thời gian để biến tấu chúng.' },
+  { dimensionId: 'trait_11', reversed: true, isLieScale: false, textVi: 'Tôi cho rằng việc thay đổi những gì đang vận hành ổn định sẽ mang lại thêm rủi ro không cần thiết.' },
+  { dimensionId: 'trait_11', reversed: true, isLieScale: false, textVi: 'Tôi gặp khó khăn trong việc đưa ra các sáng kiến hoặc giải pháp mới khi đối diện với các tình huống lạ.' },
+  { dimensionId: 'trait_11', reversed: true, isLieScale: false, textVi: 'Việc phải học hỏi và sử dụng một công nghệ mới thường tạo ra áp lực đối với tôi.' },
+  { dimensionId: 'trait_11', reversed: true, isLieScale: false, textVi: 'Dù đã biết quy trình cũ chưa tối ưu, tôi vẫn cảm thấy an tâm hơn khi tiếp tục sử dụng nó.' },
 
   // ── NHÓM 12: Thang đo trung thực (trait_12 - Lie Scale) ──────────────────────
-  { dimensionId: 'trait_12', reversed: false, isLieScale: true, textVi: 'Tôi chưa bao giờ nảy sinh ý định giấu giếm lỗi sai của mình với cấp trên trong suốt sự nghiệp.' },
-  { dimensionId: 'trait_12', reversed: false, isLieScale: true, textVi: 'Tôi luôn hiểu rõ hoàn toàn từng dòng mã mà mình đã tham khảo và sao chép từ trên mạng.' },
-  { dimensionId: 'trait_12', reversed: false, isLieScale: true, textVi: 'Tôi chưa bao giờ cảm thấy ghen tị khi thấy đồng nghiệp được khen thưởng còn mình thì không.' },
-  { dimensionId: 'trait_12', reversed: false, isLieScale: true, textVi: 'Tôi luôn giữ lời hứa trong mọi hoàn cảnh, ngay cả với những việc nhỏ nhặt nhất.' },
-  { dimensionId: 'trait_12', reversed: false, isLieScale: true, textVi: 'Tôi chưa bao giờ nói xấu hay phàn nàn về đồng nghiệp sau lưng họ.' },
-  { dimensionId: 'trait_12', reversed: false, isLieScale: true, textVi: 'Tôi luôn làm việc với sự tập trung tuyệt đối mà không bao giờ bị xao nhãng bởi việc riêng.' },
-  { dimensionId: 'trait_12', reversed: false, isLieScale: true, textVi: 'Tôi hoàn toàn chưa bao giờ mắc bất kỳ sai sót nào trong tất cả các dự án tôi từng tham gia.' },
-  { dimensionId: 'trait_12', reversed: false, isLieScale: true, textVi: 'Tôi luôn sẵn lòng giúp đỡ tất cả mọi người bất kể tôi đang bận rộn đến mức nào.' },
-  { dimensionId: 'trait_12', reversed: false, isLieScale: true, textVi: 'Tôi chưa bao giờ đi làm muộn hay về sớm dù chỉ một phút trong suốt thời gian làm việc.' },
-  { dimensionId: 'trait_12', reversed: false, isLieScale: true, textVi: 'Tôi luôn đọc kỹ và ghi nhớ mọi quy định của công ty ngay từ lần đầu tiên xem qua.' },
+  { dimensionId: 'trait_12', reversed: false, isLieScale: true, textVi: 'Trong suốt sự nghiệp, tôi chưa bao giờ có ý định ưu tiên lợi ích cá nhân lên trên lợi ích của tổ chức.' },
+  { dimensionId: 'trait_12', reversed: false, isLieScale: true, textVi: 'Tôi có thể ghi nhớ chính xác toàn bộ các quy định và hướng dẫn của công ty ngay sau lần đọc đầu tiên.' },
+  { dimensionId: 'trait_12', reversed: false, isLieScale: true, textVi: 'Tôi chưa bao giờ cảm thấy không vui hay có thái độ ghen tị khi thấy đồng nghiệp đạt được thành công lớn.' },
+  { dimensionId: 'trait_12', reversed: false, isLieScale: true, textVi: 'Tôi luôn giữ đúng cam kết về thời gian trong mọi tình huống, kể cả với những việc nhỏ nhặt nhất.' },
+  { dimensionId: 'trait_12', reversed: false, isLieScale: true, textVi: 'Tôi chưa bao giờ đưa ra những lời phàn nàn hay nói những điều không tốt về đồng nghiệp sau lưng họ.' },
+  { dimensionId: 'trait_12', reversed: false, isLieScale: true, textVi: 'Tại nơi làm việc, tôi luôn tập trung 100% cho công việc và chưa bao giờ bị xao nhãng bởi việc riêng.' },
+  { dimensionId: 'trait_12', reversed: false, isLieScale: true, textVi: 'Tôi chưa bao giờ mắc phải bất kỳ một lỗi sai hay thiếu sót nào trong tất cả các nhiệm vụ đã thực hiện.' },
+  { dimensionId: 'trait_12', reversed: false, isLieScale: true, textVi: 'Dù đang rất bận rộn với công việc cá nhân, tôi luôn sẵn sàng hỗ trợ đồng nghiệp ngay lập tức khi họ nhờ cậy.' },
+  { dimensionId: 'trait_12', reversed: false, isLieScale: true, textVi: 'Tôi chưa bao giờ đi làm muộn hay nghỉ việc sớm dù chỉ một phút trong suốt quá trình công tác.' },
+  { dimensionId: 'trait_12', reversed: false, isLieScale: true, textVi: 'Tôi có khả năng hiểu toàn bộ các quy tắc và quy trình phức tạp của tổ chức ngay trong ngày đầu nhận việc.' },
 ];
 
 export async function seedDevQuestions() {
-  console.log("--- Seeding DEV Questions (SOTA V3.0 - 120 Items) ---");
+    console.log("--- Seeding Generic Questions (SOTA V4.0 Universal) ---");
 
-  // 1. Lấy role DEV
-  const devRole = await db.targetRole.findUnique({
-    where: { code: "DEV" }
-  });
-
-  if (!devRole) {
-    console.error("Role DEV not found. Please run seedRoles first.");
-    return { results: ["Role DEV not found"] };
-  }
-
-  // 2. Deactivate các bộ cũ
-  await db.questionSet.updateMany({
-    where: { roleId: devRole.id },
-    data: { isActive: false }
-  });
-
-  // 3. Tạo bộ câu hỏi mới
-  const newSet = await db.questionSet.create({
-    data: {
-      roleId: devRole.id,
-      version: "v3.0-sota-120",
-      isActive: true,
-    }
-  });
-
-  // 4. Insert 120 câu hỏi
-  for (const q of DEV_QUESTIONS) {
-    await db.question.create({
-      data: {
-        setId: newSet.id,
-        textVi: q.textVi,
-        textEn: q.textVi, // Vì yêu cầu không cần đa ngôn ngữ, dùng chung textVi
-        textJa: q.textVi,
-        dimensionId: q.dimensionId,
-        reversed: q.reversed,
-        isLieScale: q.isLieScale,
-      }
+    // Vẫn sử dụng role DEV cho seed nhưng với bộ câu hỏi đã đổi sang phổ quát
+    // Nếu có nhiều vai trò hẵn, bạn có thể loop qua toàn bộ role. Ở đây giữ nguyên luồng cũ.
+    const devRole = await db.targetRole.findUnique({
+        where: { code: "DEV" }
     });
-  }
 
-  console.log(`Successfully seeded 120 questions for DEV version ${newSet.version}`);
-  return {
-    results: [`Successfully seeded 120 questions for DEV version ${newSet.version}`]
-  };
+    if (!devRole) {
+        console.error("Role DEV not found. Please run seedRoles first.");
+        return { results: ["Role DEV not found"] };
+    }
+
+    // Deactivate các bộ cũ
+    await db.questionSet.updateMany({
+        where: { roleId: devRole.id },
+        data: { isActive: false }
+    });
+
+    // Tạo bộ câu hỏi mới (Universal Version)
+    const newSet = await db.questionSet.create({
+        data: {
+            roleId: devRole.id,
+            version: "v4.0-sota-universal",
+            isActive: true,
+        }
+    });
+
+    // Insert 120 câu hỏi
+    for (const q of UNIVERSAL_QUESTIONS) {
+        await db.question.create({
+            data: {
+                setId: newSet.id,
+                textVi: q.textVi,
+                textEn: q.textVi,
+                textJa: q.textVi,
+                dimensionId: q.dimensionId,
+                reversed: q.reversed,
+                isLieScale: q.isLieScale,
+            }
+        });
+    }
+
+    console.log(`Successfully seeded 120 universal questions to DEV role, version ${newSet.version}`);
+    return {
+        results: [`Successfully seeded 120 universal questions to DEV role, version ${newSet.version}`]
+    };
 }

@@ -1,6 +1,6 @@
 // ============================================================
-// OPENAI NARRATIVE SERVICE — Techzen HR Assessment v3
-// Prompt: "Đọc vị nhân sự" — Chuyên gia Tâm lý học Tổ chức
+// OPENAI NARRATIVE SERVICE — Techzen HR Assessment v4 (Universal)
+// Prompt: "Cố vấn nghề nghiệp chiến lược" — Phân tích sâu vai trò ngách
 // Chỉ chạy server-side (gọi từ Server Action)
 // ============================================================
 
@@ -22,11 +22,6 @@ export interface AIStrength {
 export interface AIBlindSpot {
   title: string; // Điểm mù
   risk: string;  // Rủi ro tiềm ẩn
-}
-
-export interface AIVerificationQuestion {
-  question: string;    // Câu hỏi tình huống
-  targetTrait: string; // Nhằm kiểm chứng tính cách gì
 }
 
 export interface AICoachingAdvice {
@@ -57,10 +52,7 @@ export interface AIReport {
     management: AIJobFitBlock; // Lead, Manager
   };
 
-  // 5. Câu hỏi phỏng vấn kiểm chứng
-  verificationQuestions: AIVerificationQuestion[];
-
-  // 6. Lời khuyên phát triển
+  // 5. Lời khuyên phát triển
   coachingAdvice: AICoachingAdvice[];
 
   // Meta
@@ -134,8 +126,14 @@ function buildPrompt(
     ? '全て日本語で。プロフェッショナルで直接的なコンサルタントの口調。'
     : 'Write entirely in English. Professional, direct, senior consultant tone.';
 
-  return `Bạn là chuyên gia cao cấp về Tâm lý học tổ chức và Quản trị nhân sự của Techzen.
+  return `Bạn là "Cố vấn Nghề nghiệp Chiến lược" cao cấp của Techzen, chuyên trách đọc vị nhân sự theo hệ thống SOTA Universal V4.
 ${langNote}
+
+NHIỆM VỤ CỐT LÕI:
+1. Thẩm định tính khách quan của dữ liệu bài làm (dựa trên Lie Scale và Consistency).
+2. Vẽ chân dung bản ngã chuyên sâu (Persona), đặc biệt là các mâu thuẫn nội tại trong tính cách.
+3. Phân loại mức độ tương thích (Job-Fit) cho 4 nhóm ngành chính: Technical, Business, Operations, Management.
+4. QUAN TRỌNG: Với mỗi nhóm ngành, không chỉ đưa ra đánh giá chung, bạn phải đề xuất các "VAI TRÒ NGÁCH" (Niche specialization) cụ thể mà người này sẽ tỏa sáng nhất (Ví dụ: Thay vì chỉ nói 'Lập trình viên', hãy gợi ý 'Kỹ sư giải thuật tối ưu' hoặc 'Product Engineer tập trung trải nghiệm').
 
 DỮ LIỆU ĐẦU VÀO:
 - Chỉ số nói dối (Lie Scale): ${lieScore10}/10 ${lieScore10 > 7 ? '⚠️ CAO — nghi ngờ tô hồng' : '✓ Trong ngưỡng an toàn'}
@@ -144,45 +142,39 @@ DỮ LIỆU ĐẦU VÀO:
 - Top 3 điểm yếu: ${bottom3.join('; ')}
 - Combat Power: ${combatPower.total}/100 — ${combatPower.label}
 - Persona hệ thống: ${persona.emoji} ${persona.title}
-- Vị trí phù hợp (hệ thống): ${topDuties}
+- Gợi ý vai trò (quy tắc hệ thống): ${topDuties}
 ${contradictionNote}
 
 ĐÂY LÀ CẤU TRÚC OUTPUT BẮT BUỘC (JSON thuần, không markdown):
 
 {
-  "reliabilityVerdict": "Nhận định về độ trung thực (2-3 câu, dựa trên lieScore và consistency)",
+  "reliabilityVerdict": "Nhận định về độ trung thực dựa trên lieScore và consistency (2-3 câu).",
   "reliabilityAlert": ${lieScore10 > 7 ? 'true' : 'false'},
-  "personaTitle": "Tên bản ngã 3-5 từ (VD: 'Người thực thi thầm lặng')",
+  "personaTitle": "Tên bản ngã 3-5 từ (Sáng tạo, sắc bén)",
   "personaEmoji": "1 emoji phù hợp",
-  "personaDescription": "Mô tả bản ngã tổng thể (60-80 từ)",
-  "personaCombination": "Phân tích tổ hợp điểm: cộng hưởng & mâu thuẫn (60-80 từ). Đặc biệt phân tích ${contradictions.length > 0 ? 'các mâu thuẫn đã phát hiện' : 'các điểm nổi bật'}",
+  "personaDescription": "Mô tả cốt cách tổng thể, bản chất con người trong công việc (60-80 từ).",
+  "personaCombination": "Phân tích sự cộng hưởng hoặc mâu thuẫn giữa các nhóm điểm. ${contradictions.length > 0 ? 'Tập trung vào các mâu thuẫn: ' + contradictions.join(', ') : 'Tập trung vào các điểm nổi trội.'}",
   "strengths": [
-    {"title": "Tên năng lực 1", "behavior": "Hành vi cụ thể trong công việc (20-30 từ)"},
-    {"title": "Tên năng lực 2", "behavior": "Hành vi cụ thể trong công việc (20-30 từ)"},
-    {"title": "Tên năng lực 3", "behavior": "Hành vi cụ thể trong công việc (20-30 từ)"}
+    {"title": "Tên năng lực nổi trội 1", "behavior": "Hành vi thực tế giúp tạo ra kết quả xuất sắc (25-35 từ)."},
+    {"title": "Tên năng lực nổi trội 2", "behavior": "Hành vi thực tế giúp tạo ra kết quả xuất sắc (25-35 từ)."},
+    {"title": "Tên năng lực nổi trội 3", "behavior": "Hành vi thực tế giúp tạo ra kết quả xuất sắc (25-35 từ)."}
   ],
   "blindSpots": [
-    {"title": "Điểm mù 1", "risk": "Rủi ro tiềm ẩn cụ thể (20-25 từ)"},
-    {"title": "Điểm mù 2", "risk": "Rủi ro tiềm ẩn cụ thể (20-25 từ)"}
+    {"title": "Điểm mù chí mạng 1", "risk": "Rủi ro cụ thể trong môi trường làm việc thực tế (25-35 từ)."},
+    {"title": "Điểm mù chí mạng 2", "risk": "Rủi ro cụ thể trong môi trường làm việc thực tế (25-35 từ)."}
   ],
   "jobFit": {
-    "technical":  {"score": số_0_đến_100, "comment": "Nhận xét ngắn (15-20 từ) về fit với Dev/R&D"},
-    "business":   {"score": số_0_đến_100, "comment": "Nhận xét ngắn (15-20 từ) về fit với Sales/CS"},
-    "operations": {"score": số_0_đến_100, "comment": "Nhận xét ngắn (15-20 từ) về fit với Kế toán/Hành chính"},
-    "management": {"score": số_0_đến_100, "comment": "Nhận xét ngắn (15-20 từ) về fit với Lead/Manager"}
+    "technical":  {"score": số_0_đến_100, "comment": "Gợi ý vai trò ngách như Backend/QA/Data/Architect... kèm lý do (30-40 từ)."},
+    "business":   {"score": số_0_đến_100, "comment": "Gợi ý vai trò ngách như Sales Hunter/Account/Growth/Marketing... kèm lý do (30-40 từ)."},
+    "operations": {"score": số_0_đến_100, "comment": "Gợi ý vai trò ngách như Tài chính/Pháp chế/Vận hành/HR... kèm lý do (30-40 từ)."},
+    "management": {"score": số_0_đến_100, "comment": "Gợi ý vai trò ngách như Quản lý thực thi/Truyền cảm hứng/Chiến lược... kèm lý do (30-40 từ)."}
   },
-  "verificationQuestions": [
-    {"question": "Câu hỏi tình huống 1 (dựa trên điểm nghi vấn)", "targetTrait": "Tính cách cần kiểm chứng"},
-    {"question": "Câu hỏi tình huống 2", "targetTrait": "Tính cách cần kiểm chứng"},
-    {"question": "Câu hỏi tình huống 3", "targetTrait": "Tính cách cần kiểm chứng"}
-  ],
   "coachingAdvice": [
-    {"action": "Hành động cụ thể 1 (có thể thực hiện ngay)", "rationale": "Lý do và kết quả kỳ vọng (20-25 từ)"},
     {"action": "Hành động cụ thể 2 (có thể thực hiện ngay)", "rationale": "Lý do và kết quả kỳ vọng (20-25 từ)"}
   ]
 }
 
-Chú ý: Hãy đặc biệt phân tích sự mâu thuẫn trong dữ liệu. Câu hỏi phỏng vấn phải bắt đầu bằng "Hãy kể cho tôi nghe về..." hoặc "Trong tình huống...".`;
+Chú ý: Hãy đặc biệt phân tích sự mâu thuẫn trong dữ liệu.`;
 }
 
 // ─── RETRY LOGIC ───────────────────────────────────────────────

@@ -1,6 +1,6 @@
 # TECH SPECS: Hệ thống Quản lý và Đánh giá Nhân sự (HR Assessment)
 
-## 1. Nghiệp vụ và luồng hệ thống (Phiên bản 2.0 - Next.js)
+## 1. Nghiệp vụ và luồng hệ thống (Phiên bản 4.0 - SOTA Universal)
 Hệ thống cho phép nhân sự (nhân viên nội bộ) và **ứng viên phỏng vấn** tham gia làm bài trắc nghiệm / đánh giá tính cách và năng lực theo chuẩn. 
 Dữ liệu được lưu trữ tập trung vào cơ sở dữ liệu **`tracnghiemtinhcach`** qua **Prisma ORM**.
 
@@ -45,13 +45,13 @@ Hệ thống được chuyển đổi toàn diện sang kỹ thuật **Next.js 1
 - **Responsive Layout**: Áp dụng Container-based design (`max-w-5xl`) và Grid system linh hoạt, đảm bảo báo cáo hiển thị chuẩn xác trên cả Mobile và Desktop.
 - **Data Visualization**: Refactor toàn bộ các biểu đồ SVG (ZigZagMatrix, HorizontalMatrix) sang hệ tọa độ tương đối (`viewBox`) để đảm bảo tính nhất quán khi in ấn (Print Mode) và thay đổi kích thước màn hình.
 
-## 7. Module Báo cáo Năng lực DEV SOTA V3.0 (Chuyên biệt cho Kỹ thuật)
-- **Cơ chế đánh giá**: Áp dụng cho ứng viên có `roleCode: 'DEV'`. Sử dụng phiên bản dữ liệu `3.0-SPI-DEV`.
-- **Dữ liệu**: Bộ câu hỏi 120 câu SOTA (12 nhóm năng lực), tích hợp Lie Scale (đo độ trung thực).
-- **Logic tính điểm**: 
-  - Đảo điểm (Reversed Items).
-  - Lie Scale Score: Nếu điểm Lie Scale > 7, hệ thống kích hoạt cảnh báo "Độ tin cậy thấp" và áp dụng Penalty -15% cho toàn bộ điểm năng lực.
-- **Phân loại AI (CTO Perspective)**: 
-  - Rule-based engine xử lý chi tiết kỹ thuật và thế mạnh/yếu điểm.
-  - OpenAI GPT-4o-mini đảm nhận phần "Nhận xét tổng quan" (Executive Summary) dưới góc nhìn giám đốc kỹ thuật.
-- **Phân loại ứng viên**: Phân loại tự động thành 4 nhóm chính: Technical Expert, Product Engineer, Tech Leader, Generalist.
+## 7. Module Báo cáo SOTA Universal V4.0 (Toàn diện & Đa năng)
+- **Cơ chế đánh giá**: Áp dụng bộ câu hỏi **Universal** cho mọi vị trí trong tổ chức. Không còn phân chia bộ câu hỏi cứng nhắc theo Role tại tầng database, thay vào đó sử dụng một bộ quy chuẩn 120 câu.
+- **Dữ liệu**: Phiên bản `4.0-SOTA-Universal`. 120 câu hỏi bao quát 12 chiều năng lực cốt lõi. Ngôn ngữ trung tính (Neutral), sử dụng đại từ "Tôi" để tối ưu hóa sự tự phản chiếu.
+- **AI Niche Analysis (Cố vấn nghề nghiệp AI)**:
+  - Phân loại dựa trên 4 nhóm Job-Fit chính: **Technical, Business, Operations, Management**.
+  - AI không chỉ đánh giá mức độ phù hợp chung mà phải đề xuất các **vai trò ngách (Niche roles)** cụ thể. 
+  - Ví dụ: Nếu phù hợp Technical, AI sẽ gợi ý sâu là Backend Optimization, Cloud Architect, hay Frontend UX Engineer dựa trên sự kết hợp các điểm số tính cách.
+- **Logic Validation**:
+  - Tích hợp thang đo nói dối (Lie Scale) và độ nhất quán (Consistency).
+  - Áp dụng Penalty hoặc Cảnh báo nếu độ tin cậy thấp, đảm bảo tính khách quan cho nhà tuyển dụng.
