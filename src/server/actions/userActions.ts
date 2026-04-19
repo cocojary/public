@@ -14,11 +14,11 @@ export async function submitUserInfo(data: UserInfoFormValues) {
         employeeId: parsedData.employeeId || null,
         email: parsedData.email || null,
         // Using position field to store the role code
-        position: parsedData.targetRole, 
+        position: parsedData.targetRole ?? null,
       },
     });
 
-    return { success: true, userId: user.id, targetRole: parsedData.targetRole };
+    return { success: true, userId: user.id };
   } catch (error) {
     console.error("Error creating user:", error);
     return { success: false, error: "Đã có lỗi xảy ra khi lưu thông tin" };

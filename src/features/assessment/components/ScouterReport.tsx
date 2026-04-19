@@ -1,14 +1,13 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import type { AssessmentResult, DimensionScore } from "../data/scoring";
 import { detectPersona, detectCEOPersona, calcCombatPower, calcDutySuitability, analyzeNegativeTendencies, getReliabilityNarrative } from "../data/aiAnalysis";
 import { DIMENSIONS } from "../data/dimensions";
 import type { AIReport } from "../utils/openaiService";
-import { DevReportContent } from "./DevReportContent";
-import { DevScoringResult } from "../utils/devScoring";
-import { buildUnifiedFromV2, buildUnifiedFromV3 } from "../utils/unifiedScoring";
-import { UnifiedReport } from "./UnifiedReport";
+import { buildUnifiedFromV2, buildUnifiedFromV4 } from "../utils/unifiedScoring";
+import type { UnifiedScoringResult } from "../utils/unifiedEngine";
+import UnifiedReport from "./UnifiedReport";
 
 export interface ScouterReportProps {
   user: {
@@ -141,9 +140,7 @@ const HorizontalBarMatrix = ({ dimensions, color = "bg-indigo-600" }: { dimensio
 };
 
 export default function ScouterReport({ user, resultData, date, aiReport }: ScouterReportProps) {
-  const isDevV3 = (resultData as any).type === "SPI_DEV_V3" || !!(resultData as any).scores;
-  // State chuyển tab: 'classic' = báo cáo cũ, 'unified' = báo cáo hợp nhất mới
-  const [viewMode, setViewMode] = useState<"classic" | "unified">("unified");
+  const isV4 = (resultData as any).type === "SPI_UNIFIED_V4";
 
   if (!resultData) {
     return (
@@ -154,53 +151,23 @@ export default function ScouterReport({ user, resultData, date, aiReport }: Scou
     );
   }
 
-  // ── Tab switcher UI ─────────────────────────────────────────
-  const TabSwitcher = () => (
-    <div className="flex bg-slate-100 p-1 rounded-xl gap-1 w-fit mx-auto mb-2">
-      <button
-        onClick={() => setViewMode("unified")}
-        className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
-          viewMode === "unified"
-            ? "bg-indigo-600 text-white shadow-md"
-            : "text-slate-600 hover:bg-white"
-        }`}
-      >
-        📊 Báo cáo Hợp nhất
-      </button>
-      <button
-        onClick={() => setViewMode("classic")}
-        className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
-          viewMode === "classic"
-            ? "bg-indigo-600 text-white shadow-md"
-            : "text-slate-600 hover:bg-white"
-        }`}
-      >
-        📋 Báo cáo Chi tiết
-      </button>
-    </div>
-  );
-
-  // Nếu là báo cáo DEV SOTA V3.0
-  if (isDevV3) {
-    const devResult = resultData as unknown as DevScoringResult;
-    const unifiedData = buildUnifiedFromV3(devResult);
+  // ── V4 (SPI_UNIFIED_V4) — render qua UnifiedReport ──────────
+  if (isV4) {
+    const v4Result = resultData as unknown as UnifiedScoringResult;
+    const unifiedData = buildUnifiedFromV4(v4Result);
     return (
-      <div className="space-y-4">
-        <TabSwitcher />
-        {viewMode === "unified" ? (
-          <UnifiedReport
-            data={unifiedData}
-            candidateName={user?.fullName}
-            reportDate={date ? new Date(date) : undefined}
-          />
-        ) : (
-          <DevReportContent result={devResult} aiReport={aiReport} />
-        )}
+      <div>
+        <UnifiedReport
+          data={unifiedData}
+          aiReport={aiReport}
+          candidateName={user?.fullName}
+          reportDate={date ? new Date(date) : undefined}
+        />
       </div>
     );
   }
 
-  if (!isDevV3 && !resultData.dimensions) {
+  if (!resultData.dimensions) {
     return (
       <div className="p-10 text-center bg-white rounded-lg shadow-md">
         <h2 className="text-xl font-bold text-amber-600 mb-2">Dữ Liệu Không Tương Thích</h2>
@@ -209,7 +176,7 @@ export default function ScouterReport({ user, resultData, date, aiReport }: Scou
     );
   }
 
-  // Tạo dữ liệu Unified cho V2 — luôn có sẵn để render theo tab
+  // Tạo dữ liệu Unified cho V2 (legacy)
   const unifiedDataV2 = buildUnifiedFromV2(resultData);
 
   const getDims = (group: string) => (resultData.dimensions || []).filter((d: DimensionScore) => {
@@ -238,23 +205,34 @@ export default function ScouterReport({ user, resultData, date, aiReport }: Scou
     return getReliabilityNarrative(resultData.reliability);
   }, [resultData.reliability]);
 
-  // Nếu đang ở chế độ Unified — render Unified Report thay vì Classic
-  if (viewMode === "unified") {
-    return (
-      <div className="space-y-4">
-        <TabSwitcher />
-        <UnifiedReport
-          data={unifiedDataV2}
-          candidateName={user?.fullName}
-          reportDate={date ? new Date(date) : undefined}
-        />
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-4">
-      <TabSwitcher />
+    <div className="space-y-0">
+      {/* ── PHẦN 1: Báo cáo Tổng Quan (UnifiedReport) ────────── */}
+      <UnifiedReport
+        data={unifiedDataV2}
+        aiReport={aiReport}
+        candidateName={user?.fullName}
+        reportDate={date ? new Date(date) : undefined}
+      />
+
+      {/* ── DIVIDER ─────────────────────────────────────────── */}
+      <div style={{ margin: '32px 0', padding: '0 16px' }}>
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 16,
+          borderTop: '2px dashed #E0E7FF',
+        }}>
+          <div style={{
+            background: 'linear-gradient(135deg,#1E3A8A,#2563EB)',
+            color: 'white', padding: '8px 24px', borderRadius: 8,
+            fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap',
+            boxShadow: '0 2px 8px rgba(37,99,235,0.25)',
+          }}>📋 Chi Tiết Năng Lực</div>
+          <div style={{ flex: 1, height: 1, background: '#E0E7FF' }} />
+          <span style={{ fontSize: 11, color: '#94A3B8', whiteSpace: 'nowrap' }}>Dữ liệu thô · Dimension Level</span>
+        </div>
+      </div>
+
+      {/* ── PHẦN 2: Classic Detail Report ───────────────────── */}
       <div className="bg-white text-slate-900 mx-auto max-w-5xl w-full shadow-2xl overflow-hidden font-sans border border-slate-200">
       {/* SCOUTER HEADER */}
       <div className="bg-gradient-to-br from-indigo-900 via-indigo-800 to-indigo-950 p-8 text-white relative overflow-hidden">
@@ -613,19 +591,23 @@ export default function ScouterReport({ user, resultData, date, aiReport }: Scou
               <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-indigo-200"></div>
               <p className="text-sm text-slate-700 leading-relaxed">
                 <span className="inline-block px-2 py-0.5 bg-indigo-100 text-indigo-700 font-bold text-[10px] uppercase rounded-sm mr-2 mb-1">Tổng thể</span>
-                {aiReport.executiveSummary}
+                {(aiReport as any).corePersona?.personaDescription ?? (aiReport as any).executiveSummary ?? 'Đang tải phân tích...'}
               </p>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="bg-white/60 p-4 border border-emerald-100 rounded-sm">
                 <span className="inline-block px-2 py-0.5 bg-emerald-100 text-emerald-700 font-bold text-[10px] uppercase rounded-sm mb-2">Điểm mạnh & Cống hiến</span>
-                <p className="text-sm text-slate-600 leading-relaxed">{aiReport.strengthsNarrative}</p>
+                <p className="text-sm text-slate-600 leading-relaxed">
+                  {(aiReport as any).strengthsNarrative ?? (aiReport as any).strengthsBlindSpots?.strengths?.map((s: any) => s.description).join(' ') ?? 'Đang tải thông tin...'}
+                </p>
               </div>
               
               <div className="bg-white/60 p-4 border border-amber-100 rounded-sm">
                 <span className="inline-block px-3 py-0.5 bg-amber-100 text-amber-700 font-bold text-[10px] uppercase rounded-sm mb-2">Rủi ro / Lưu ý quản lý</span>
-                <p className="text-sm text-slate-600 leading-relaxed">{aiReport.developmentNarrative}</p>
+                <p className="text-sm text-slate-600 leading-relaxed">
+                  {(aiReport as any).developmentNarrative ?? (aiReport as any).strengthsBlindSpots?.blindSpots?.map((s: any) => s.description).join(' ') ?? 'Đang tải thông tin...'}
+                </p>
               </div>
             </div>
           </div>

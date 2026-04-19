@@ -3,7 +3,9 @@
 // Tham chiếu: Big Five / Scouter SS / Stress Research
 // ============================================================
 
-export type DimensionGroup = 'personality' | 'motivation' | 'thinking' | 'values' | 'stress' | 'leadership';
+export type DimensionGroup = 'personality' | 'motivation' | 'thinking' | 'values' | 'stress' | 'competency' | 'leadership';
+// 'leadership' = [INTERNAL ONLY] — ẩn khỏi quiz chính, chỉ dùng đánh giá C-level nội bộ
+
 
 export interface Dimension {
   id: string;
@@ -216,6 +218,48 @@ export const DIMENSIONS: Dimension[] = [
     color: '#DC2626',
     icon: '💪',
   },
+  // ── NHÓM E.B: NĂNG LỰC BỔ TRỢ ──────────────────────────────
+  {
+    id: 'critical_thinking',
+    group: 'competency',
+    nameVi: 'Tư Duy Phản Biện',
+    nameEn: 'Critical Thinking',
+    descLow: 'Dễ dàng chấp nhận thông tin sẵn có mà không đặt câu hỏi hay đào sâu.',
+    descHigh: 'Thường xuyên phân tích, đánh giá nhiều chiều trước khi tin tưởng một kết luận.',
+    color: '#0284C7',
+    icon: '🕵️',
+  },
+  {
+    id: 'communication_clarity',
+    group: 'competency',
+    nameVi: 'Giao Tiếp Rõ Ràng',
+    nameEn: 'Communication Clarity',
+    descLow: 'Truyền đạt thông tin đôi khi vòng vo hoặc khiến người nghe khó nắm bắt trọng tâm.',
+    descHigh: 'Trình bày ý tưởng ngắn gọn, súc tích và dễ hiểu cho mọi đối tượng.',
+    color: '#2DD4BF',
+    icon: '💬',
+  },
+  {
+    id: 'time_management',
+    group: 'competency',
+    nameVi: 'Quản Lý Thời Gian',
+    nameEn: 'Time Management',
+    descLow: 'Thường xuyên gặp khó khăn trong việc ưu tiên công việc, hay làm việc quá giờ.',
+    descHigh: 'Sắp xếp mức độ ưu tiên xuất sắc, luôn hoàn thành đúng hạn mà không quá tải.',
+    color: '#EAB308',
+    icon: '⏳',
+  },
+  {
+    id: 'data_literacy',
+    group: 'competency',
+    nameVi: 'Năng Lực Hiểu Dữ Liệu',
+    nameEn: 'Data Literacy',
+    descLow: 'Ra quyết định chủ yếu dựa trên trực giác, gặp khó khăn khi làm việc với báo cáo số liệu.',
+    descHigh: 'Nhạy bén với các con số, dễ dàng đọc hiểu và rút ra quyết định thông minh từ dữ liệu.',
+    color: '#3B82F6',
+    icon: '📊',
+  },
+
   // ── NHÓM F: NĂNG LỰC LÃNH ĐẠO (C-LEVEL) ──────────────────────────────
   {
     id: 'strategic_vision', group: 'leadership',
@@ -289,11 +333,15 @@ export const DIMENSIONS: Dimension[] = [
   }
 ];
 
-export const GROUP_LABELS: Record<DimensionGroup, { nameVi: string; color: string }> = {
-  personality: { nameVi: 'Tính Cách Cơ Bản', color: '#3B82F6' },
-  motivation: { nameVi: 'Ý Chí & Động Lực', color: '#EF4444' },
-  thinking: { nameVi: 'Tư Duy & Phong Cách', color: '#F59E0B' },
-  values: { nameVi: 'Giá Trị & Định Hướng', color: '#10B981' },
-  stress: { nameVi: 'Chịu Đựng Stress', color: '#7C3AED' },
-  leadership: { nameVi: 'Năng Lực Lãnh Đạo (CEO)', color: '#1E3A8A' },
+export const GROUP_LABELS: Record<string, { nameVi: string; color: string; icon: string }> = {
+  personality: { nameVi: 'Tính Cách Cơ Bản', color: '#3B82F6', icon: '🧬' },
+  motivation:  { nameVi: 'Ý Chí & Động Lực', color: '#EF4444', icon: '🔥' },
+  thinking:    { nameVi: 'Tư Duy & Phong Cách', color: '#F59E0B', icon: '🧠' },
+  values:      { nameVi: 'Giá Trị & Định Hướng', color: '#10B981', icon: '🌿' },
+  stress:      { nameVi: 'Chịu Đựng Áp Lực', color: '#7C3AED', icon: '💪' },
+  competency:  { nameVi: 'Năng Lực Bổ Trợ', color: '#06B6D4', icon: '🎯' },
+  // leadership: bị ẩn khỏi quiz chính [INTERNAL ONLY]
 };
+
+// Chỉ export các DIMENSIONS không phải nhóm leadership (dùng trong scoring quiz chính)
+export const ACTIVE_DIMENSIONS = DIMENSIONS.filter(d => d.group !== 'leadership');

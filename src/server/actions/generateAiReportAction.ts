@@ -5,10 +5,12 @@ import { generateAIReport } from "@/features/assessment/utils/openaiService";
 import type { AssessmentResult } from "@/features/assessment/data/scoring";
 import { detectPersona, calcCombatPower, calcDutySuitability } from "@/features/assessment/data/aiAnalysis";
 import type { AIReport } from "@/features/assessment/utils/openaiService";
+import type { UnifiedScoringResult } from "@/features/assessment/utils/unifiedEngine";
+import { adaptToAssessmentResult } from "@/features/assessment/utils/unifiedEngine";
 
 export async function fetchAiReportAction(
   recordId: string,
-  resultData: AssessmentResult,
+  resultData: AssessmentResult | UnifiedScoringResult,
   lang: 'vi' | 'en' | 'ja' = 'vi',
 ) {
   try {
@@ -20,35 +22,46 @@ export async function fetchAiReportAction(
 
     if (record?.aiReport) {
       const cached = record.aiReport as unknown as AIReport;
-      // Nếu đã có cache cùng ngôn ngữ, trả về ngay
       if (cached.language === lang) {
         return { success: true, data: { ...cached, fromCache: true } };
       }
     }
 
-    // 2. Chưa có cache → gọi OpenAI
-    // 2. Chạy logic phân tích AI dựa trên điểm số (Rule-based AI)
-    const result = resultData as AssessmentResult;
-    const persona = detectPersona(result.dimensions);
-    const combatPower = calcCombatPower(result.dimensions);
-    const duties = calcDutySuitability(result.dimensions);
+    // 2. Chuẩn hóa data đầu vào — hỗ trợ V4 (mới) và V2 (legacy)
+    const isV4 = 'type' in resultData && resultData.type === 'SPI_UNIFIED_V4';
+    const standardResult: AssessmentResult = isV4
+      ? adaptToAssessmentResult(resultData as UnifiedScoringResult) as AssessmentResult
+      : resultData as AssessmentResult;
 
-    // 3. Gọi OpenAI để tạo nội dung nhận xét chuyên sâu
-    const report = await generateAIReport(result, persona, combatPower, duties, lang);
-
-    if (!report) {
-      return { success: false, error: "Không thể kết nối AI. Vui lòng thử lại sau." };
+    if (!standardResult.dimensions || standardResult.dimensions.length === 0) {
+      return { success: false, error: "Dữ liệu bài kiểm tra không đầy đủ để phân tích AI." };
     }
 
-    // 3. Lưu vào DB để cache
+    // 3. Phân tích: persona, combat power, duty fit
+    const persona     = detectPersona(standardResult.dimensions);
+    const combatPower = calcCombatPower(standardResult.dimensions);
+    const duties      = calcDutySuitability(standardResult.dimensions);
+
+    // 4. Gọi AI
+    const report = await generateAIReport(standardResult, persona, combatPower, duties, lang);
+
+    if (!report) {
+      return {
+        success: false,
+        error: "Không thể kết nối dịch vụ AI. Vui lòng kiểm tra API key hoặc thử lại sau.",
+      };
+    }
+
+    // 5. Lưu cache vào DB
     await prisma.assessmentRecord.update({
       where: { id: recordId },
-      data: { aiReport: report as any },
+      data: { aiReport: report as object },
     });
 
     return { success: true, data: report };
   } catch (error) {
     console.error("fetchAiReportAction error:", error);
-    return { success: false, error: "Lỗi hệ thống khi tạo báo cáo AI" };
+    const msg = error instanceof Error ? error.message : "Lỗi không xác định";
+    return { success: false, error: `Lỗi hệ thống: ${msg}` };
   }
 }

@@ -127,7 +127,7 @@ export const DevReportContent: React.FC<DevReportContentProps> = ({ result, aiRe
             </div>
           </div>
 
-          {/* AI Executive Summary (CTO Perspective) */}
+          {/* AI Executive Summary (CTO Perspective) — dùng format mới nếu có */}
           {aiReport && (
             <div className="p-6 bg-blue-900 text-white rounded-2xl border border-blue-800 shadow-xl relative overflow-hidden">
               <div className="absolute top-0 right-0 p-4 opacity-10">
@@ -137,10 +137,17 @@ export const DevReportContent: React.FC<DevReportContentProps> = ({ result, aiRe
                 <BrainCircuit className="w-5 h-5" /> Nhận xét tổng quan (AI-CTO)
               </h2>
               <p className="text-sm leading-relaxed text-blue-50 relative z-10 italic">
-                "{aiReport.executiveSummary}"
+                "{(aiReport as any).personaDescription ?? (aiReport as any).executiveSummary ?? 'Đang tải phân tích...'}"
               </p>
+              {(aiReport as any).personaTitle && (
+                <div className="mt-3 text-xs font-bold text-blue-300 flex items-center gap-2">
+                  <span>{(aiReport as any).personaEmoji}</span>
+                  <span>{(aiReport as any).personaTitle}</span>
+                </div>
+              )}
             </div>
           )}
+
 
           <div className="space-y-4">
             <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">

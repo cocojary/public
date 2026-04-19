@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useTransition, useEffect, useRef } from "react";
-import { getQuestionsByRole, submitAssessmentAction } from "@/server/actions/assessmentActions";
+import { getDefaultQuestionSet, submitAssessmentAction } from "@/server/actions/assessmentActions";
 import { Button } from "@/components/ui/button";
 
-const STORAGE_KEY = (userId: string, role: string) => `quiz_progress_${userId}_${role}`;
+const STORAGE_KEY = (userId: string) => `quiz_progress_${userId}`;
 
 interface SavedProgress {
   answers: Record<string, number>;
@@ -16,11 +16,9 @@ interface SavedProgress {
 
 export function QuizStep({
   userId,
-  targetRole,
   onComplete,
 }: {
   userId: string;
-  targetRole: string;
   onComplete: (recordId: string) => void;
 }) {
   const [lang, setLang] = useState<'vi' | 'en' | 'ja'>('vi');
@@ -33,11 +31,11 @@ export function QuizStep({
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const startTimeRef = useRef<number>(Date.now());
-  const storageKey = STORAGE_KEY(userId, targetRole);
+  const storageKey = STORAGE_KEY(userId);
 
   useEffect(() => {
     async function loadQuestions() {
-      const res = await getQuestionsByRole(targetRole);
+      const res = await getDefaultQuestionSet();
       if (!res.success || !res.questions) {
         alert(res.error ?? "Không thể tải bộ câu hỏi.");
         setIsLoading(false);
@@ -66,7 +64,7 @@ export function QuizStep({
       setIsLoading(false);
     }
     loadQuestions();
-  }, [targetRole]);
+  }, []);
 
   const saveProgress = (newAnswers: Record<string, number>, index: number, currentLang: 'vi' | 'en' | 'ja', sid: string) => {
     try {
@@ -146,7 +144,7 @@ export function QuizStep({
     return (
       <div className="flex flex-col items-center justify-center p-20 bg-white rounded-2xl shadow-xl mt-10">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-        <p className="text-slate-600 font-medium">Đang chuẩn bị bộ câu hỏi cho vị trí {targetRole}...</p>
+        <p className="text-slate-600 font-medium">Đang chuẩn bị bộ câu hỏi...</p>
       </div>
     );
   }
@@ -155,7 +153,7 @@ export function QuizStep({
     return (
       <div className="p-10 bg-white rounded-2xl shadow-xl mt-10 text-center">
         <p className="text-red-500 font-bold mb-4">Lỗi: Không tìm thấy bộ câu hỏi.</p>
-        <p className="text-slate-600">Vui lòng liên hệ Admin để chạy Seeding cho vị trí {targetRole}.</p>
+        <p className="text-slate-600">Vui lòng liên hệ Admin để kiểm tra bộ câu hỏi trong hệ thống.</p>
       </div>
     );
   }
@@ -236,7 +234,7 @@ export function QuizStep({
       </div>
 
       <div className="p-4 bg-slate-50 border-t border-slate-200 text-center text-sm text-slate-500">
-        Vị trí: <strong>{targetRole}</strong> | Hãy trả lời chân thực dựa trên cách bạn thường xuyên hành xử nhất
+        Hãy trả lời chân thực dựa trên cách bạn thường xuyên hành xử nhất
       </div>
     </div>
   );

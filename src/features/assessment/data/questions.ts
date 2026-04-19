@@ -1,6 +1,8 @@
 // ============================================================
-// QUESTIONS BANK — Techzen HR Assessment (120 câu chính xác)
-// + 8 Lie Scale + 4 Consistency = 132 câu tổng
+// QUESTIONS BANK — Techzen SPI Universal V4
+// 1 bộ câu hỏi duy nhất cho TẤT CẢ vị trí
+// 120 câu chính (6 × 20 dimensions) + 8 Lie Scale = 128 câu
+// Consistency được kiểm tra bằng engine (so sánh forward/reversed)
 // ============================================================
 
 export interface Question {
@@ -9,68 +11,75 @@ export interface Question {
   dimensionId: string;
   reversed: boolean;
   isLie?: boolean;
-  consistencyGroup?: string;
+  active?: boolean; // false = ẩn khỏi quiz, giữ lại để backward compat
 }
 
 export const QUESTIONS: Question[] = [
-  // ─── EXTRAVERSION (8 câu) ──────────────────────────────────
+
+  // ─── EXTRAVERSION (6 câu: 4 thuận + 2 nghịch) ─────────────
   { id: 1,  text: 'Tôi thích tham gia các buổi gặp gỡ, sự kiện và tụ họp đông người.', dimensionId: 'extraversion', reversed: false },
   { id: 2,  text: 'Tôi dễ dàng bắt đầu cuộc trò chuyện với người mà tôi chưa quen.', dimensionId: 'extraversion', reversed: false },
   { id: 3,  text: 'Tôi cảm thấy tràn đầy năng lượng sau khi làm việc với nhiều người.', dimensionId: 'extraversion', reversed: false },
   { id: 4,  text: 'Tôi thường là người nói chuyện nhiều và dẫn dắt nhóm.', dimensionId: 'extraversion', reversed: false },
-  { id: 5,  text: 'Sau một ngày tiếp xúc với nhiều người, tôi cảm thấy mệt mỏi và cần thời gian một mình.', dimensionId: 'extraversion', reversed: true, consistencyGroup: 'EXT' },
+  { id: 5,  text: 'Sau một ngày tiếp xúc với nhiều người, tôi cảm thấy mệt mỏi và cần thời gian một mình.', dimensionId: 'extraversion', reversed: true },
   { id: 6,  text: 'Tôi thích làm việc độc lập hơn là phối hợp liên tục với nhiều người.', dimensionId: 'extraversion', reversed: true },
-  { id: 7,  text: 'Trong cuộc họp, tôi thường lắng nghe nhiều hơn là phát biểu.', dimensionId: 'extraversion', reversed: true },
-  { id: 8,  text: 'Tôi cảm thấy thoải mái hơn khi làm việc trong không gian yên tĩnh.', dimensionId: 'extraversion', reversed: true },
+  // Dropped: 7 (trùng ý câu 6), 8 (trùng ý câu 6)
+  { id: 7,  text: 'Trong cuộc họp, tôi thường lắng nghe nhiều hơn là phát biểu.', dimensionId: 'extraversion', reversed: true, active: false },
+  { id: 8,  text: 'Tôi cảm thấy thoải mái hơn khi làm việc trong không gian yên tĩnh.', dimensionId: 'extraversion', reversed: true, active: false },
 
-  // ─── AGREEABLENESS (8 câu) ─────────────────────────────────
+  // ─── AGREEABLENESS (6 câu: 3 thuận + 3 nghịch) ────────────
   { id: 9,  text: 'Tôi sẵn sàng giúp đỡ đồng nghiệp dù điều đó ảnh hưởng đến thời gian của mình.', dimensionId: 'agreeableness', reversed: false },
   { id: 10, text: 'Tôi cố gắng hiểu quan điểm của người khác trước khi đưa ra phán xét.', dimensionId: 'agreeableness', reversed: false },
-  { id: 11, text: 'Tôi tin tưởng rằng hầu hết mọi người đều có ý định tốt.', dimensionId: 'agreeableness', reversed: false },
-  { id: 12, text: 'Tôi thường nhường bộ trong tranh luận để giữ hòa khí.', dimensionId: 'agreeableness', reversed: false, consistencyGroup: 'AGR' },
+  // Dropped: 11 (đo lòng tin, không phải hòa đồng), 16 (thiên kiến tiêu cực)
+  { id: 11, text: 'Tôi tin tưởng rằng hầu hết mọi người đều có ý định tốt.', dimensionId: 'agreeableness', reversed: false, active: false },
+  { id: 12, text: 'Tôi thường nhường bộ trong tranh luận để giữ hòa khí.', dimensionId: 'agreeableness', reversed: false },
   { id: 13, text: 'Tôi thẳng thắn nói quan điểm ngay cả khi biết người khác sẽ không thích.', dimensionId: 'agreeableness', reversed: true },
   { id: 14, text: 'Tôi ưu tiên kết quả công việc hơn là cảm xúc của mọi người trong nhóm.', dimensionId: 'agreeableness', reversed: true },
   { id: 15, text: 'Trong xung đột, tôi thường giữ vững lập trường của mình đến cùng.', dimensionId: 'agreeableness', reversed: true },
-  { id: 16, text: 'Tôi đôi khi cảm thấy người khác đang lợi dụng sự tốt bụng của mình.', dimensionId: 'agreeableness', reversed: true },
+  { id: 16, text: 'Tôi đôi khi cảm thấy người khác đang lợi dụng sự tốt bụng của mình.', dimensionId: 'agreeableness', reversed: true, active: false },
 
-  // ─── CONSCIENTIOUSNESS (8 câu) ─────────────────────────────
+  // ─── CONSCIENTIOUSNESS (6 câu: 4 thuận + 2 nghịch) ────────
   { id: 17, text: 'Tôi luôn lập kế hoạch cụ thể trước khi bắt đầu một công việc quan trọng.', dimensionId: 'conscientiousness', reversed: false },
   { id: 18, text: 'Tôi hoàn thành công việc đúng deadline dù gặp khó khăn.', dimensionId: 'conscientiousness', reversed: false },
   { id: 19, text: 'Tôi giữ gìn không gian làm việc và tài liệu của mình ngăn nắp, có tổ chức.', dimensionId: 'conscientiousness', reversed: false },
   { id: 20, text: 'Tôi tuân thủ các quy định và quy trình của tổ chức một cách nhất quán.', dimensionId: 'conscientiousness', reversed: false },
-  { id: 21, text: 'Tôi hay trì hoãn công việc và thường hoàn thành vào phút cuối.', dimensionId: 'conscientiousness', reversed: true, consistencyGroup: 'CON' },
-  { id: 22, text: 'Tôi thường bỏ qua chi tiết nhỏ để tập trung vào bức tranh tổng thể.', dimensionId: 'conscientiousness', reversed: true },
+  { id: 21, text: 'Tôi hay trì hoãn công việc và thường hoàn thành vào phút cuối.', dimensionId: 'conscientiousness', reversed: true },
+  // Dropped: 22 (trùng với caution), 24 (quá cụ thể)
+  { id: 22, text: 'Tôi thường bỏ qua chi tiết nhỏ để tập trung vào bức tranh tổng thể.', dimensionId: 'conscientiousness', reversed: true, active: false },
   { id: 23, text: 'Tôi hay bắt đầu nhiều việc cùng lúc nhưng không hoàn thành đến nơi đến chốn.', dimensionId: 'conscientiousness', reversed: true },
-  { id: 24, text: 'Tôi đôi khi quên các cuộc hẹn hoặc cam kết đã hứa với người khác.', dimensionId: 'conscientiousness', reversed: true },
+  { id: 24, text: 'Tôi đôi khi quên các cuộc hẹn hoặc cam kết đã hứa với người khác.', dimensionId: 'conscientiousness', reversed: true, active: false },
 
-  // ─── OPENNESS (7 câu) ──────────────────────────────────────
+  // ─── OPENNESS (6 câu: 4 thuận + 2 nghịch) ─────────────────
   { id: 25, text: 'Tôi thích khám phá những ý tưởng và cách tiếp cận hoàn toàn mới.', dimensionId: 'openness', reversed: false },
   { id: 26, text: 'Tôi thường nghĩ ra những cách giải quyết sáng tạo cho vấn đề quen thuộc.', dimensionId: 'openness', reversed: false },
   { id: 27, text: 'Tôi sẵn sàng thay đổi quan điểm khi có bằng chứng thuyết phục.', dimensionId: 'openness', reversed: false },
   { id: 28, text: 'Tôi đọc nhiều và quan tâm đến nhiều chủ đề đa dạng ngoài công việc.', dimensionId: 'openness', reversed: false },
   { id: 29, text: 'Tôi thích dùng các phương pháp đã được kiểm chứng hơn là thử nghiệm cái mới.', dimensionId: 'openness', reversed: true },
   { id: 30, text: 'Tôi cảm thấy không thoải mái khi mọi thứ thay đổi quá nhiều và quá nhanh.', dimensionId: 'openness', reversed: true },
-  { id: 31, text: 'Trong công việc, tôi ưu tiên sự ổn định hơn là thử nghiệm cách làm mới.', dimensionId: 'openness', reversed: true },
+  // Dropped: 31 (trùng với stability_orientation)
+  { id: 31, text: 'Trong công việc, tôi ưu tiên sự ổn định hơn là thử nghiệm cách làm mới.', dimensionId: 'openness', reversed: true, active: false },
 
-  // ─── EMOTIONAL STABILITY (7 câu) ───────────────────────────
+  // ─── EMOTIONAL STABILITY (6 câu: 4 thuận + 2 nghịch) ──────
   { id: 32, text: 'Tôi giữ được bình tĩnh trong các tình huống áp lực cao.', dimensionId: 'emotional_stability', reversed: false },
   { id: 33, text: 'Tôi ít bị ảnh hưởng bởi lời chỉ trích hay phê phán từ người khác.', dimensionId: 'emotional_stability', reversed: false },
   { id: 34, text: 'Tôi nhanh chóng lấy lại tinh thần sau khi gặp thất bại hay thất vọng.', dimensionId: 'emotional_stability', reversed: false },
   { id: 35, text: 'Tôi có thể kiểm soát cảm xúc ngay cả trong những tranh luận gay gắt.', dimensionId: 'emotional_stability', reversed: false },
   { id: 36, text: 'Tôi hay lo lắng về những điều có thể xảy ra không tốt trong tương lai.', dimensionId: 'emotional_stability', reversed: true },
   { id: 37, text: 'Tôi dễ bị ảnh hưởng bởi bầu không khí tiêu cực hoặc căng thẳng trong nhóm.', dimensionId: 'emotional_stability', reversed: true },
-  { id: 38, text: 'Đôi khi tôi phản ứng quá mức với các tình huống không như ý muốn.', dimensionId: 'emotional_stability', reversed: true },
+  // Dropped: 38 (trùng câu 37)
+  { id: 38, text: 'Đôi khi tôi phản ứng quá mức với các tình huống không như ý muốn.', dimensionId: 'emotional_stability', reversed: true, active: false },
 
-  // ─── ACHIEVEMENT DRIVE (7 câu) ─────────────────────────────
+  // ─── ACHIEVEMENT DRIVE (6 câu: 4 thuận + 2 nghịch) ────────
   { id: 39, text: 'Tôi luôn đặt ra mục tiêu cao hơn so với yêu cầu tối thiểu được giao.', dimensionId: 'achievement_drive', reversed: false },
   { id: 40, text: 'Tôi cảm thấy buồn và không hài lòng khi không đạt được kết quả tốt nhất.', dimensionId: 'achievement_drive', reversed: false },
   { id: 41, text: 'Khi đạt được mục tiêu, tôi ngay lập tức đặt ra mục tiêu tiếp theo cao hơn.', dimensionId: 'achievement_drive', reversed: false },
   { id: 42, text: 'Tôi muốn là người giỏi nhất trong lĩnh vực chuyên môn của mình.', dimensionId: 'achievement_drive', reversed: false },
   { id: 43, text: 'Tôi hài lòng với việc hoàn thành công việc ở mức "đủ tốt" mà không cần xuất sắc.', dimensionId: 'achievement_drive', reversed: true },
   { id: 44, text: 'Tôi không đặt áp lực lớn cho bản thân về thành tích hay kết quả.', dimensionId: 'achievement_drive', reversed: true },
-  { id: 45, text: 'Tôi ít cảm thấy cạnh tranh với người khác và không quan tâm đến việc so sánh.', dimensionId: 'achievement_drive', reversed: true },
+  // Dropped: 45 (trùng câu 44)
+  { id: 45, text: 'Tôi ít cảm thấy cạnh tranh với người khác và không quan tâm đến việc so sánh.', dimensionId: 'achievement_drive', reversed: true, active: false },
 
-  // ─── CHALLENGE SPIRIT (6 câu) ──────────────────────────────
+  // ─── CHALLENGE SPIRIT (6 câu: 4 thuận + 2 nghịch) ─────────
   { id: 46, text: 'Tôi chủ động tham gia vào các dự án khó và nhiều thách thức.', dimensionId: 'challenge_spirit', reversed: false },
   { id: 47, text: 'Khi thất bại, tôi phân tích nguyên nhân và thử lại theo cách khác.', dimensionId: 'challenge_spirit', reversed: false },
   { id: 48, text: 'Tôi cảm thấy hứng khởi khi đối mặt với vấn đề chưa có lời giải.', dimensionId: 'challenge_spirit', reversed: false },
@@ -78,7 +87,7 @@ export const QUESTIONS: Question[] = [
   { id: 50, text: 'Tôi thích tránh những tình huống có nhiều rủi ro thất bại.', dimensionId: 'challenge_spirit', reversed: true },
   { id: 51, text: 'Tôi ngại nhận công việc khi chưa chắc mình có thể làm tốt.', dimensionId: 'challenge_spirit', reversed: true },
 
-  // ─── AUTONOMY (6 câu) ──────────────────────────────────────
+  // ─── AUTONOMY (6 câu: 4 thuận + 2 nghịch) ──────────────────
   { id: 52, text: 'Tôi tự xác định phương pháp làm việc mà không cần chờ hướng dẫn chi tiết.', dimensionId: 'autonomy', reversed: false },
   { id: 53, text: 'Tôi chủ động giải quyết vấn đề thay vì chờ đợi quyết định từ cấp trên.', dimensionId: 'autonomy', reversed: false },
   { id: 54, text: 'Tôi cảm thấy tốt hơn khi được giao mục tiêu rõ ràng mà không bị kiểm soát từng bước.', dimensionId: 'autonomy', reversed: false },
@@ -86,7 +95,7 @@ export const QUESTIONS: Question[] = [
   { id: 56, text: 'Tôi cần người hướng dẫn từng bước để hoàn thành công việc một cách tốt nhất.', dimensionId: 'autonomy', reversed: true },
   { id: 57, text: 'Tôi thích được kiểm tra và phê duyệt thường xuyên trong quá trình làm việc.', dimensionId: 'autonomy', reversed: true },
 
-  // ─── LEARNING CURIOSITY (6 câu) ────────────────────────────
+  // ─── LEARNING CURIOSITY (6 câu: 4 thuận + 2 nghịch) ────────
   { id: 58, text: 'Tôi dành thời gian tự học các kỹ năng mới ngoài công việc hàng ngày.', dimensionId: 'learning_curiosity', reversed: false },
   { id: 59, text: 'Tôi thường xuyên đọc sách, bài viết, hoặc nghe podcast về lĩnh vực chuyên môn.', dimensionId: 'learning_curiosity', reversed: false },
   { id: 60, text: 'Tôi đặt câu hỏi nhiều và tìm kiếm sự hiểu biết sâu hơn về mọi vấn đề.', dimensionId: 'learning_curiosity', reversed: false },
@@ -94,23 +103,28 @@ export const QUESTIONS: Question[] = [
   { id: 62, text: 'Tôi ít quan tâm đến các xu hướng và kiến thức mới trong lĩnh vực của mình.', dimensionId: 'learning_curiosity', reversed: true },
   { id: 63, text: 'Tôi cảm thấy những kỹ năng hiện tại đã đủ và không cần học thêm.', dimensionId: 'learning_curiosity', reversed: true },
 
-  // ─── RECOGNITION NEED (5 câu) ──────────────────────────────
+  // ─── RECOGNITION NEED (6 câu: 4 thuận + 2 nghịch) ──────────
   { id: 64, text: 'Tôi cảm thấy có động lực hơn đáng kể khi được công nhận công khai.', dimensionId: 'recognition_need', reversed: false },
   { id: 65, text: 'Lời khen từ cấp trên hoặc đồng nghiệp có ý nghĩa lớn với tôi.', dimensionId: 'recognition_need', reversed: false },
   { id: 66, text: 'Tôi cảm thấy khó chịu khi đóng góp của mình không được ai ghi nhận.', dimensionId: 'recognition_need', reversed: false },
   { id: 67, text: 'Tôi làm tốt công việc ngay cả khi không ai biết hoặc ghi nhận.', dimensionId: 'recognition_need', reversed: true },
   { id: 68, text: 'Tôi không cần lời khen để duy trì động lực làm việc.', dimensionId: 'recognition_need', reversed: true },
+  // NEW: Câu thứ 6 cho recognition_need
+  { id: 150, text: 'Khi được công nhận trước tập thể, tôi cảm thấy muốn cố gắng nhiều hơn.', dimensionId: 'recognition_need', reversed: false },
 
-  // ─── LOGICAL THINKING (7 câu) ──────────────────────────────
+  // ─── LOGICAL THINKING (6 câu: 4 thuận + 2 nghịch) ──────────
   { id: 69, text: 'Tôi phân tích nguyên nhân gốc rễ khi gặp vấn đề thay vì xử lý triệu chứng bề mặt.', dimensionId: 'logical_thinking', reversed: false },
   { id: 70, text: 'Tôi đưa ra quyết định dựa trên dữ liệu và bằng chứng cụ thể.', dimensionId: 'logical_thinking', reversed: false },
   { id: 71, text: 'Tôi thích xây dựng kế hoạch có cấu trúc rõ ràng với các bước cụ thể.', dimensionId: 'logical_thinking', reversed: false },
   { id: 72, text: 'Tôi dễ dàng nhận ra mâu thuẫn hoặc lỗ hổng trong lập luận của người khác.', dimensionId: 'logical_thinking', reversed: false },
-  { id: 73, text: 'Tôi thích làm việc có hệ thống và phân loại thông tin theo cấu trúc rõ ràng.', dimensionId: 'logical_thinking', reversed: false },
   { id: 74, text: 'Tôi thường quyết định theo trực giác hơn là phân tích kỹ.', dimensionId: 'logical_thinking', reversed: true },
-  { id: 75, text: 'Tôi ít kiên nhẫn với các cuộc thảo luận dài dòng về dữ liệu và lý thuyết.', dimensionId: 'logical_thinking', reversed: true },
+  // NEW: Câu nghịch thứ 2 (thay Q73 drop + Q75 drop), ngôn ngữ trung lập
+  { id: 158, text: 'Tôi thường đưa ra kết luận dựa trên cảm giác hơn là phân tích có hệ thống.', dimensionId: 'logical_thinking', reversed: true },
+  // Dropped: 73 (trùng ý conscientiousness), 75 (đo patience, không phải logical)
+  { id: 73, text: 'Tôi thích làm việc có hệ thống và phân loại thông tin theo cấu trúc rõ ràng.', dimensionId: 'logical_thinking', reversed: false, active: false },
+  { id: 75, text: 'Tôi ít kiên nhẫn với các cuộc thảo luận dài dòng về dữ liệu và lý thuyết.', dimensionId: 'logical_thinking', reversed: true, active: false },
 
-  // ─── EMPATHY (6 câu) ───────────────────────────────────────
+  // ─── EMPATHY (6 câu: 4 thuận + 2 nghịch) ───────────────────
   { id: 76, text: 'Tôi dễ dàng nhận ra khi đồng nghiệp đang có vấn đề về cảm xúc.', dimensionId: 'empathy', reversed: false },
   { id: 77, text: 'Tôi điều chỉnh cách giao tiếp tùy theo tâm trạng và đặc điểm của từng người.', dimensionId: 'empathy', reversed: false },
   { id: 78, text: 'Khi nghe ai đó chia sẻ vấn đề, tôi thực sự cảm nhận được cảm xúc của họ.', dimensionId: 'empathy', reversed: false },
@@ -118,54 +132,67 @@ export const QUESTIONS: Question[] = [
   { id: 80, text: 'Tôi khó hiểu tại sao người khác lại cảm thấy buồn hay thất vọng về những điều nhỏ.', dimensionId: 'empathy', reversed: true },
   { id: 81, text: 'Tôi thường bỏ qua cảm xúc trong nhóm để tập trung vào kết quả công việc.', dimensionId: 'empathy', reversed: true },
 
-  // ─── EXECUTION SPEED (5 câu) ───────────────────────────────
+  // ─── EXECUTION SPEED (6 câu: 4 thuận + 2 nghịch) ───────────
   { id: 82, text: 'Tôi hành động nhanh chóng khi có cơ hội, không chờ đến khi mọi thứ hoàn hảo.', dimensionId: 'execution_speed', reversed: false },
   { id: 83, text: 'Tôi đưa ra quyết định nhanh ngay cả khi thông tin chưa đầy đủ.', dimensionId: 'execution_speed', reversed: false },
   { id: 84, text: 'Tôi thích hoàn thành nhanh và điều chỉnh sau hơn là chuẩn bị kỹ rồi mới làm.', dimensionId: 'execution_speed', reversed: false },
   { id: 85, text: 'Tôi cần thời gian suy nghĩ kỹ trước khi cam kết với bất kỳ quyết định quan trọng nào.', dimensionId: 'execution_speed', reversed: true },
   { id: 86, text: 'Tôi thường trì hoãn hành động để thu thập đủ thông tin trước.', dimensionId: 'execution_speed', reversed: true },
+  // NEW: Câu thứ 6 cho execution_speed
+  { id: 151, text: 'Khi gặp tình huống bất ngờ, tôi thích ứng và hành động ngay thay vì dừng lại phân tích.', dimensionId: 'execution_speed', reversed: false },
 
-  // ─── CAUTION (5 câu) ───────────────────────────────────────
+  // ─── CAUTION (6 câu: 4 thuận + 2 nghịch) ───────────────────
   { id: 87, text: 'Tôi kiểm tra kỹ công việc ít nhất một lần trước khi gửi đi.', dimensionId: 'caution', reversed: false },
   { id: 88, text: 'Tôi đọc kỹ hướng dẫn và tài liệu trước khi bắt tay vào thực hiện.', dimensionId: 'caution', reversed: false },
   { id: 89, text: 'Tôi thường phát hiện lỗi sai trong tài liệu hoặc báo cáo của người khác.', dimensionId: 'caution', reversed: false },
   { id: 90, text: 'Tôi hay bỏ sót chi tiết khi làm việc dưới áp lực thời gian.', dimensionId: 'caution', reversed: true },
-  { id: 91, text: 'Tôi ít khi đọc lại email trước khi gửi đi.', dimensionId: 'caution', reversed: true },
+  { id: 91, text: 'Tôi ít khi đọc lại kết quả trước khi gửi đi.', dimensionId: 'caution', reversed: true },
+  // NEW: Câu thứ 6 cho caution (ngôn ngữ trung lập, thay "email" bằng "kết quả")
+  { id: 152, text: 'Tôi thường đặt câu hỏi kiểm tra lại giả định của mình trước khi đưa ra kết luận cuối.', dimensionId: 'caution', reversed: false },
 
-  // ─── GROWTH ORIENTATION (5 câu) ────────────────────────────
+  // ─── GROWTH ORIENTATION (6 câu: 4 thuận + 2 nghịch) ────────
   { id: 92, text: 'Tôi muốn công việc giúp tôi phát triển và trở nên giỏi hơn mỗi ngày.', dimensionId: 'growth_orientation', reversed: false },
   { id: 93, text: 'Tôi xây dựng lộ trình sự nghiệp dài hạn và theo đuổi có kế hoạch.', dimensionId: 'growth_orientation', reversed: false },
   { id: 94, text: 'Tôi tìm kiếm cơ hội học hỏi từ những người giỏi hơn mình.', dimensionId: 'growth_orientation', reversed: false },
   { id: 95, text: 'Tôi không quan tâm nhiều đến việc thăng tiến hay mở rộng trách nhiệm.', dimensionId: 'growth_orientation', reversed: true },
   { id: 96, text: 'Tôi hài lòng với vị trí và công việc hiện tại, không muốn thay đổi nhiều.', dimensionId: 'growth_orientation', reversed: true },
+  // NEW: Câu thứ 6 cho growth_orientation
+  { id: 153, text: 'Tôi chủ động tìm kiếm cơ hội đảm nhận thêm trách nhiệm mới dù chưa được yêu cầu.', dimensionId: 'growth_orientation', reversed: false },
 
-  // ─── STABILITY ORIENTATION (5 câu) ─────────────────────────
+  // ─── STABILITY ORIENTATION (6 câu: 4 thuận + 2 nghịch) ─────
   { id: 97,  text: 'Sự ổn định trong công việc và thu nhập quan trọng hơn cơ hội rủi ro cao.', dimensionId: 'stability_orientation', reversed: false },
   { id: 98,  text: 'Tôi thích có quy trình và quy định rõ ràng để làm theo.', dimensionId: 'stability_orientation', reversed: false },
   { id: 99,  text: 'Tôi ưu tiên an toàn công việc dài hạn hơn mức lương cao nhưng bấp bênh.', dimensionId: 'stability_orientation', reversed: false },
   { id: 100, text: 'Tôi không ngại thay đổi công việc hoặc tổ chức thường xuyên.', dimensionId: 'stability_orientation', reversed: true },
   { id: 101, text: 'Tôi thích môi trường làm việc linh hoạt và thay đổi liên tục.', dimensionId: 'stability_orientation', reversed: true },
+  // NEW: Câu thứ 6 cho stability_orientation
+  { id: 154, text: 'Tôi lo lắng khi tổ chức thay đổi cơ cấu hoặc quy trình làm việc quá thường xuyên.', dimensionId: 'stability_orientation', reversed: false },
 
-  // ─── SOCIAL CONTRIBUTION (4 câu) ───────────────────────────
+  // ─── SOCIAL CONTRIBUTION (6 câu: 4 thuận + 2 nghịch) ───────
   { id: 102, text: 'Tôi muốn công việc của mình tạo ra tác động tích cực cho xã hội.', dimensionId: 'social_contribution', reversed: false },
   { id: 103, text: 'Tôi cảm thấy ý nghĩa hơn khi biết công việc mình làm giúp ích cho cộng đồng.', dimensionId: 'social_contribution', reversed: false },
-  { id: 104, text: 'Tôi tham gia các hoạt động CSR hoặc tình nguyện khi có cơ hội.', dimensionId: 'social_contribution', reversed: false },
+  { id: 104, text: 'Tôi tham gia các hoạt động tình nguyện hoặc hỗ trợ cộng đồng khi có cơ hội.', dimensionId: 'social_contribution', reversed: false },
   { id: 105, text: 'Tôi ưu tiên lợi ích kinh doanh cá nhân hơn là tác động xã hội.', dimensionId: 'social_contribution', reversed: true },
+  // NEW: 2 câu thứ 5 và 6 cho social_contribution
+  { id: 155, text: 'Tôi quan tâm đến việc sản phẩm hoặc dịch vụ của mình có thực sự tạo giá trị cho khách hàng và cộng đồng.', dimensionId: 'social_contribution', reversed: false },
+  { id: 156, text: 'Đối với tôi, thu nhập cao quan trọng hơn việc công việc có ý nghĩa xã hội.', dimensionId: 'social_contribution', reversed: true },
 
-  // ─── STRESS MENTAL (6 câu) ─────────────────────────────────
+  // ─── STRESS MENTAL (6 câu: 3 thuận + 3 nghịch) ─────────────
   { id: 106, text: 'Tôi có thể duy trì hiệu suất làm việc ngay cả khi môi trường có nhiều xung đột.', dimensionId: 'stress_mental', reversed: false },
   { id: 107, text: 'Tôi không để áp lực công việc làm ảnh hưởng đến cuộc sống cá nhân.', dimensionId: 'stress_mental', reversed: false },
   { id: 108, text: 'Khi gặp nhiều vấn đề cùng lúc, tôi vẫn giữ được sự tập trung và bình tĩnh.', dimensionId: 'stress_mental', reversed: false },
-  { id: 109, text: 'Áp lực công việc cao khiến tôi khó ngủ hoặc lo lắng liên tục.', dimensionId: 'stress_mental', reversed: true, consistencyGroup: 'STR' },
+  { id: 109, text: 'Áp lực công việc cao khiến tôi khó ngủ hoặc lo lắng liên tục.', dimensionId: 'stress_mental', reversed: true },
   { id: 110, text: 'Tôi dễ bị kiệt sức tinh thần khi phải đối mặt với công việc căng thẳng kéo dài.', dimensionId: 'stress_mental', reversed: true },
   { id: 111, text: 'Bầu không khí làm việc tiêu cực ảnh hưởng lớn đến tâm trạng và hiệu suất của tôi.', dimensionId: 'stress_mental', reversed: true },
 
-  // ─── STRESS PHYSICAL (5 câu) ───────────────────────────────
+  // ─── STRESS PHYSICAL (6 câu: 4 thuận + 2 nghịch) ───────────
   { id: 112, text: 'Tôi có thể làm việc hiệu quả ngay cả khi ngủ ít trong vài ngày liên tiếp.', dimensionId: 'stress_physical', reversed: false },
   { id: 113, text: 'Tôi hiếm khi bị ốm hoặc mệt mỏi thể chất khi làm việc cường độ cao.', dimensionId: 'stress_physical', reversed: false },
   { id: 114, text: 'Tôi duy trì được năng lượng tốt suốt ngày làm việc, kể cả cuối ngày.', dimensionId: 'stress_physical', reversed: false },
   { id: 115, text: 'Tôi thường cảm thấy mệt mỏi thể chất sau các giai đoạn làm việc nhiều giờ.', dimensionId: 'stress_physical', reversed: true },
   { id: 116, text: 'Cơ thể tôi phản ứng mạnh (đau đầu, mất ngủ) khi áp lực công việc tăng cao.', dimensionId: 'stress_physical', reversed: true },
+  // NEW: Câu thứ 6 cho stress_physical
+  { id: 157, text: 'Tôi duy trì được thể lực và sức khỏe tốt dù lịch làm việc dày đặc kéo dài nhiều tuần.', dimensionId: 'stress_physical', reversed: false },
 
   // ─── LIE SCALE × 8 (ẩn hoàn toàn) ────────────────────────
   { id: 117, text: 'Tôi chưa bao giờ nói dối, dù chỉ là lời nói vô hại nhỏ nhặt.', dimensionId: 'lie_scale', reversed: false, isLie: true },
@@ -177,17 +204,15 @@ export const QUESTIONS: Question[] = [
   { id: 123, text: 'Tôi chưa bao giờ cảm thấy lười biếng hay muốn trốn tránh trách nhiệm.', dimensionId: 'lie_scale', reversed: false, isLie: true },
   { id: 124, text: 'Tôi không bao giờ bỏ qua một quy định dù nhỏ, kể cả khi không ai biết.', dimensionId: 'lie_scale', reversed: false, isLie: true },
 
-  // ─── CONSISTENCY PAIRS × 4 (ẩn, đặt cách xa câu gốc) ────────
-  // Pair 1 — Extraversion (câu 5 ↔ 125): "mệt sau tiếp xúc nhiều người"
-  { id: 125, text: 'Sau một buổi tối tụ họp đông người, tôi thường cần thời gian một mình để hồi phục năng lượng.', dimensionId: 'extraversion', reversed: true, consistencyGroup: 'EXT' },
-  // Pair 2 — Conscientiousness (câu 21 ↔ 126): "trì hoãn đến phút cuối"
-  { id: 126, text: 'Tôi thường bắt đầu làm công việc ngay trước deadline thay vì lên kế hoạch từ sớm.', dimensionId: 'conscientiousness', reversed: true, consistencyGroup: 'CON' },
-  // Pair 3 — Agreeableness (câu 12 ↔ 127): câu 12 forward, câu 127 REVERSED để detect mâu thuẫn
-  { id: 127, text: 'Tôi sẵn sàng giữ vững lập trường của mình đến cùng, kể cả khi điều đó làm người khác khó chịu.', dimensionId: 'agreeableness', reversed: true, consistencyGroup: 'AGR' },
-  // Pair 4 — Stress mental (câu 109 ↔ 128): "áp lực gây mất ngủ"
-  { id: 128, text: 'Khi gặp áp lực cao ở công việc, tôi thường bị ảnh hưởng đến giấc ngủ và tâm trạng cá nhân.', dimensionId: 'stress_mental', reversed: true, consistencyGroup: 'STR' },
+  // ─── CŨ: Consistency pairs — không còn dùng trong V4 ──────
+  // Consistency được kiểm tra bởi engine (so sánh forward vs reversed trung bình)
+  { id: 125, text: 'Sau một buổi tối tụ họp đông người, tôi thường cần thời gian một mình để hồi phục năng lượng.', dimensionId: 'extraversion', reversed: true, active: false },
+  { id: 126, text: 'Tôi thường bắt đầu làm công việc ngay trước deadline thay vì lên kế hoạch từ sớm.', dimensionId: 'conscientiousness', reversed: true, active: false },
+  { id: 127, text: 'Tôi sẵn sàng giữ vững lập trường của mình đến cùng, kể cả khi điều đó làm người khác khó chịu.', dimensionId: 'agreeableness', reversed: true, active: false },
+  { id: 128, text: 'Khi gặp áp lực cao ở công việc, tôi thường bị ảnh hưởng đến giấc ngủ và tâm trạng cá nhân.', dimensionId: 'stress_mental', reversed: true, active: false },
 
-  // ─── NHÓM F: NĂNG LỰC LÃNH ĐẠO (14 dimensions × 4 câu = 56 câu) ────────────
+  // ─── NHÓM F: NĂNG LỰC LÃNH ĐẠO (CEO) — [INTERNAL ONLY] ──────────────────
+  // Không xuất hiện trong quiz chính. Chỉ dùng cho đánh giá C-level nội bộ Techzen.
   // IDs: 200–255
 
   // ── STRATEGIC VISION (4 câu) ──────────────────────────────────
@@ -273,52 +298,72 @@ export const QUESTIONS: Question[] = [
   { id: 253, text: 'Tôi kiên định với chiến lược bất chấp áp lực từ nhiều phía — cổ đông, đội nhóm, hay thị trường.', dimensionId: 'pressure_balance', reversed: false },
   { id: 254, text: 'Trong giai đoạn khủng hoảng, tôi là người giữ bình tĩnh và trở thành điểm tựa cho đội nhóm.', dimensionId: 'pressure_balance', reversed: false },
   { id: 255, text: 'Khi bị nhiều phía phản đối, tôi thường thay đổi quyết định để xoa dịu áp lực thay vì bảo vệ chiến lược đúng.', dimensionId: 'pressure_balance', reversed: true },
+  // ─── CRITICAL THINKING (5 câu tình huống) ────────────────────
+  { id: 130, text: 'Khi nhận được một báo cáo có kết luận rõ ràng, tôi vẫn tự tìm kiếm thêm dữ liệu để xác thực lại trước khi tin bài báo cáo đó.', dimensionId: 'critical_thinking', reversed: false },
+  { id: 131, text: 'Trong các cuộc họp, tôi thường là người đặt ra những câu hỏi "Tại sao?" và "Nếu như?" đối với các phương án được đề xuất.', dimensionId: 'critical_thinking', reversed: false },
+  { id: 132, text: 'Tôi dễ dàng nhận ra những lỗ hổng logic hoặc sự mâu thuẫn trong lập luận của người khác.', dimensionId: 'critical_thinking', reversed: false },
+  { id: 133, text: 'Tôi thường tin tưởng và áp dụng ngay các quy trình cũ đã có sẵn mà không cần mất thời gian để phân tích lại hiệu quả của chúng.', dimensionId: 'critical_thinking', reversed: true },
+  { id: 134, text: 'Khi đa số thành viên trong nhóm đã đồng thuận về một giải pháp, tôi sẽ nhanh chóng đồng ý theo để tiết kiệm thời gian.', dimensionId: 'critical_thinking', reversed: true },
+
+  // ─── COMMUNICATION CLARITY (5 câu tình huống) ────────────────
+  { id: 135, text: 'Khi trình bày một vấn đề phức tạp, tôi luôn tóm tắt thành các gạch đầu dòng ngắn gọn và dễ hiểu trước khi đi vào chi tiết.', dimensionId: 'communication_clarity', reversed: false },
+  { id: 136, text: 'Tôi thường xuyên điều chỉnh cách nói chuyện và từ ngữ của mình để phù hợp với từng đối tượng người nghe khác nhau.', dimensionId: 'communication_clarity', reversed: false },
+  { id: 137, text: 'Trước khi gửi một email quan trọng, tôi luôn đọc lại để kiểm tra xem thông điệp cốt lõi đã đủ rõ ràng và súc tích chưa.', dimensionId: 'communication_clarity', reversed: false },
+  { id: 138, text: 'Nhiều lúc đồng nghiệp yêu cầu tôi giải thích lại ý muốn nói vì họ cảm thấy thông tin tôi đưa ra hơi vòng vo.', dimensionId: 'communication_clarity', reversed: true },
+  { id: 139, text: 'Tôi ưu tiên việc đưa ra càng nhiều thông tin và bối cảnh càng tốt khi giải thích, hơn là chỉ đi thẳng vào vấn đề chính.', dimensionId: 'communication_clarity', reversed: true },
+
+  // ─── TIME MANAGEMENT (5 câu tình huống) ──────────────────────
+  { id: 140, text: 'Mỗi ngày làm việc, tôi luôn dành thời gian đầu giờ để sắp xếp và phân loại ưu tiên các đầu việc theo mức độ quan trọng.', dimensionId: 'time_management', reversed: false },
+  { id: 141, text: 'Tôi biết cách nói "Không" một cách khéo léo với những yêu cầu đột xuất không quan trọng để bảo vệ thời gian cho mục tiêu chính.', dimensionId: 'time_management', reversed: false },
+  { id: 142, text: 'Tôi hiếm khi phải hoàn thành công việc sát giờ deadline nhờ vào việc chia nhỏ nhiệm vụ và quản lý tiến độ chặt chẽ.', dimensionId: 'time_management', reversed: false },
+  { id: 143, text: 'Tôi thường xuyên rơi vào tình trạng quá tải hoặc phải mang công việc về nhà để làm bù cho những khoảng thời gian bị phân tâm.', dimensionId: 'time_management', reversed: true },
+  { id: 144, text: 'Có những ngày tôi cảm thấy mình rất bận rộn từ sáng đến tối, nhưng cuối ngày nhìn lại thì chưa hoàn thành được việc gì mang tính cốt lõi.', dimensionId: 'time_management', reversed: true },
+
+  // ─── DATA LITERACY (5 câu tình huống) ────────────────────────
+  { id: 145, text: 'Trước khi đưa ra một quyết định quan trọng, tôi luôn chủ động tìm kiếm số liệu và bằng chứng cụ thể để củng cố luận điểm.', dimensionId: 'data_literacy', reversed: false },
+  { id: 146, text: 'Khi xem một bảng số liệu hoặc biểu đồ, tôi nhanh chóng nhận ra xu hướng nổi bật hoặc điểm bất thường cần chú ý.', dimensionId: 'data_literacy', reversed: false },
+  { id: 147, text: 'Khi đọc một bản báo cáo, tôi không chỉ nhìn vào kết quả tổng quát mà còn tìm hiểu con số đó được tính như thế nào và có đáng tin hay không.', dimensionId: 'data_literacy', reversed: false },
+  { id: 148, text: 'Tôi cảm thấy khó khăn khi phải tự tổng hợp thông tin từ nhiều bảng số liệu hoặc báo cáo cùng lúc.', dimensionId: 'data_literacy', reversed: true },
+  { id: 149, text: 'Tôi thường dựa vào trực giác và kinh nghiệm cá nhân hơn là các con số báo cáo khi cần nhận định tình huống.', dimensionId: 'data_literacy', reversed: true },
 ];
 
 // ─── LIE SCALE IDs ────────────────────────────────────────────
 export const LIE_QUESTION_IDS = [117, 118, 119, 120, 121, 122, 123, 124];
 
-// ─── CONSISTENCY PAIRS ────────────────────────────────────────
-export const CONSISTENCY_PAIRS: [number, number][] = [
-  [5, 125],   // Extraversion reversed
-  [21, 126],  // Conscientiousness reversed
-  [12, 127],  // Agreeableness forward
-  [109, 128], // Stress mental reversed
-];
+// ─── CEO QUESTION IDs (INTERNAL ONLY) ─────────────────────────
+export const CEO_QUESTION_IDS = Array.from({ length: 56 }, (_, i) => i + 200);
 
-// ─── BUILD QUIZ ORDER (trả về đúng 120 câu chính + xen kẽ Lie/Consistency) ─
+// ─── BUILD QUIZ ORDER — V4 Unified ────────────────────────────
+// 120 câu chính + 8 Lie Scale = 128 câu/session (~25-28 phút)
+// Consistency được kiểm tra bởi engine (forward vs reversed avg)
 export function buildQuizOrder(): number[] {
-  // Main questions (IDs 1–116, không phải Lie, không phải Consistency duplicate)
   const mainIds = QUESTIONS
-    .filter(q => !q.isLie && !q.consistencyGroup)
-    .map(q => q.id); // = 116 câu (1–116)
+    .filter(q =>
+      !q.isLie &&
+      q.id < 200 &&
+      q.active !== false
+    )
+    .map(q => q.id);
 
-  const lieIds = LIE_QUESTION_IDS;           // 8 câu
-  const consistencyIds = [125, 126, 127, 128]; // 4 câu
-
-  // Tổng = 116 + 4 = 120 câu main + 8 Lie xen kẽ = 128 câu người dùng thấy
-  // Nhưng người dùng không biết câu nào là Lie
-
+  const lieIds = LIE_QUESTION_IDS;
   const result: number[] = [];
   let lieIdx = 0;
-  let conIdx = 0;
 
   for (let i = 0; i < mainIds.length; i++) {
     result.push(mainIds[i]);
-
-    // Thêm 1 câu Consistency sau câu 30, 60, 90, 116
-    if ((i === 29 || i === 59 || i === 89 || i === 115) && conIdx < consistencyIds.length) {
-      result.push(consistencyIds[conIdx++]);
-    }
-
-    // Thêm 1 câu Lie sau mỗi 14 câu chính
-    if ((i + 1) % 14 === 0 && lieIdx < lieIds.length) {
+    // 1 câu Lie sau mỗi 15 câu chính (8 lie × 15 = 120 main)
+    if ((i + 1) % 15 === 0 && lieIdx < lieIds.length) {
       result.push(lieIds[lieIdx++]);
     }
   }
 
-  // Thêm câu Lie còn lại
+  // Thêm câu Lie còn lại vào cuối
   while (lieIdx < lieIds.length) result.push(lieIds[lieIdx++]);
 
   return result;
+}
+
+// ─── BUILD CEO QUIZ ORDER (INTERNAL ONLY) ────────────────────
+export function buildCEOQuizOrder(): number[] {
+  return CEO_QUESTION_IDS;
 }

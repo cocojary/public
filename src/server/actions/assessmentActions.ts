@@ -2,9 +2,25 @@
 
 import { headers } from "next/headers";
 import prisma from "@/server/db";
-import { calculateScores } from "@/features/assessment/data/scoring";
-import { calculateDevResults } from "@/features/assessment/utils/devScoring";
+import { calculateUnifiedScores } from "@/features/assessment/utils/unifiedEngine";
 import { checkRateLimit } from "@/server/utils/rateLimit";
+
+export async function getDefaultQuestionSet() {
+  try {
+    const qSet = await prisma.questionSet.findFirst({
+      where: { isActive: true },
+      orderBy: { createdAt: 'desc' },
+      include: { questions: true },
+    });
+    if (!qSet) {
+      return { success: false, error: "Không tìm thấy bộ câu hỏi. Vui lòng liên hệ Admin." };
+    }
+    return { success: true, questions: qSet.questions, setId: qSet.id };
+  } catch (error) {
+    console.error("Lỗi khi lấy câu hỏi:", error);
+    return { success: false, error: "Lỗi hệ thống khi tải câu hỏi." };
+  }
+}
 
 export async function getQuestionsByRole(roleCode: string) {
   try {
@@ -65,27 +81,10 @@ export async function submitAssessmentAction(
 
     if (!qSet) throw new Error("Question set not found");
 
-    // Lấy thông tin Role của QuestionSet để xác định logic chấm điểm
-    const role = await prisma.targetRole.findUnique({
-      where: { id: qSet.roleId },
-      select: { code: true }
-    });
-
     const endTime = Date.now();
-    let resultData;
-    let version = "2.0";
+    const version = "4.0-SPI-UNIFIED";
 
-    // Phân nhánh logic chấm điểm dựa trên Role Code
-    if (role?.code === "DEV") {
-      const answersArray = Object.entries(answers).map(([questionId, value]) => ({
-        questionId,
-        value: Number(value),
-      }));
-      resultData = calculateDevResults(answersArray, qSet.questions, startTime, endTime);
-      version = "3.0-SPI-DEV";
-    } else {
-      resultData = calculateScores(answers, qSet.questions, startTime, endTime, {});
-    }
+    const resultData = calculateUnifiedScores(answers, qSet.questions, startTime, endTime);
 
     const record = await prisma.assessmentRecord.create({
       data: {
