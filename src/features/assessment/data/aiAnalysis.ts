@@ -309,11 +309,13 @@ export function analyzeNegativeTendencies(result: AssessmentResult): NegativeTen
     level: rel.speedFlag ? 'risk' : 'safe',
     score: rel.speedFlag ? 90 : 10,
     description: rel.speedFlag
-      ? 'Tốc độ trả lời quá nhanh, có khả năng không// ─── NARRATIVE TEMPLATES ──────────────────────────────────────
-// Đã xóa do hệ thống SOTA V4.0 sử dụng AI Analysis và SMA Scoring linh hoạt hơn.
+      ? 'Tốc độ trả lời quá nhanh, có khả năng người dùng không đọc kỹ câu hỏi.'
+      : 'Tốc độ trả lời nằm trong giới hạn cho phép, đảm bảo tính suy nghĩ của người trả lời.',
+    hrNote: rel.speedFlag ? 'Cần yêu cầu giải trình hoặc thực hiện lại để đảm bảo tính khách quan.' : 'Không có lưu ý đặc biệt.',
+  });
 
-// ─── AI PERSONA TYPE ──────────────────────────────────────────
-ional_stability');
+  // 4. Nguy cơ kiệt sức (Burnout)
+  const emotionalStability = get('emotional_stability');
   const mentalStress = get('stress_mental');
   const physicalStress = get('stress_physical');
   const burnoutRisk = Math.round(

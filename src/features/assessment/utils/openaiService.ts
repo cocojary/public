@@ -19,7 +19,7 @@ export interface AIReport {
     operations: { score: number; comment: string };
     management: { score: number; comment: string };
   };
-  coachingAdvice: Array<{ action: string; rationale: string }>;
+  coachingAdvice: Array<{ area: string; action: string; rationale: string }>;
   language: string;
   generatedAt: string;
   fromCache: boolean;
@@ -124,8 +124,8 @@ QUY TẮC NGÔN NGỮ (BẮT BUỘC):
     "management": {"score": số_0_đến_100, "comment": "Vai trò ngách cụ thể (Ví dụ: Operational Manager) + Lý do dựa trên năng lực (1-2 câu)."}
   },
   "coachingAdvice": [
-    {"action": "Hành động 1", "rationale": "Lý do và kết quả kỳ vọng cho Bạn (1 câu)."},
-    {"action": "Hành động 2", "rationale": "Lý do và kết quả kỳ vọng cho Bạn (1 câu)."}
+    {"area": "Kỹ năng chuyên môn", "action": "Hành động 1", "rationale": "Lý do và kết quả kỳ vọng cho Bạn (1 câu)."},
+    {"area": "Kỹ năng mềm/Quản trị", "action": "Hành động 2", "rationale": "Lý do và kết quả kỳ vọng cho Bạn (1 câu)."}
   ]
 }
 `;

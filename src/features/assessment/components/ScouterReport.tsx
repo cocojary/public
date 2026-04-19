@@ -628,6 +628,28 @@ export default function ScouterReport({ user, resultData, date, aiReport }: Scou
               </p>
             </div>
 
+            {/* Job Fit Niche Analysis */}
+            <div className="bg-slate-100/50 p-5 rounded-sm border border-slate-200">
+              <div className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <span className="p-1 bg-slate-200 rounded text-xs">🎯</span>
+                Phân tích vai trò & Độ tương thích (AI Niche Fit)
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {Object.entries(aiReport.jobFit).map(([key, data]) => (
+                  <div key={key} className="flex flex-col gap-2">
+                    <div className="flex justify-between items-end">
+                      <span className="text-[10px] font-bold uppercase text-slate-500">{key}</span>
+                      <span className="text-sm font-black text-indigo-700">{data.score}%</span>
+                    </div>
+                    <div className="w-full h-1 bg-slate-200 rounded-full overflow-hidden">
+                      <div className="h-full bg-indigo-500" style={{ width: `${data.score}%` }}></div>
+                    </div>
+                    <p className="text-[10px] text-slate-600 leading-tight italic mt-1">{data.comment}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {/* Strengths & Blind Spots */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="bg-emerald-50/50 p-4 rounded-sm border border-emerald-100">
@@ -669,8 +691,12 @@ export default function ScouterReport({ user, resultData, date, aiReport }: Scou
                   <div key={i} className="flex gap-3">
                     <div className="text-indigo-300 font-black text-xl leading-none">{i + 1}</div>
                     <div className="flex flex-col gap-1">
-                      <span className="text-xs font-black text-slate-800 uppercase tracking-tight">{advice.area}</span>
-                      <p className="text-xs text-slate-600 leading-normal italic">{advice.action}</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-black text-slate-800 uppercase tracking-tight">{advice.area}</span>
+                        <span className="text-[9px] text-slate-400">|</span>
+                        <span className="text-[10px] font-bold text-indigo-600">{advice.action}</span>
+                      </div>
+                      <p className="text-xs text-slate-600 leading-normal italic">{advice.rationale}</p>
                     </div>
                   </div>
                 ))}
