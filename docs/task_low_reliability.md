@@ -1,0 +1,5 @@
+- [x] Create `getFlaggedAnswersAction.ts` to query DB and compute low reliability answers.
+- [x] Update `src/app/result/[id]/page.tsx` to fetch flagged answers.
+- [x] Update `src/features/assessment/components/ResultView.tsx` to accept and pass `flaggedAnswers`.
+- [x] Update `src/features/assessment/components/ScouterReport.tsx` (Done flexibly in ResultView) to render the flagged answers with `print:hidden`.
+- [ ] Verify the UI rendering on local dev server.

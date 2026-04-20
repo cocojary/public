@@ -156,7 +156,7 @@ model AssessmentRecord {
   answers        Json
   answerTimes    Json?
   aiReport       Json?
-  hrNote         String?
+  hrNotes        Json?
   exportedAt     DateTime?
   viewCount      Int       @default(0)
   lastViewedAt   DateTime?

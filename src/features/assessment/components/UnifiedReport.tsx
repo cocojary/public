@@ -489,122 +489,136 @@ export default function UnifiedReport({ data, aiReport, candidateName, reportDat
         <div style={{ position: 'absolute', right: -20, top: -20, width: 200, height: 200, background: 'rgba(255,255,255,0.05)', borderRadius: '50%' }} />
         <div style={{ position: 'absolute', right: 40, bottom: -40, width: 140, height: 140, background: 'rgba(255,255,255,0.04)', borderRadius: '50%' }} />
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 20 }}>
-          <div style={{ flex: '1 1 300px' }}>
-            <div style={{ fontSize: 11, opacity: 0.7, marginBottom: 6, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-              Techzen · Báo Cáo Năng Lực Nhân Sự
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'stretch', flexWrap: 'wrap', gap: 24 }}>
+          {/* CỘT TRÁI: Candidate Info */}
+          <div style={{ flex: '1 1 250px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <div style={{ fontSize: 11, opacity: 0.7, marginBottom: 8, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+              Techzen · Báo Cáo Năng Lực
             </div>
-            <h1 style={{ fontSize: 26, fontWeight: 800, margin: '0 0 10px', letterSpacing: '-0.02em' }}>
+            <h1 style={{ fontSize: 28, fontWeight: 800, margin: '0 0 16px', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
               {candidateName ?? 'Kết Quả Đánh Giá'}
             </h1>
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
               {topRole && (
                 <span style={{
-                  background: 'rgba(255,255,255,0.2)', padding: '4px 14px', borderRadius: 20,
+                  background: 'rgba(255,255,255,0.2)', padding: '6px 16px', borderRadius: 20,
                   fontSize: 13, fontWeight: 600, backdropFilter: 'blur(4px)',
                 }}>
                   {ROLE_ICON[topRole.role] ?? '🎯'} {topRole.role}
                 </span>
               )}
               <span style={{
-                background: 'rgba(255,255,255,0.12)', padding: '4px 12px', borderRadius: 20,
-                fontSize: 11, opacity: 0.85,
+                background: 'rgba(255,255,255,0.12)', padding: '6px 14px', borderRadius: 20,
+                fontSize: 12, opacity: 0.85,
               }}>
                 {data.sourceType === 'SPI_DEV_V3_LEGACY' ? 'SPI Dev V3' : 'SPI Universal'}
               </span>
               {reportDate && (
-                <span style={{ fontSize: 11, opacity: 0.6 }}>
+                <span style={{ fontSize: 12, opacity: 0.6 }}>
                   {reportDate.toLocaleDateString('vi-VN')}
                 </span>
               )}
             </div>
           </div>
 
-          {/* Nhóm thẻ điểm: Điểm tổng & Năng lực */}
-          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', flex: '1 1 auto', justifyContent: 'flex-end', alignItems: 'stretch' }}>
+          {/* CỘT GIỮA & PHẢI: Thẻ Điểm */}
+          <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', flex: '2 1 400px', justifyContent: 'flex-end', alignItems: 'stretch' }}>
             
-            {/* Chỉ số Năng Lực (Hero Metric) */}
-            {combatPower && (
-              <div 
-                style={{
-                  background: 'linear-gradient(to bottom right, rgba(255,255,255,0.15), rgba(255,255,255,0.05))',
-                  borderRadius: 16, padding: '20px 24px', border: '1px solid rgba(255,255,255,0.3)', 
-                  maxWidth: 340, minWidth: 280, display: 'flex', flexDirection: 'column',
-                  position: 'relative', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)'
-                }}
-                title="Thuật toán tính điểm thực chiến có trừ hao các rủi ro năng lực tiềm ẩn"
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                  <div style={{ fontSize: 14, fontWeight: 800, opacity: 0.95, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    💼 Năng lực thực chiến <span style={{ cursor: 'help', opacity: 0.6, fontSize: 12, verticalAlign: 'top' }}>(i)</span>
-                  </div>
-                  <div style={{ fontSize: 38, fontWeight: 900, lineHeight: 1, textShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>
-                    {combatPower.total}<span style={{fontSize: 14, fontWeight: 600, opacity: 0.7, marginLeft: 2}}>/100</span>
-                  </div>
-                </div>
-                
-                <div style={{ fontSize: 12, opacity: 0.85, lineHeight: 1.5, marginBottom: 16, flex: 1 }}>
-                  Dự báo khả năng tạo ra kết quả thực tế, kết hợp tư duy, động lực và khả năng kháng áp lực.
-                </div>
-                
-                {/* Auto Insight Highlight (Gót chân Achilles) */}
-                {(() => {
-                  const hasSanction = combatPower.penaltyApplied || (overallScore * 10 - combatPower.total > 8);
-                  if (hasSanction) {
-                    const weakestDim = topWeak[0];
-                    return (
-                      <div style={{ 
-                        background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.4)',
-                        padding: '8px 12px', borderRadius: 8, fontSize: 11, marginBottom: 12, lineHeight: 1.4 
-                      }}>
-                        ⚠️ <strong>Cảnh báo:</strong> Điểm thực chiến bị giảm mạnh do điểm yếu ở <strong>{weakestDim?.label || 'một vài yếu tố'} ({(weakestDim?.score ?? 0).toFixed(1)}/10)</strong>. Nguy cơ gót chân Achilles trong công việc.
-                      </div>
-                    );
-                  }
-                  return (
-                    <div style={{ 
-                      background: 'rgba(52, 211, 153, 0.2)', border: '1px solid rgba(52, 211, 153, 0.4)',
-                      padding: '8px 12px', borderRadius: 8, fontSize: 11, marginBottom: 12, lineHeight: 1.4 
-                    }}>
-                      ✅ <strong>Độ ổn định tốt:</strong> Năng lực phát triển đồng đều, không phát hiện rủi ro chí mạng.
-                    </div>
-                  );
-                })()}
-
-                <div style={{
-                  fontSize: 13, fontWeight: 700, color: '#1E3A8A', background: '#FEF08A',
-                  padding: '6px 12px', borderRadius: 6, marginTop: 'auto', lineHeight: 1.3, textAlign: 'center',
-                  textTransform: 'uppercase', letterSpacing: '0.02em', boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                }}>
-                  Xếp hạng: {combatPower.label}
-                </div>
-              </div>
-            )}
-
-            {/* Điểm tổng (Secondary Metric) */}
+            {/* Box 2: Điểm Tr.Bình */}
             <div 
               style={{
-                background: 'rgba(255,255,255,0.08)', borderRadius: 16, padding: '16px 20px',
+                background: 'rgba(255,255,255,0.08)', borderRadius: 16, padding: '20px',
                 textAlign: 'center', border: '1px dashed rgba(255,255,255,0.2)',
                 display: 'flex', flexDirection: 'column', justifyContent: 'center',
-                minWidth: 130
+                minWidth: 150, backdropFilter: 'blur(10px)'
               }}
               title="Điểm bình quân toán học (Lý thuyết) - Dễ bị san phẳng điểm số"
             >
-              <div style={{ fontSize: 12, fontWeight: 600, opacity: 0.8, marginBottom: 10 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, opacity: 0.8, marginBottom: 12 }}>
                 Điểm Tr.Bình <span style={{ cursor: 'help', opacity: 0.7 }}>(i)</span>
               </div>
-              <div style={{ fontSize: 30, fontWeight: 800, lineHeight: 1 }}>
-                {overallScore.toFixed(1)}<span style={{fontSize: 12, opacity: 0.6, fontWeight: 500}}>/10</span>
+              <div style={{ fontSize: 36, fontWeight: 800, lineHeight: 1 }}>
+                {overallScore.toFixed(1)}<span style={{fontSize: 14, opacity: 0.6, fontWeight: 500}}>/10</span>
+              </div>
+              <div style={{ fontSize: 12, opacity: 0.8, marginTop: 12, lineHeight: 1.4, flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {overallScore >= 8 ? 'Năng lực vượt trội.' : 
+                 overallScore >= 6.5 ? 'Đạt chuẩn kỳ vọng.' : 
+                 overallScore >= 5 ? 'Mức cơ bản, cần HD.' : 
+                 ' Dưới kỳ vọng.'}
               </div>
               <div style={{
-                marginTop: 12, fontSize: 11, fontWeight: 600, padding: '4px 10px',
+                marginTop: 12, fontSize: 12, fontWeight: 600, padding: '6px 12px',
                 background: 'rgba(255,255,255,0.15)', borderRadius: 20, whiteSpace: 'nowrap'
               }}>
                 {overallLabel.text}
               </div>
             </div>
 
+            {/* Box 3: Năng Lực Thực Chiến & Cảnh Báo */}
+            {combatPower && (
+              <div 
+                style={{
+                  background: 'linear-gradient(to bottom right, rgba(255,255,255,0.15), rgba(255,255,255,0.05))',
+                  borderRadius: 16, padding: '20px 24px', border: '1px solid rgba(255,255,255,0.3)', 
+                  flex: '1 1 300px', display: 'flex', flexDirection: 'column',
+                  position: 'relative', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)',
+                  backdropFilter: 'blur(10px)'
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 800, opacity: 0.95, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>
+                      💼 Năng lực thực chiến
+                    </div>
+                    <div style={{ fontSize: 12, opacity: 0.85, lineHeight: 1.4, maxWidth: 220 }}>
+                      Dự báo khả năng tạo ra kết quả thực tế, kết hợp tư duy, động lực và khả năng kháng áp lực.
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', minWidth: 90 }}>
+                    <div style={{ fontSize: 42, fontWeight: 900, lineHeight: 1, textShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>
+                      {combatPower.total}<span style={{fontSize: 16, fontWeight: 600, opacity: 0.7, marginLeft: 2}}>/100</span>
+                    </div>
+                    <div style={{
+                      display: 'inline-block', fontSize: 11, fontWeight: 800, color: '#1E3A8A', background: '#FEF08A',
+                      padding: '4px 10px', borderRadius: 6, marginTop: 8, boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                    }}>
+                      {combatPower.label.replace(' CHIẾN BINH', '').replace(' — TIỀM NĂNG TỐT, CẦN PHÁT TRIỂN THÊM', '').replace(' — XUẤT SẮC', '')}
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Tích hợp Warning Box liền thân */}
+                <div style={{ marginTop: 'auto', paddingTop: 16 }}>
+                  {(() => {
+                    const hasSanction = combatPower.penaltyApplied || (overallScore * 10 - combatPower.total > 8);
+                    if (hasSanction) {
+                      const weakestDim = topWeak[0];
+                      return (
+                        <div style={{ 
+                          background: 'rgba(255, 255, 255, 0.95)', borderLeft: '4px solid #EF4444',
+                          padding: '12px 16px', borderRadius: '4px 8px 8px 4px', fontSize: 12, lineHeight: 1.5,
+                          color: '#7F1D1D', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
+                        }}>
+                          <strong style={{ color: '#B91C1C', display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                            Cảnh báo nguy cơ
+                          </strong> 
+                          Điểm thực chiến bị giảm mạnh do điểm yếu ở <strong>{weakestDim?.label || 'một vài yếu tố'} ({(weakestDim?.score ?? 0).toFixed(1)}/10)</strong>. Tạo thành "gót chân Achilles" trong công việc.
+                        </div>
+                      );
+                    }
+                    return (
+                      <div style={{ 
+                        background: 'rgba(255, 255, 255, 0.15)', borderLeft: '4px solid #34D399',
+                        padding: '12px 16px', borderRadius: '4px 8px 8px 4px', fontSize: 12, lineHeight: 1.5
+                      }}>
+                        <strong style={{ color: '#6EE7B7' }}>✅ Ổn định:</strong> Năng lực phát triển đồng đều, không phát hiện rủi ro chí mạng kéo lùi hiệu suất.
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
