@@ -311,13 +311,15 @@ export function calculateUnifiedScores(
   };
 
   // 3.6 Acquiescence Bias: xu hướng đồng ý / phủ nhận tất cả (raw answers trước đảo chiều)
-  // [BUG-001 FIX] Guard isFinite để tránh overflow/NaN khi orderedValues có vấn đề
-  const rawMeanRaw = orderedValues.length > 0
-    ? orderedValues.reduce((a, b) => a + b, 0) / orderedValues.length
+  // [BUG-001 FIX v2] Guard isFinite + clamp 1-5 để tránh overflow/NaN khi orderedValues bất thường
+  const rawSum = orderedValues.reduce((a, b) => a + b, 0);
+  const rawMeanRaw = orderedValues.length > 0 ? rawSum / orderedValues.length : 3;
+  // Clamp về [1, 5] để đảm bảo luôn trong thang hợp lệ dù có giá trị lạ
+  const rawMean = Number.isFinite(rawMeanRaw)
+    ? Math.max(1, Math.min(5, rawMeanRaw))
     : 3;
-  const rawMean = Number.isFinite(rawMeanRaw) ? rawMeanRaw : 3;
   const acquiescenceMetric: QualityMetric = {
-    score: rawMean.toFixed(2),
+    score: `TB=${rawMean.toFixed(2)}`,
     status:
       rawMean > 4.2 || rawMean < 1.8 ? 'Risk' :
       rawMean > 3.8 || rawMean < 2.2 ? 'Warning' : 'Ok',
@@ -400,7 +402,8 @@ export function calculateUnifiedScores(
 
   // [v4.2+] B2 — Combined lie+acquiescence cap:
   // Nếu acquiescence mean cao (tô hồng nhẹ) VÀ extreme responder cao → penalty thêm
-  const rawMeanForCap = parseFloat(String(acquiescenceMetric.score));
+  // score lúc này là "TB=x.xx" → parse bỏ prefix
+  const rawMeanForCap = parseFloat(String(acquiescenceMetric.score).replace('TB=', ''));
   const extremeRatioNum = typeof extremeMetric.score === 'string'
     ? parseFloat(extremeMetric.score) / 100
     : extremeRatio;
@@ -408,10 +411,19 @@ export function calculateUnifiedScores(
     reliabilityScore = Math.max(0, reliabilityScore - 10);
   }
 
-  // [BUG-003 FIX] B3 — Extreme responder tinh vi (Lie Cheater nhẹ):
-  // extremeResponder >= 75% VÀ lieScore >= 1.5 → "tô hồng nhẹ có tính toán"
+  // [BUG-003 FIX v3] B3 — Strategic Scorer / Lie Cheater tinh vi:
+  // Pattern: chon cuc doan >= 80% (gan nhu chi 1 hoac 5, khong dung 2/3/4 = thieu tu nhien)
+  // + lieScore = 0 (khong bi bay lie scale) -> dau hieu dieu chinh co chien luoc
+  // Cap 59 -> "use-with-caution" (tier < 60)
+  const midRangeCount = orderedValues.filter(v => v === 2 || v === 3 || v === 4).length;
+  const midRangeRatio = orderedValues.length > 0 ? midRangeCount / orderedValues.length : 1;
+  if (extremeRatioNum >= 0.80 && midRangeRatio <= 0.20 && lieScore === 0) {
+    // Khong co cau giua tu nhien nhung tranh duoc lie scale hoan toan = chien luoc to hong
+    reliabilityScore = Math.min(reliabilityScore, 59);
+  }
+  // Neu con ca lieScore >= 1.5 tren nen do -> cap chat hon
   if (extremeRatioNum >= 0.75 && lieScore >= 1.5) {
-    reliabilityScore = Math.min(reliabilityScore, 60);
+    reliabilityScore = Math.min(reliabilityScore, 55);
   }
 
   // [v4.2+] B1 — Neutral bias hard cap:
@@ -423,6 +435,12 @@ export function calculateUnifiedScores(
   // [BUG-002 FIX] B4 — Pattern Detection hard cap:
   // Nếu patternDetection = Risk (khuôn mẫu zigzac/straight-line toàn bộ) → tối đa 50
   if (patternMetric.status === 'Risk') {
+    reliabilityScore = Math.min(reliabilityScore, 50);
+  }
+
+  // [v4.2+] B5 — Consistency hard cap:
+  // Nếu consistency = Risk (mâu thuẫn nghiêm trọng, đánh bừa / random) → tối đa 50
+  if (consistencyMetric.status === 'Risk') {
     reliabilityScore = Math.min(reliabilityScore, 50);
   }
 

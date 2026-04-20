@@ -11,7 +11,10 @@
 import { PrismaClient } from '@prisma/client';
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { calculateUnifiedScores } from '../src/features/assessment/utils/unifiedEngine';
-import { PERSONAS } from './generate-test-data';
+import { PERSONAS as PERSONAS_20 } from './generate-test-data';
+import { PERSONAS_30 } from './generate-30-personas';
+
+const PERSONAS = [...PERSONAS_20, ...PERSONAS_30];
 
 const prisma = new PrismaClient();
 
@@ -94,11 +97,11 @@ async function main() {
   for (const persona of PERSONAS) {
     const answers = allAnswers[persona.id.toString()];
     if (!answers) {
-      console.log(`[${persona.id}/20] ⏭️  Skip (không có trong cache)`);
+      console.log(`[${persona.id}/50] ⏭️  Skip (không có trong cache)`);
       continue;
     }
 
-    console.log(`[${persona.id}/20] Đánh giá: ${persona.name} (${Object.keys(answers).length} câu)...`);
+    console.log(`[${persona.id}/50] Đánh giá: ${persona.name} (${Object.keys(answers).length} câu)...`);
 
     // Giả lập 15 phút làm bài
     const sr = calculateUnifiedScores(answers, engineQuestions, 0, 900_000, activeDimIds, dbRelations as any);
@@ -203,7 +206,9 @@ async function main() {
 ---`;
   }).join('\n');
 
-  const report = `# 📊 Báo Cáo Validation Hệ Thống SPI V4.2 — 20 AI Personas (${PROVIDER.toUpperCase()})
+  const OUTPUT_PATH_50 = OUTPUT_PATH.replace('.md', '_50.md');
+
+  const report = `# 📊 Báo Cáo Validation Hệ Thống SPI V4.2 — 50 AI Personas (${PROVIDER.toUpperCase()})
 
 > **Thời gian chạy:** ${now}
 > **Provider/Model:** ${PROVIDER.toUpperCase()}
@@ -227,9 +232,9 @@ async function main() {
 ${groupSummary}
 
 ### Giải thích nhóm
-- **Honest** (7 personas): Profile trung thực — hệ thống KHÔNG được flag oan
-- **Adversarial** (5 personas): Gian lận, tô hồng, né tránh — hệ thống PHẢI phát hiện
-- **Edge** (8 personas): Trường hợp đặc biệt, tâm lý phức tạp
+- **Honest** (26 personas): Profile trung thực đa dạng — hệ thống KHÔNG được flag oan
+- **Adversarial** (8 personas): Gian lận, tô hồng, trả lời ngẫu nhiên — hệ thống PHẢI phát hiện
+- **Edge** (16 personas): Trường hợp đặc biệt, tâm lý phức tạp, bối cảnh đặc hữu
 
 ---
 
@@ -249,11 +254,11 @@ ${results.filter(r => !r.overallPass).map(r => `- ❌ **${r.persona.name}**: ${r
 
 ---
 
-*Báo cáo tự động bởi validation-20-personas.ts — SPI V4.2 Techzen*
+*Báo cáo tự động bởi validation-50-personas.ts — SPI V4.2 Techzen*
 `;
 
-  writeFileSync(OUTPUT_PATH, report, 'utf-8');
-  console.log(`\n✅ Báo cáo đã lưu vào ${OUTPUT_PATH}`);
+  writeFileSync(OUTPUT_PATH_50, report, 'utf-8');
+  console.log(`\n✅ Báo cáo đã lưu vào ${OUTPUT_PATH_50}`);
   console.log(`📊 Kết quả: ${passCount}/${results.length} PASS (${Math.round((passCount / results.length) * 100)}%)`);
 }
 
