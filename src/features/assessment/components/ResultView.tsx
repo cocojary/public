@@ -18,9 +18,10 @@ interface ResultViewProps {
   cachedAiReport: AIReport | null;
   initialHrNotes?: HRNote[];
   flaggedAnswers?: FlaggedAnswer[];
+  isHrView?: boolean;
 }
 
-export function ResultView({ recordId, user, resultData, date, cachedAiReport, initialHrNotes = [], flaggedAnswers = [] }: ResultViewProps) {
+export function ResultView({ recordId, user, resultData, date, cachedAiReport, initialHrNotes = [], flaggedAnswers = [], isHrView = false }: ResultViewProps) {
   const reportRef = useRef<HTMLDivElement>(null);
 
   const [aiReport, setAiReport] = useState<AIReport | null>(cachedAiReport);
@@ -112,7 +113,7 @@ export function ResultView({ recordId, user, resultData, date, cachedAiReport, i
           />
 
           <div className="print:hidden space-y-6 mt-8">
-            {flaggedAnswers && flaggedAnswers.length > 0 && (
+            {isHrView && flaggedAnswers && flaggedAnswers.length > 0 && (
               <div className="bg-rose-50 border border-rose-200 p-6 rounded-md shadow-sm">
                 <h4 className="text-sm font-bold text-rose-800 mb-2 flex items-center gap-2">
                   <AlertCircle size={18} /> Phân Tích Độ Tin Cậy Thấp (Chỉ Dành Cho HR)
@@ -142,10 +143,12 @@ export function ResultView({ recordId, user, resultData, date, cachedAiReport, i
               </div>
             )}
 
-            <HRCommentSection
-              recordId={recordId}
-              initialNotes={initialHrNotes}
-            />
+            {isHrView && (
+              <HRCommentSection
+                recordId={recordId}
+                initialNotes={initialHrNotes}
+              />
+            )}
           </div>
         </div>
       </div>

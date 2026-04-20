@@ -201,7 +201,7 @@ export default async function AdminPage({
                       </td>
                       <td className="px-4 py-3 text-center">
                         <Link
-                          href={`/result/${rec.id}`}
+                          href={`/result/${rec.id}?view=hr`}
                           className="text-indigo-600 hover:text-indigo-800 font-semibold text-xs underline"
                           target="_blank"
                         >
