@@ -196,10 +196,11 @@ export function calculateUnifiedScores(
   }
   const lieMetric: QualityMetric = {
     score: lieCount,
-    status: lieScore >= 5.0 ? 'Risk' : lieScore >= 3.0 ? 'Warning' : 'Ok',
+    // [v4.2+] Hạ ngưỡng Warning 3.0 → 2.5 để bắt lie nhẹ sớm hơn
+    status: lieScore >= 5.0 ? 'Risk' : lieScore >= 2.5 ? 'Warning' : 'Ok',
     message:
       lieScore >= 5.0 ? 'Dấu hiệu tô hồng hồ sơ quá mức. Cần phỏng vấn xác minh trực tiếp.' :
-      lieScore >= 3.0 ? 'Có thiên kiến phản hồi tích cực. Kết quả cần thận trọng.' :
+      lieScore >= 2.5 ? 'Có thiên kiến phản hồi tích cực. Kết quả cần thận trọng.' :
       'Phản hồi trong ngưỡng trung thực.',
   };
 
@@ -253,10 +254,11 @@ export function calculateUnifiedScores(
   const neutralRatio = totalAnswered > 0 ? neutralCount / totalAnswered : 0;
   const neutralMetric: QualityMetric = {
     score: `${Math.round(neutralRatio * 100)}%`,
-    status: neutralRatio > 0.5 ? 'Risk' : neutralRatio > 0.3 ? 'Warning' : 'Ok',
+    // [v4.2+] Hạ ngưỡng Risk 50% → 40% để bắt sớm trường hợp né tránh
+    status: neutralRatio > 0.40 ? 'Risk' : neutralRatio > 0.25 ? 'Warning' : 'Ok',
     message:
-      neutralRatio > 0.5 ? 'Quá nhiều câu trả lời trung lập — kết quả mất ý nghĩa phân loại.' :
-      neutralRatio > 0.3 ? 'Xu hướng né tránh bộc lộ quan điểm rõ ràng.' :
+      neutralRatio > 0.40 ? 'Quá nhiều câu trả lời trung lập — kết quả mất ý nghĩa phân loại.' :
+      neutralRatio > 0.25 ? 'Xu hướng né tránh bộc lộ quan điểm rõ ràng.' :
       'Sẵn sàng biểu đạt quan điểm.',
   };
 
@@ -364,14 +366,14 @@ export function calculateUnifiedScores(
   // Consistency↓: đã bổ sung Cross-Dim nên giảm bớt intra-dim weight
   // NeutralBias↑: satisficing behavior ảnh hưởng nhiều đến phân loại personality
   const RELIABILITY_WEIGHTS = {
-    lieScale:         0.35, // [v4.2] ↑ Gian lận chủ động → weight cao nhất
-    consistency:      0.20, // [v4.2] ↓ Đã có cross-dim bổ sung — giảm bớt
+    lieScale:         0.33, // [v4.2+] Gian lận chủ động → weight cao nhất
+    consistency:      0.20, // Đã có cross-dim bổ sung — giảm bớt
     patternDetection: 0.15, // Đánh máy khuôn mẫu → không đổi
-    neutralBias:      0.12, // [v4.2] ↑ Satisficing behavior ảnh hưởng phân loại
+    neutralBias:      0.18, // [v4.2+] ↑ Tăng từ 0.12 — né tránh ảnh hưởng mạnh phân loại
     acquiescenceBias: 0.10, // Yes/nay-saying không đổi
-    timeTracking:     0.05, // Đọc nhanh tự nhiên → không đổi
-    extremeResponder: 0.02, // [v4.2] ↓ Ít phổ biến, đã bao phủ bởi acquiescence
-    quickAnswers:     0.01, // [v4.2] ↓ Thiếu data, weight thấp nhất
+    timeTracking:     0.02, // Đọc nhanh tự nhiên → không đổi
+    extremeResponder: 0.01, // Ít phổ biến, đã bao phủ bởi acquiescence
+    quickAnswers:     0.01, // Thiếu data, weight thấp nhất
   };
 
   // Hàm chuyển QualityMetric status → penalty score (0 = bình thường, 1 = tệ nhất)
@@ -392,9 +394,27 @@ export function calculateUnifiedScores(
     statusToPenalty(quickMetric)       * RELIABILITY_WEIGHTS.quickAnswers;
 
   // reliabilityScore: 0 = tệ nhất, 100 = tốt nhất
-  const reliabilityScore = Math.round(Math.max(0, Math.min(100, (1 - weightedPenalty) * 100)));
+  let reliabilityScore = Math.round(Math.max(0, Math.min(100, (1 - weightedPenalty) * 100)));
 
-  // [v4.1] 4-tier dựa trên reliabilityScore thay vì đếm Risk/Warning cứng
+  // [v4.2+] B2 — Combined lie+acquiescence cap:
+  // Nếu acquiescence mean cao (tô hồng nhẹ) VÀ extreme responder cao → penalty thêm
+  const rawMeanForCap = typeof acquiescenceMetric.score === 'number'
+    ? acquiescenceMetric.score
+    : parseFloat(String(acquiescenceMetric.score));
+  const extremeRatioNum = typeof extremeMetric.score === 'string'
+    ? parseFloat(extremeMetric.score) / 100
+    : extremeRatio;
+  if (rawMeanForCap > 3.8 && extremeRatioNum > 0.60) {
+    reliabilityScore = Math.max(0, reliabilityScore - 10);
+  }
+
+  // [v4.2+] B1 — Neutral bias hard cap:
+  // Nếu toàn bộ câu trả lời 3 (neutralRatio=100%) → reliabilityScore tối đa 50
+  if (neutralRatio >= 0.99) {
+    reliabilityScore = Math.min(reliabilityScore, 50);
+  }
+
+  // [v4.2+] 4-tier dựa trên reliabilityScore
   let reliabilityLevel: UnifiedScoringResult['reliabilityLevel'];
   if (reliabilityScore >= 80)      reliabilityLevel = 'reliable';
   else if (reliabilityScore >= 60) reliabilityLevel = 'mostly-reliable';
