@@ -1,55 +1,41 @@
 "use server";
 
 import { headers } from "next/headers";
-import prisma from "@/server/db";
+import db from "@/server/db";
 import { calculateUnifiedScores } from "@/features/assessment/utils/unifiedEngine";
 import { checkRateLimit } from "@/server/utils/rateLimit";
+import {
+  getActiveDimensions,
+  getDimensionRelations,
+  toEngineQuestion,
+} from "@/server/services/assessmentDataService";
+
+// ──────────────────────────────────────────────────────────────
+// GET QUESTION SET — đọc từ DB (không dùng role param nữa)
+// ──────────────────────────────────────────────────────────────
 
 export async function getDefaultQuestionSet() {
   try {
-    const qSet = await prisma.questionSet.findFirst({
+    const qSet = await db.questionSet.findFirst({
       where: { isActive: true },
       orderBy: { createdAt: 'desc' },
-      include: { questions: true },
+      include: { questions: { where: { isActive: true }, orderBy: { displayOrder: 'asc' } } },
     });
     if (!qSet) {
       return { success: false, error: "Không tìm thấy bộ câu hỏi. Vui lòng liên hệ Admin." };
     }
-    return { success: true, questions: qSet.questions, setId: qSet.id };
+    // Chỉ trả về câu hỏi main (không trả lie questions cho frontend)
+    const mainQuestions = qSet.questions.filter(q => q.questionType === 'main');
+    return { success: true, questions: mainQuestions, setId: qSet.id };
   } catch (error) {
     console.error("Lỗi khi lấy câu hỏi:", error);
     return { success: false, error: "Lỗi hệ thống khi tải câu hỏi." };
   }
 }
 
-export async function getQuestionsByRole(roleCode: string) {
-  try {
-    const role = await prisma.targetRole.findUnique({
-      where: { code: roleCode },
-      include: {
-        questionSets: {
-          where: { isActive: true },
-          take: 1,
-          orderBy: { createdAt: 'desc' },
-          include: { questions: true },
-        },
-      },
-    });
-
-    if (!role || !role.questionSets[0]) {
-      return { success: false, error: "Không tìm thấy bộ câu hỏi cho vị trí này." };
-    }
-
-    return {
-      success: true,
-      questions: role.questionSets[0].questions,
-      setId: role.questionSets[0].id,
-    };
-  } catch (error) {
-    console.error("Lỗi khi lấy câu hỏi:", error);
-    return { success: false, error: "Lỗi hệ thống khi tải câu hỏi." };
-  }
-}
+// ──────────────────────────────────────────────────────────────
+// SUBMIT ASSESSMENT
+// ──────────────────────────────────────────────────────────────
 
 export async function submitAssessmentAction(
   userId: string,
@@ -59,7 +45,7 @@ export async function submitAssessmentAction(
   startTime: number,
 ) {
   try {
-    // Lấy IP để rate limit
+    // Rate limit kiểm tra
     const headersList = await headers();
     const ip =
       headersList.get("x-forwarded-for")?.split(",")[0]?.trim() ??
@@ -74,23 +60,47 @@ export async function submitAssessmentAction(
       };
     }
 
-    const qSet = await prisma.questionSet.findUnique({
+    // Lấy toàn bộ câu hỏi (bao gồm lie) từ DB
+    const qSet = await db.questionSet.findUnique({
       where: { id: setId },
-      include: { questions: true },
+      include: {
+        questions: {
+          where: { isActive: true },
+          orderBy: { displayOrder: 'asc' },
+        },
+      },
     });
 
     if (!qSet) throw new Error("Question set not found");
 
+    // Lấy dimension info và relations từ DB (thay vì hardcode)
+    const [activeDims, dimRelations] = await Promise.all([
+      getActiveDimensions(),
+      getDimensionRelations(),
+    ]);
+
+    const activeDimIds = activeDims.map(d => d.id);
+
+    // Convert câu hỏi DB sang format engine cần
+    const engineQuestions = qSet.questions.map(toEngineQuestion);
+
     const endTime = Date.now();
-    const version = "4.0-SPI-UNIFIED";
+    const version = "4.2-SPI-UNIFIED";
 
-    const resultData = calculateUnifiedScores(answers, qSet.questions, startTime, endTime);
+    const resultData = calculateUnifiedScores(
+      answers,
+      engineQuestions,
+      startTime,
+      endTime,
+      activeDimIds,
+      dimRelations,
+    );
 
-    const record = await prisma.assessmentRecord.create({
+    const record = await db.assessmentRecord.create({
       data: {
         userId,
         questionSetId: setId,
-        version: version,
+        version,
         assessmentDate: new Date(),
         answers: answers,
         resultData: resultData as any,

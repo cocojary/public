@@ -42,6 +42,6 @@
     "typescript-eslint": "^8.58.0"
   },
   "prisma": {
-    "seed": "node --no-warnings --loader ts-node/esm prisma/seed-dev.ts"
+    "seed": "npx tsx --env-file=.env prisma/seed-dev.ts"
   }
 }

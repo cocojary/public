@@ -1,6 +1,6 @@
 import { AssessmentResult } from '../data/scoring';
 import { PersonaType, CombatPower, DutyScore } from '../data/aiAnalysis';
-import { DIMENSIONS } from '../data/dimensions';
+import type { DbDimension } from '../../../server/services/assessmentDataService';
 
 export interface AIReport {
   reliabilityVerdict: string;
@@ -32,10 +32,11 @@ function buildPrompt(
   combatPower: CombatPower,
   duties: DutyScore[],
   lang: 'vi' | 'en' | 'ja',
+  dimensions?: DbDimension[],
 ): string {
   // Đảm bảo có traits để phân tích (nếu result truyền vào chưa có traits thì map từ dimensions)
   const traits = result.traits || result.dimensions.map((d) => {
-    const dim = DIMENSIONS.find(dm => dm.id === d.dimensionId);
+    const dim = dimensions?.find(dm => dm.id === d.dimensionId);
     return { trait: dim?.nameVi || d.dimensionId, score: d.percentile };
   }).sort((a, b) => b.score - a.score);
 

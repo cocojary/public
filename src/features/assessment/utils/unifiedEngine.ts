@@ -12,7 +12,7 @@
 // [v4.1] Penalty được tách khỏi dimension scores — chỉ áp vào interpretationConfidence
 // ============================================================
 
-import { DIMENSIONS } from '@/features/assessment/data/dimensions';
+import type { DbDimensionRelation } from '@/server/services/assessmentDataService';
 
 // ── Kiểu dữ liệu đầu ra ──────────────────────────────────────
 
@@ -72,12 +72,15 @@ function normalCDF(z: number): number {
 // ── Engine chính ─────────────────────────────────────────────
 
 /**
- * Tính điểm thống nhất V4 cho một lần đánh giá.
+ * Tính điểm thống nhất V4.2 cho một lần đánh giá.
  *
- * @param answers  Map từ questionId (UUID) → giá trị 1–5
- * @param questions Danh sách câu hỏi từ DB (có id, dimensionId, reversed, isLieScale)
- * @param startTime  Unix timestamp ms (bắt đầu)
- * @param endTime    Unix timestamp ms (kết thúc)
+ * @param answers      Map từ questionId (UUID) → giá trị 1–5
+ * @param questions    Danh sách câu hỏi từ DB
+ * @param startTime    Unix timestamp ms (bắt đầu)
+ * @param endTime      Unix timestamp ms (kết thúc)
+ * @param activeDimIds Danh sách ID dimension active (từ assessmentDataService)
+ * @param dimRelations Cross-dimension relations từ DB (thay thế CROSS_DIM_PAIRS hardcode)
+ * @param answerTimes  questionId → ms để trả lời (optional)
  */
 export function calculateUnifiedScores(
   answers: Record<string, number>,
@@ -86,10 +89,14 @@ export function calculateUnifiedScores(
     dimensionId: string;
     reversed: boolean;
     isLieScale?: boolean;
+    isLieSubtle?: boolean;
+    lieWeight?: number;
   }>,
   startTime: number,
   endTime: number,
-  answerTimes?: Record<string, number>, // questionId → ms để trả lời
+  activeDimIds: string[],
+  dimRelations: DbDimensionRelation[],
+  answerTimes?: Record<string, number>,
 ): UnifiedScoringResult {
   const durationSeconds = (endTime - startTime) / 1000;
   const totalAnswered = Object.keys(answers).length;
@@ -139,7 +146,7 @@ export function calculateUnifiedScores(
   }
 
   // 2. Tính scaled 1–10 cho từng dimension (dùng percentile nội bộ)
-  const activeDimIds = DIMENSIONS.filter(d => d.group !== 'leadership').map(d => d.id);
+  // activeDimIds được truyền từ ngoài (từ DB, không hardcode)
 
   const dimensions: UnifiedDimensionScore[] = activeDimIds.map(dimId => {
     const data = dimData[dimId];
@@ -175,12 +182,24 @@ export function calculateUnifiedScores(
   // 3. Data Quality Metrics (kế thừa V3 — 5 chỉ số)
 
   // 3.1 Lie Scale
+  // [v4.2] Hạ ngưỡng Risk 7→5 (chuẩn quốc tế EPQ/MMPI: ~62.5%)
+  // Câu Subtle đánh dấu isLieSubtle: true → weight 0.5 thay vì 1.0
+  let lieScore = 0;
+  for (const q of questions) {
+    const ans = answers[q.id];
+    if (ans === undefined || ans === null) continue;
+    if (q.isLieScale) {
+      // isLieSubtle = 0.5, câu Absolute thường = 1.0
+      const lieWeight = q.isLieSubtle ? 0.5 : 1.0;
+      if (ans >= 4) lieScore += lieWeight;
+    }
+  }
   const lieMetric: QualityMetric = {
     score: lieCount,
-    status: lieCount >= 7 ? 'Risk' : lieCount >= 4 ? 'Warning' : 'Ok',
+    status: lieScore >= 5.0 ? 'Risk' : lieScore >= 3.0 ? 'Warning' : 'Ok',
     message:
-      lieCount >= 7 ? 'Dấu hiệu tô hồng hồ sơ quá mức. Cần phỏng vấn xác minh trực tiếp.' :
-      lieCount >= 4 ? 'Có thiên kiến phản hồi tích cực. Kết quả cần thận trọng.' :
+      lieScore >= 5.0 ? 'Dấu hiệu tô hồng hồ sơ quá mức. Cần phỏng vấn xác minh trực tiếp.' :
+      lieScore >= 3.0 ? 'Có thiên kiến phản hồi tích cực. Kết quả cần thận trọng.' :
       'Phản hồi trong ngưỡng trung thực.',
   };
 
@@ -195,12 +214,38 @@ export function calculateUnifiedScores(
       if (Math.abs(avgPos - avgNeg) > 1.5) consistencyIssueCount++;
     }
   }
+
+  // [v4.2] Cross-Dimension Consistency Check (Inter-Dimension)
+  // Phát hiện mâu thuẫn tâm lý giữa các dimension có tương quan cao theo FFM/Big5
+  // avgRaw = điểm trung bình thô (1-5) của dimension trước khi đảo chiều
+  const getDimAvgRaw = (dimId: string): number => {
+    const d = dimData[dimId];
+    if (!d || d.count === 0) return 3; // neutral nếu không có data
+    return (d.rawSum) / d.count; // rawSum đã được đảo chiều → dùng tổng scored
+  };
+
+  // [v4.2] Cross-Dimension Consistency — đọc từ DB (dimRelations param)
+  // thay thế hoàn toàn CROSS_DIM_PAIRS hardcode
+  let crossDimIssueCount = 0;
+  for (const rel of dimRelations) {
+    const scoreA = getDimAvgRaw(rel.dimensionIdA);
+    const scoreB = getDimAvgRaw(rel.dimensionIdB);
+    const aOk = (rel.thresholdAMin == null || scoreA > rel.thresholdAMin)
+              && (rel.thresholdAMax == null || scoreA < rel.thresholdAMax);
+    const bOk = (rel.thresholdBMin == null || scoreB > rel.thresholdBMin)
+              && (rel.thresholdBMax == null || scoreB < rel.thresholdBMax);
+    if (aOk && bOk) crossDimIssueCount++;
+  }
+
+  // Kết hợp: mỗi cross-dim issue nặng 1.5x so với intra-dim issue (vì tâm lý học sâu hơn)
+  const totalConsistencyIssues = consistencyIssueCount + Math.round(crossDimIssueCount * 1.5);
+
   const consistencyMetric: QualityMetric = {
-    score: `${consistencyIssueCount} nhóm mâu thuẫn`,
-    status: consistencyIssueCount >= 5 ? 'Risk' : consistencyIssueCount >= 3 ? 'Warning' : 'Ok',
+    score: `${consistencyIssueCount} intra + ${crossDimIssueCount} cross-dim`,
+    status: totalConsistencyIssues >= 5 ? 'Risk' : totalConsistencyIssues >= 3 ? 'Warning' : 'Ok',
     message:
-      consistencyIssueCount >= 5 ? 'Mâu thuẫn logic lớn giữa các câu hỏi thuận/nghịch. Kết quả không đáng tin.' :
-      consistencyIssueCount >= 3 ? 'Một số nhóm có câu trả lời thiếu nhất quán.' :
+      totalConsistencyIssues >= 5 ? 'Mâu thuẫn logic lớn giữa các câu hỏi thuận/nghịch và các chiều tính cách. Kết quả không đáng tin.' :
+      totalConsistencyIssues >= 3 ? 'Một số nhóm có câu trả lời thiếu nhất quán hoặc mâu thuẫn tâm lý.' :
       'Trả lời nhất quán, đáng tin cậy.',
   };
 
@@ -314,15 +359,19 @@ export function calculateUnifiedScores(
   // Mỗi chỉ số có trọng số riêng phản ánh tầm quan trọng thực sự.
   // Lie Scale + Consistency chiếm weight cao nhất vì chúng chủ động nhất.
   // Time + Quick Answers weight thấp vì có thể do phong cách đọc nhanh tự nhiên.
+  // [v4.2] Điều chỉnh trọng số theo khuyến nghị Psychometric Expert Review
+  // LieScale↑: phản ánh gian lận chủ động là dấu hiệu tiêu cực nhất
+  // Consistency↓: đã bổ sung Cross-Dim nên giảm bớt intra-dim weight
+  // NeutralBias↑: satisficing behavior ảnh hưởng nhiều đến phân loại personality
   const RELIABILITY_WEIGHTS = {
-    lieScale:         0.30, // Chủ động gian lận → weight cao nhất
-    consistency:      0.25, // Mâu thuẫn logic → rất đáng ngờ
-    patternDetection: 0.15, // Đánh máy khuôn mẫu → đáng kể
-    neutralBias:      0.10, // Ba phải → giảm tính phân loại
-    acquiescenceBias: 0.10, // Đồng ý/phủ nhận cực đoan
-    timeTracking:     0.05, // Đọc nhanh tự nhiên → weight thấp
-    extremeResponder: 0.03, // Ít phổ biến hơn
-    quickAnswers:     0.02, // Weight thấp nhất — thiếu data
+    lieScale:         0.35, // [v4.2] ↑ Gian lận chủ động → weight cao nhất
+    consistency:      0.20, // [v4.2] ↓ Đã có cross-dim bổ sung — giảm bớt
+    patternDetection: 0.15, // Đánh máy khuôn mẫu → không đổi
+    neutralBias:      0.12, // [v4.2] ↑ Satisficing behavior ảnh hưởng phân loại
+    acquiescenceBias: 0.10, // Yes/nay-saying không đổi
+    timeTracking:     0.05, // Đọc nhanh tự nhiên → không đổi
+    extremeResponder: 0.02, // [v4.2] ↓ Ít phổ biến, đã bao phủ bởi acquiescence
+    quickAnswers:     0.01, // [v4.2] ↓ Thiếu data, weight thấp nhất
   };
 
   // Hàm chuyển QualityMetric status → penalty score (0 = bình thường, 1 = tệ nhất)

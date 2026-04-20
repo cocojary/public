@@ -7,7 +7,7 @@
 import type { AssessmentResult, DimensionScore } from '@/features/assessment/data/scoring';
 import type { UnifiedScoringResult } from './unifiedEngine';
 import { adaptToAssessmentResult } from './unifiedEngine';
-import { DIMENSIONS } from '@/features/assessment/data/dimensions';
+import type { DbDimension } from '@/server/services/assessmentDataService';
 
 // ── Kiểu dữ liệu đầu ra ──────────────────────────────────────
 
@@ -95,9 +95,9 @@ function getDimScore(dims: DimensionScore[], id: string): number {
 
 // ── Xây dựng 6 nhóm từ 20 dimensions ────────────────────────
 
-function buildGroups(dims: DimensionScore[], lieScore: number, consistencyScore: number, speedFlag: boolean): UnifiedGroup[] {
+function buildGroups(dims: DimensionScore[], lieScore: number, consistencyScore: number, speedFlag: boolean, dimensions?: DbDimension[]): UnifiedGroup[] {
   const makeItem = (id: string): UnifiedScoreItem => {
-    const dim = DIMENSIONS.find(d => d.id === id);
+    const dim = dimensions?.find(d => d.id === id);
     const score = getDimScore(dims, id);
     return {
       id,
@@ -540,7 +540,7 @@ function calcCombatPower(groups: UnifiedGroup[], penaltyApplied: boolean): Comba
 // ── Hàm Public ───────────────────────────────────────────────
 
 /** Tổng hợp UnifiedScoringResult (V4) → UnifiedReportData */
-export function buildUnifiedFromV4(result: UnifiedScoringResult): UnifiedReportData {
+export function buildUnifiedFromV4(result: UnifiedScoringResult, dimensions?: DbDimension[]): UnifiedReportData {
   const adapted = adaptToAssessmentResult(result);
   const dims = adapted.dimensions as DimensionScore[];
 
@@ -549,6 +549,7 @@ export function buildUnifiedFromV4(result: UnifiedScoringResult): UnifiedReportD
     adapted.reliability.lieScore,
     adapted.reliability.consistencyScore,
     adapted.reliability.speedFlag,
+    dimensions,
   );
 
   const suitability = calcSuitability(groups);
@@ -576,7 +577,7 @@ export function buildUnifiedFromV4(result: UnifiedScoringResult): UnifiedReportD
 }
 
 /** Tổng hợp AssessmentResult (V2 legacy) → UnifiedReportData */
-export function buildUnifiedFromV2(result: AssessmentResult): UnifiedReportData {
+export function buildUnifiedFromV2(result: AssessmentResult, dimensions?: DbDimension[]): UnifiedReportData {
   const dims = result.dimensions;
   const rel  = result.reliability;
 
@@ -585,6 +586,7 @@ export function buildUnifiedFromV2(result: AssessmentResult): UnifiedReportData 
     rel.lieScore,
     rel.consistencyScore,
     rel.speedFlag,
+    dimensions,
   );
 
   const suitability = calcSuitability(groups);

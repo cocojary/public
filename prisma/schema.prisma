@@ -7,6 +7,9 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ──────────────────────────────────────────────────────────────
+// USER
+// ──────────────────────────────────────────────────────────────
 model User {
   id          String             @id @default(uuid())
   employeeId  String?            @unique
@@ -18,63 +21,166 @@ model User {
   assessments AssessmentRecord[]
 }
 
+// ──────────────────────────────────────────────────────────────
+// DIMENSION — Chiều tính cách (thay thế dimensions.ts hardcode)
+// ──────────────────────────────────────────────────────────────
+model Dimension {
+  id           String   @id  // VD: 'extraversion', 'conscientiousness'
+  nameVi       String
+  nameEn       String
+  group        String   // 'personality'|'motivation'|'thinking'|'values'|'stress'|'competency'|'leadership'
+  descLow      String   // Mô tả khi điểm thấp
+  descHigh     String   // Mô tả khi điểm cao
+  color        String
+  icon         String
+  displayOrder Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  questions    Question[]
+  relationsAsA DimensionRelation[] @relation("DimRelA")
+  relationsAsB DimensionRelation[] @relation("DimRelB")
+
+  @@map("dimensions")
+}
+
+// ──────────────────────────────────────────────────────────────
+// DIMENSION RELATION — Tương quan tâm lý giữa các chiều (thay thế CROSS_DIM_PAIRS hardcode)
+// ──────────────────────────────────────────────────────────────
+model DimensionRelation {
+  id             String  @id @default(uuid())
+  dimensionIdA   String
+  dimensionIdB   String
+  // 'contradiction' = mâu thuẫn tâm lý nếu cả 2 cùng cực thỏa ngưỡng
+  relationType   String  @default("contradiction")
+  // Ngưỡng: isContradiction khi scoreA > thresholdAMin AND scoreB < thresholdBMax
+  thresholdAMin  Float?  // scoreA phải > giá trị này (null = bỏ qua)
+  thresholdAMax  Float?  // scoreA phải < giá trị này (null = bỏ qua)
+  thresholdBMin  Float?  // scoreB phải > giá trị này (null = bỏ qua)
+  thresholdBMax  Float?  // scoreB phải < giá trị này (null = bỏ qua)
+  evidenceWeight Float   @default(1.5) // 1.5x nặng hơn intra-dim
+  description    String? // Giải thích mâu thuẫn
+  isActive       Boolean @default(true)
+  createdAt      DateTime @default(now())
+
+  dimensionA Dimension @relation("DimRelA", fields: [dimensionIdA], references: [id])
+  dimensionB Dimension @relation("DimRelB", fields: [dimensionIdB], references: [id])
+
+  @@unique([dimensionIdA, dimensionIdB])
+  @@map("dimension_relations")
+}
+
+// ──────────────────────────────────────────────────────────────
+// QUESTION SET
+// ──────────────────────────────────────────────────────────────
+model QuestionSet {
+  id          String   @id @default(uuid())
+  name        String
+  version     String
+  description String?
+  isActive    Boolean  @default(true)
+  totalMain   Int      @default(0)
+  totalLie    Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  assessments AssessmentRecord[]
+  questions   Question[]
+
+  @@map("question_sets")
+}
+
+// ──────────────────────────────────────────────────────────────
+// QUESTION — Câu hỏi (thay thế questions.ts hardcode)
+// ──────────────────────────────────────────────────────────────
+model Question {
+  id           String   @id @default(uuid())
+  legacyId     Int?     @unique // ID cũ từ questions.ts để backward compat
+  setId        String
+  dimensionId  String
+
+  textVi       String
+  textEn       String?
+  textJa       String?
+
+  // 'main' | 'lie_absolute' | 'lie_subtle' | 'ceo_only'
+  questionType String   @default("main")
+  reversed     Boolean  @default(false)
+  lieWeight    Float    @default(1.0) // absolute=1.0, subtle=0.5
+  displayOrder Int      @default(0)
+
+  isActive     Boolean  @default(true)
+  retiredAt    DateTime?
+  retiredReason String?
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  set          QuestionSet        @relation(fields: [setId], references: [id])
+  dimension    Dimension          @relation(fields: [dimensionId], references: [id])
+  relationsAsA QuestionRelation[] @relation("QRelA")
+  relationsAsB QuestionRelation[] @relation("QRelB")
+
+  @@map("questions")
+}
+
+// ──────────────────────────────────────────────────────────────
+// QUESTION RELATION — Mối quan hệ giữa các cặp câu hỏi
+// ──────────────────────────────────────────────────────────────
+model QuestionRelation {
+  id            String  @id @default(uuid())
+  questionIdA   String
+  questionIdB   String
+  // 'forward_reversed_pair' | 'cross_dim_anchor' | 'semantic_duplicate'
+  relationType  String
+  flagThreshold Float?  // ngưỡng phát hiện bất thường, null = dùng default (1.5)
+  evidenceWeight Float  @default(1.0)
+  description   String?
+  isActive      Boolean @default(true)
+  createdAt     DateTime @default(now())
+
+  questionA Question @relation("QRelA", fields: [questionIdA], references: [id])
+  questionB Question @relation("QRelB", fields: [questionIdB], references: [id])
+
+  @@unique([questionIdA, questionIdB, relationType])
+  @@map("question_relations")
+}
+
+// ──────────────────────────────────────────────────────────────
+// ASSESSMENT RECORD
+// ──────────────────────────────────────────────────────────────
 model AssessmentRecord {
-  id             String       @id @default(uuid())
+  id             String    @id @default(uuid())
   version        String
   assessmentDate DateTime
   resultData     Json
   answers        Json
+  answerTimes    Json?
   aiReport       Json?
   hrNote         String?
   exportedAt     DateTime?
-  viewCount      Int          @default(0)
+  viewCount      Int       @default(0)
   lastViewedAt   DateTime?
   submissionIp   String?
   userId         String
-  createdAt      DateTime     @default(now())
   questionSetId  String?
-  questionSet    QuestionSet? @relation(fields: [questionSetId], references: [id])
-  user           User         @relation(fields: [userId], references: [id])
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  user        User         @relation(fields: [userId], references: [id])
+  questionSet QuestionSet? @relation(fields: [questionSetId], references: [id])
+
+  @@map("assessment_records")
 }
 
+// ──────────────────────────────────────────────────────────────
+// RATE LIMIT
+// ──────────────────────────────────────────────────────────────
 model RateLimit {
-  id        String   @id @default(uuid())
-  key       String   @unique
-  count     Int      @default(1)
+  id          String   @id @default(uuid())
+  key         String   @unique
+  count       Int      @default(1)
   windowStart DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
+  updatedAt   DateTime @updatedAt
 
-model TargetRole {
-  id           String        @id @default(uuid())
-  code         String        @unique
-  name         String
-  description  String?
-  createdAt    DateTime      @default(now())
-  questionSets QuestionSet[]
-}
-
-model QuestionSet {
-  id          String             @id @default(uuid())
-  roleId      String
-  version     String
-  isActive    Boolean            @default(true)
-  createdAt   DateTime           @default(now())
-  assessments AssessmentRecord[]
-  questions   Question[]
-  role        TargetRole         @relation(fields: [roleId], references: [id])
-}
-
-model Question {
-  id               String      @id @default(uuid())
-  setId            String
-  textVi           String
-  textEn           String
-  textJa           String
-  dimensionId      String
-  reversed         Boolean     @default(false)
-  isLieScale       Boolean     @default(false)
-  consistencyGroup String?
-  createdAt        DateTime    @default(now())
-  set              QuestionSet @relation(fields: [setId], references: [id])
+  @@map("rate_limits")
 }

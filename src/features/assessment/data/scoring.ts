@@ -2,7 +2,8 @@
 // SCORING ENGINE — Techzen HR Assessment v2.1
 // ============================================================
 
-import { DIMENSIONS } from './dimensions';
+// DbDimension imported from server services for optional use in scoring context
+import type { DbDimension } from '@/server/services/assessmentDataService';
 
 export interface DimensionScore {
   dimensionId: string;
@@ -42,6 +43,7 @@ export function calculateScores(
   startTime: number,
   endTime: number,
   _questionTimestamps: Record<string, number>,
+  dbDimensions?: DbDimension[],
 ): AssessmentResult {
   // 1. Tổng điểm từng dimension
   const dimensionScores: Record<string, { raw: number; count: number }> = {};
@@ -63,7 +65,8 @@ export function calculateScores(
 
   // 2. Scale sang 1–10  (percentile 0–100 → scaled 1–10)
   // Công thức chuẩn: percentile 0-9% → 1, 10-19% → 2, ..., 90-100% → 10
-  const dimensions: DimensionScore[] = DIMENSIONS.map(dim => {
+  const dimList = dbDimensions?.length ? dbDimensions : [];
+  const dimensionsScored: DimensionScore[] = dimList.map(dim => {
     const data = dimensionScores[dim.id];
 
     if (!data || data.count === 0) {
@@ -91,6 +94,9 @@ export function calculateScores(
       percentile: Math.round(percentile),
     };
   });
+
+  // Rename to avoid shadowing
+  const scoredDimensions: DimensionScore[] = dimensionsScored;
 
   // 3. Lie Scale — các câu isLieScale luôn là forward (càng đồng ý = càng tô vẽ)
   let lieRaw = 0;
@@ -167,7 +173,7 @@ export function calculateScores(
   }
 
   return {
-    dimensions,
+    dimensions: scoredDimensions,
     reliability: { level, lieScore, consistencyScore, speedFlag, avgSecondsPerQ, details },
     completedAt: new Date().toISOString(),
     durationSeconds,
@@ -177,8 +183,8 @@ export function calculateScores(
 /**
  * Diễn giải điểm theo 5 mức — chuẩn hóa với DIMENSIONS.descLow / descHigh
  */
-export function getInterpretation(dimId: string, scaled: number): string {
-  const dim = DIMENSIONS.find(d => d.id === dimId);
+export function getInterpretation(dimId: string, scaled: number, dbDimensions?: DbDimension[]): string {
+  const dim = dbDimensions?.find(d => d.id === dimId);
   if (!dim) return '';
 
   if (scaled === 0) return 'Không có dữ liệu cho chiều đánh giá này.';

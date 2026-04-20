@@ -158,17 +158,18 @@ export default async function AdminPage({
                   const reliability = resultData?.reliability?.level ?? '—';
                   const combatPower = getCombatPower(rec.resultData);
                   const hasAiReport = !!rec.aiReport;
-                  const roleName = rec.questionSet?.role?.name ?? rec.user?.position ?? '—';
+                  const roleName = rec.questionSet?.version ?? '—';
+                  const recUser = (rec as any).user;
 
                   return (
                     <tr key={rec.id} className="hover:bg-slate-50 transition-colors">
                       <td className="px-4 py-3 font-medium text-slate-800">
-                        {rec.user?.fullName ?? '—'}
-                        {rec.user?.employeeId && (
-                          <span className="ml-1.5 text-xs text-slate-400">#{rec.user.employeeId}</span>
+                        {recUser?.fullName ?? '—'}
+                        {recUser?.employeeId && (
+                          <span className="ml-1.5 text-xs text-slate-400">#{recUser.employeeId}</span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-slate-500">{rec.user?.email ?? '—'}</td>
+                      <td className="px-4 py-3 text-slate-500">{recUser?.email ?? '—'}</td>
                       <td className="px-4 py-3">
                         <span className="bg-indigo-50 text-indigo-700 text-xs font-semibold px-2 py-1 rounded">
                           {roleName}
