@@ -17,7 +17,7 @@ import { readFileSync, writeFileSync, existsSync } from 'fs';
 
 const prisma = new PrismaClient();
 const OPENAI_API_KEY = process.env.OPENAI_KEY || process.env.OPENAI_API_KEY;
-const CACHE_PATH = './scripts/ai_answers_cache.json';
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.GEMINI_KEY;
 
 // ── CLI args ────────────────────────────────────────────────────
 const args = process.argv.slice(2);
@@ -38,9 +38,12 @@ function getArgValue(key: string): string {
 const personaArg = getArgValue('--persona');
 const modelArg   = getArgValue('--model');
 const chunkArg   = getArgValue('--chunk-size');
+const providerArg= getArgValue('--provider');
 
-const MODEL       = modelArg  || 'o4';
+const PROVIDER    = providerArg || 'openai';
+const MODEL       = modelArg  || (PROVIDER === 'gemini' ? 'gemini-1.5-pro' : 'o4-mini');
 const CHUNK_SIZE  = chunkArg ? parseInt(chunkArg, 10) : 27;
+const CACHE_PATH  = PROVIDER === 'gemini' ? './scripts/ai_answers_cache_gemini.json' : './scripts/ai_answers_cache.json';
 const PERSONA_IDS: number[] = personaArg
   ? personaArg.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n))
   : [];
@@ -241,6 +244,8 @@ function chunkArray<T>(arr: T[], size: number): T[][] {
   return result;
 }
 
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 async function callOpenAI(systemPrompt: string, userContent: string): Promise<Record<string, number>> {
   const res = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
@@ -268,6 +273,37 @@ async function callOpenAI(systemPrompt: string, userContent: string): Promise<Re
 
   const parsed = JSON.parse(data.choices[0].message.content);
   return (parsed.answers ?? parsed) as Record<string, number>;
+}
+
+async function callGemini(systemPrompt: string, userContent: string): Promise<Record<string, number>> {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    signal: AbortSignal.timeout(30000),
+    body: JSON.stringify({
+      system_instruction: { parts: [{ text: systemPrompt }] },
+      contents: [{ parts: [{ text: userContent }] }],
+      generationConfig: { response_mime_type: 'application/json' },
+    }),
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Gemini API error ${res.status}: ${errText}`);
+  }
+
+  const data = await res.json() as any;
+  if (!data.candidates || data.candidates.length === 0) throw new Error('Gemini error: No valid candidate returned');
+
+  const textOutput = data.candidates[0].content.parts[0].text;
+  const parsed = JSON.parse(textOutput);
+  return (parsed.answers ?? parsed) as Record<string, number>;
+}
+
+async function callAI(systemPrompt: string, userContent: string): Promise<Record<string, number>> {
+  if (PROVIDER === 'gemini') return callGemini(systemPrompt, userContent);
+  return callOpenAI(systemPrompt, userContent);
 }
 
 // ── Load / Save Cache ─────────────────────────────────────────────
@@ -329,12 +365,15 @@ function saveCache(cache: CacheV2) {
 
 // ── Main ─────────────────────────────────────────────────────────
 async function main() {
-  if (!OPENAI_API_KEY && !DRY_RUN) {
+  if (PROVIDER === 'openai' && !OPENAI_API_KEY && !DRY_RUN) {
     throw new Error('Thiếu OPENAI_API_KEY hoặc OPENAI_KEY trong .env!');
+  }
+  if (PROVIDER === 'gemini' && !GEMINI_API_KEY && !DRY_RUN) {
+    throw new Error('Thiếu GEMINI_API_KEY trong .env!');
   }
 
   console.log(`\n🚀 SPI V4.2 Test Data Generator`);
-  console.log(`   Model: ${MODEL} | Chunk size: ${CHUNK_SIZE}`);
+  console.log(`   Provider: ${PROVIDER.toUpperCase()} | Model: ${MODEL} | Chunk size: ${CHUNK_SIZE}`);
   console.log(`   Mode: ${DRY_RUN ? 'DRY RUN' : 'LIVE'} | Force: ${FORCE}`);
 
   // Lấy câu hỏi từ DB
@@ -421,15 +460,31 @@ Trả về JSON hợp lệ DUY NHẤT có dạng:
       console.log(`   Gọi ${chunks.length} API chunks song song (model: ${MODEL})...`);
       const startMs = Date.now();
 
-      const chunkResults = await Promise.all(
-        chunks.map((chunk, i) => {
-          const userMsg = `CHUNK ${i + 1}/${chunks.length}: Điền điểm cho ${chunk.length} câu sau:\n${JSON.stringify(chunk, null, 0)}`;
-          return callOpenAI(systemPrompt, userMsg).catch(e => {
-            console.error(`   ⚠️  Chunk ${i + 1} lỗi: ${e.message}`);
-            return {} as Record<string, number>;
-          });
-        })
-      );
+      const chunkResults = [];
+      if (PROVIDER === 'gemini') {
+        for (let i = 0; i < chunks.length; i++) {
+          const userMsg = `CHUNK ${i + 1}/${chunks.length}: Điền điểm cho ${chunks[i].length} câu sau:\n${JSON.stringify(chunks[i], null, 0)}`;
+          try {
+            const res = await callAI(systemPrompt, userMsg);
+            chunkResults.push(res);
+            if (i < chunks.length - 1) await sleep(4200); // Tránh 15 RPM limit (~4s/req)
+          } catch (e: any) {
+             console.error(`   ⚠️  Chunk ${i + 1} lỗi: ${e.message}`);
+             chunkResults.push({});
+          }
+        }
+      } else {
+        const results = await Promise.all(
+          chunks.map((chunk, i) => {
+            const userMsg = `CHUNK ${i + 1}/${chunks.length}: Điền điểm cho ${chunk.length} câu sau:\n${JSON.stringify(chunk, null, 0)}`;
+            return callAI(systemPrompt, userMsg).catch(e => {
+              console.error(`   ⚠️  Chunk ${i + 1} lỗi: ${e.message}`);
+              return {} as Record<string, number>;
+            });
+          })
+        );
+        chunkResults.push(...results);
+      }
 
       // Merge tất cả chunk results
       const merged: Record<string, number> = {};
@@ -446,9 +501,10 @@ Trả về JSON hợp lệ DUY NHẤT có dạng:
         const retryChunks = chunkArray(missingQs, 20);
 
         for (let i = 0; i < retryChunks.length; i++) {
+          if (PROVIDER === 'gemini') await sleep(4200);
           const retryMsg = `RETRY ${i+1}/${retryChunks.length}: Điền điểm cho ${retryChunks[i].length} câu còn thiếu:\n${JSON.stringify(retryChunks[i], null, 0)}`;
           try {
-            const retryResult = await callOpenAI(systemPrompt, retryMsg);
+            const retryResult = await callAI(systemPrompt, retryMsg);
             Object.assign(merged, retryResult);
             console.log(`   ✅ Retry chunk ${i+1}: +${Object.keys(retryResult).length} câu`);
           } catch (e: any) {

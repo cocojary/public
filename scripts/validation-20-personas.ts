@@ -14,8 +14,13 @@ import { calculateUnifiedScores } from '../src/features/assessment/utils/unified
 import { PERSONAS } from './generate-test-data';
 
 const prisma = new PrismaClient();
-const OUTPUT_PATH = './validation_report.md';
-const CACHE_PATH = './scripts/ai_answers_cache.json';
+
+const args = process.argv.slice(2);
+const providerArg = args.find(a => a.startsWith('--provider='));
+const PROVIDER = providerArg ? providerArg.split('=')[1] : (args.includes('--provider') ? args[args.indexOf('--provider') + 1] : 'openai');
+
+const OUTPUT_PATH = PROVIDER === 'gemini' ? './validation_report_gemini.md' : './validation_report.md';
+const CACHE_PATH = PROVIDER === 'gemini' ? './scripts/ai_answers_cache_gemini.json' : './scripts/ai_answers_cache.json';
 
 // ── Đọc cache ─────────────────────────────────────────────────────
 function loadCache(): Record<string, Record<string, number>> {
@@ -198,10 +203,10 @@ async function main() {
 ---`;
   }).join('\n');
 
-  const report = `# 📊 Báo Cáo Validation Hệ Thống SPI V4.2 — 20 AI Personas
+  const report = `# 📊 Báo Cáo Validation Hệ Thống SPI V4.2 — 20 AI Personas (${PROVIDER.toUpperCase()})
 
 > **Thời gian chạy:** ${now}
-> **Model sinh dữ liệu:** ${MODEL}
+> **Provider/Model:** ${PROVIDER.toUpperCase()}
 > **Engine:** src/features/assessment/utils/unifiedEngine.ts
 > **Tổng số personas được test:** ${results.length}
 

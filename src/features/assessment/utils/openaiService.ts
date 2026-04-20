@@ -186,7 +186,7 @@ export async function generateAIReport(
   duties: DutyScore[],
   lang: 'vi' | 'en' | 'ja' = 'vi',
 ): Promise<AIReport | null> {
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = process.env.OPENAI_KEY || process.env.OPENAI_API_KEY;
   if (!apiKey) return null;
 
   const prompt = buildPrompt(result, persona, combatPower, duties, lang);

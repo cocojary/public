@@ -70,14 +70,14 @@ const ZigZagMatrix = ({ dimensions }: { dimensions: DimensionScore[] }) => {
             points={dimensions.map((d, i) => {
               const pct = Math.max(20, Math.min(80, d.percentile));
               const x = ((pct - 20) / 60) * 100;
-              const y = (i / (dimensions.length - 1)) * 100;
+              const y = dimensions.length > 1 ? (i / (dimensions.length - 1)) * 100 : 50;
               return `${x},${y}`;
             }).join(' ')} 
           />
           {dimensions.map((d, i) => {
             const pct = Math.max(20, Math.min(80, d.percentile));
             const x = ((pct - 20) / 60) * 100;
-            const y = (i / (dimensions.length - 1)) * 100;
+            const y = dimensions.length > 1 ? (i / (dimensions.length - 1)) * 100 : 50;
             return (
               <circle key={i} cx={x} cy={y} r="3" fill="#4f46e5" />
             );
@@ -154,7 +154,7 @@ export default function ScouterReport({ user, resultData, date, aiReport }: Scou
   // ── V4 (SPI_UNIFIED_V4) — render qua UnifiedReport ──────────
   if (isV4) {
     const v4Result = resultData as unknown as UnifiedScoringResult;
-    const unifiedData = buildUnifiedFromV4(v4Result);
+    const unifiedData = buildUnifiedFromV4(v4Result, DIMENSIONS);
     return (
       <div>
         <UnifiedReport
@@ -177,7 +177,7 @@ export default function ScouterReport({ user, resultData, date, aiReport }: Scou
   }
 
   // Tạo dữ liệu Unified cho V2 (legacy)
-  const unifiedDataV2 = buildUnifiedFromV2(resultData);
+  const unifiedDataV2 = buildUnifiedFromV2(resultData, DIMENSIONS);
 
   const getDims = (group: string) => (resultData.dimensions || []).filter((d: DimensionScore) => {
     const dimInfo = DIMENSIONS.find(x => x.id === d.dimensionId);
@@ -204,6 +204,8 @@ export default function ScouterReport({ user, resultData, date, aiReport }: Scou
   const reliabilityNarrative = useMemo(() => {
     return getReliabilityNarrative(resultData.reliability);
   }, [resultData.reliability]);
+
+  const reliabilityScore = 100 - resultData.reliability.lieScore;
 
   return (
     <div className="space-y-0">
@@ -250,7 +252,7 @@ export default function ScouterReport({ user, resultData, date, aiReport }: Scou
           <div className="bg-white/10 backdrop-blur-md border border-white/20 px-6 py-3 rounded-sm shadow-xl self-start md:self-center">
             <span className="text-lg font-bold block leading-none">{isCEO ? "BÁO CÁO CẤP LÃNH ĐẠO (CEO)" : "BÁO CÁO NĂNG LỰC NHÂN SỰ"}</span>
             <span className="text-[10px] text-indigo-300 font-bold tracking-tighter uppercase whitespace-nowrap mt-1 block">
-              {isCEO ? "C-Level Strategic Perspective Assessment" : "HR Management Perspective Assessment"}
+              {isCEO ? "Đánh Giá Tầm Nhìn Chiến Lược (C-Level)" : "Đánh Giá Năng Lực Nhân Sự Toàn Diện"}
             </span>
           </div>
         </div>
@@ -384,7 +386,7 @@ export default function ScouterReport({ user, resultData, date, aiReport }: Scou
                     <div className="font-bold text-amber-950 text-base">
                       Năng Lực Lãnh Đạo (CEO Strategy)
                       <span className="text-amber-700 text-[10px] font-black uppercase ml-4 tracking-widest bg-amber-100 px-2 py-0.5 rounded-full">
-                        Exclusive C-Level Analytics
+                        Phân tích Cấp Lãnh Đạo
                       </span>
                     </div>
                   </div>
@@ -419,17 +421,17 @@ export default function ScouterReport({ user, resultData, date, aiReport }: Scou
             </div>
           )}
 
-          {/* Section 6 - Negatives */}
+          {/* Section 7/8 - Negatives */}
           <div>
-            <BlockHeader num="6" title="Xu Hướng Rủi Ro" desc="Các yếu tố rủi ro nội tại (Điểm CÀNG CAO CÀNG NGUY HIỂM)" />
+            <BlockHeader num={isCEO ? "8" : "7"} title="Xu Hướng Rủi Ro" desc="Các yếu tố rủi ro nội tại (Điểm CÀNG CAO CÀNG NGUY HIỂM)" />
             <div className="mt-2 border border-slate-200 bg-white shadow-sm rounded-sm overflow-hidden">
               <div className="grid grid-cols-12 gap-1 text-[10px] font-bold text-center bg-slate-100 py-1.5 border-b border-slate-200">
                 <div className="col-span-3 text-slate-500 uppercase tracking-tighter self-center">Thước đo</div>
                 <div className="col-span-1 text-slate-500 uppercase tracking-tighter self-center">Điểm</div>
                 <div className="col-span-8 flex justify-between px-2 gap-0.5">
-                  <span className="flex-1 bg-emerald-50 text-emerald-700 border border-emerald-100 py-0.5 rounded-sm">Safe (0-30)</span>
-                  <span className="flex-1 bg-amber-50 text-amber-700 border border-amber-100 py-0.5 rounded-sm">Watch (40-60)</span>
-                  <span className="flex-1 bg-rose-50 text-rose-700 border border-rose-100 py-0.5 rounded-sm">Hazard (70+)</span>
+                  <span className="flex-1 bg-emerald-50 text-emerald-700 border border-emerald-100 py-0.5 rounded-sm">An Toàn (0-30)</span>
+                  <span className="flex-1 bg-amber-50 text-amber-700 border border-amber-100 py-0.5 rounded-sm">Chú Ý (40-60)</span>
+                  <span className="flex-1 bg-rose-50 text-rose-700 border border-rose-100 py-0.5 rounded-sm">Nguy Cơ (70+)</span>
                 </div>
               </div>
               {negatives.map((neg, i) => (
@@ -451,9 +453,9 @@ export default function ScouterReport({ user, resultData, date, aiReport }: Scou
             </div>
           </div>
 
-          {/* Section 8 - Duty Suitability (Duy nhất 1 cột, thiết kế Premium) */}
+          {/* Section 8/9 - Duty Suitability (Duy nhất 1 cột, thiết kế Premium) */}
           <div className="space-y-4">
-            <BlockHeader num={isCEO ? "8" : "7"} title="Vị Trí Công Việc Phù Hợp" desc="Tương thích dựa trên Ma trận Năng lực & Thái độ" />
+            <BlockHeader num={isCEO ? "9" : "8"} title="Vị Trí Công Việc Phù Hợp" desc="Tương thích dựa trên Ma trận Năng lực & Thái độ" />
             
             <div className="mt-4 grid grid-cols-1 gap-4">
               {duties.map((duty, idx) => {
@@ -492,7 +494,7 @@ export default function ScouterReport({ user, resultData, date, aiReport }: Scou
                               </h4>
                               {duty.suitable && (
                                 <span className="bg-emerald-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest animate-pulse">
-                                  Highly Recommended
+                                  Rất Phù Hợp
                                 </span>
                               )}
                             </div>
@@ -505,7 +507,7 @@ export default function ScouterReport({ user, resultData, date, aiReport }: Scou
                         <div className="flex items-center gap-6 sm:w-64">
                           <div className="flex-1 space-y-1">
                               <div className="flex justify-between text-[10px] font-bold">
-                                <span className="text-slate-400">Match Score</span>
+                                <span className="text-slate-400">Độ Phù Hợp</span>
                                 <span className={duty.suitable ? "text-emerald-700" : "text-slate-600"}>{duty.score}%</span>
                               </div>
                               <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-200/50 p-[1px]">
@@ -515,6 +517,9 @@ export default function ScouterReport({ user, resultData, date, aiReport }: Scou
                                   }`} 
                                   style={{ width: `${duty.score}%` }}
                                 ></div>
+                              </div>
+                              <div className="text-[9px] text-slate-400 font-medium tracking-tight pt-0.5">
+                                S≥80 · A≥70 · B≥60 · C&lt;60
                               </div>
                           </div>
                           <div className={`text-2xl font-black italic tracking-tighter ${
@@ -530,7 +535,7 @@ export default function ScouterReport({ user, resultData, date, aiReport }: Scou
                         <div className="bg-white/50 border-l-2 border-indigo-400 p-2.5 mt-1">
                           <div className="text-[9px] font-black text-indigo-600 uppercase tracking-widest mb-1 flex items-center gap-1">
                             <span className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></span>
-                            AI Niche Recommendation
+                            Gợi ý vị trí ngách từ AI
                           </div>
                           <p className="text-[11px] text-indigo-900 leading-relaxed font-medium">
                             {aiComment}
@@ -553,16 +558,16 @@ export default function ScouterReport({ user, resultData, date, aiReport }: Scou
 
           {/* Section 8 & 9 */}
           <div className="flex flex-col gap-8">
-          {/* Section 9: Chỉ số Chiến Lực - Anthropology Model */}
+          {/* Section 9/10: Chỉ số Chiến Lực - Anthropology Model */}
           <div className="flex flex-col gap-8">
             <div className="flex flex-col">
-              <BlockHeader num={isCEO ? "9" : "8"} title="Chỉ Số Chiến Lực" desc="Sức mạnh tổng hợp dựa trên 4 trụ cột thực chiến (Anthropology Model)" />
+              <BlockHeader num={isCEO ? "10" : "9"} title="Chỉ Số Chiến Lực" desc="Sức mạnh tổng hợp dựa trên 4 trụ cột thực chiến (Anthropology Model)" />
               
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
                 {/* Main Score Display */}
                 <div className="lg:col-span-1 border border-indigo-200 p-8 flex flex-col items-center justify-center bg-gradient-to-br from-indigo-900 to-indigo-950 relative overflow-hidden rounded-sm shadow-2xl text-white">
                   <div className="absolute opacity-10 text-[120px] font-black top-[-20px] right-[-10px] pointer-events-none italic">{combatPower.rank}</div>
-                  <div className="text-[10px] font-bold tracking-widest uppercase mb-4 text-indigo-300">Total Strategic Power</div>
+                  <div className="text-[10px] font-bold tracking-widest uppercase mb-4 text-indigo-300">Tổng Năng Lực Chiến Lược</div>
                   <div className="text-6xl font-black tracking-tighter drop-shadow-lg mb-4">{combatPower.total.toLocaleString()}</div>
                   <div className="px-6 py-2 bg-amber-500 text-slate-900 text-xs font-black uppercase tracking-widest rounded-full shadow-lg z-10">
                     HẠNG {combatPower.rank} — {combatPower.label}
@@ -609,7 +614,7 @@ export default function ScouterReport({ user, resultData, date, aiReport }: Scou
         <div className="flex items-center gap-3 mb-5 border-b border-indigo-100 pb-3">
           <div className="w-1.5 h-6 bg-indigo-600 rounded-full"></div>
           <h3 className="text-slate-800 font-black text-base tracking-tight">
-            Nhận xét tổng quan AI <span className="text-[10px] font-normal text-slate-400 block sm:inline sm:ml-2">(人物像および人材活用に関するコメント)</span>
+            Nhận xét tổng quan AI <span className="text-[10px] font-normal text-slate-400 block sm:inline sm:ml-2">(Phân tích chuyên sâu từ mô hình ngôn ngữ lớn)</span>
           </h3>
         </div>
         
@@ -635,10 +640,17 @@ export default function ScouterReport({ user, resultData, date, aiReport }: Scou
                 Phân tích vai trò & Độ tương thích (AI Niche Fit)
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {Object.entries(aiReport.jobFit).map(([key, data]) => (
+                {Object.entries(aiReport.jobFit).map(([key, data]) => {
+                  const JOB_FIT_LABEL: Record<string, string> = {
+                    technical:  '💻 Kỹ Thuật',
+                    business:   '💰 Kinh Doanh',
+                    operations: '🗂️ Vận Hành',
+                    management: '🌟 Quản Lý',
+                  };
+                  return (
                   <div key={key} className="flex flex-col gap-2">
                     <div className="flex justify-between items-end">
-                      <span className="text-[10px] font-bold uppercase text-slate-500">{key}</span>
+                      <span className="text-[10px] font-bold uppercase text-slate-500">{JOB_FIT_LABEL[key] ?? key}</span>
                       <span className="text-sm font-black text-indigo-700">{data.score}%</span>
                     </div>
                     <div className="w-full h-1 bg-slate-200 rounded-full overflow-hidden">
@@ -646,7 +658,8 @@ export default function ScouterReport({ user, resultData, date, aiReport }: Scou
                     </div>
                     <p className="text-[10px] text-slate-600 leading-tight italic mt-1">{data.comment}</p>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
@@ -700,6 +713,68 @@ export default function ScouterReport({ user, resultData, date, aiReport }: Scou
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* Next Steps & Interview Questions (Nội dung HR) */}
+            <div className="mt-8 bg-slate-900 text-white p-6 rounded-sm shadow-xl">
+              <div className="flex items-center gap-3 mb-6 border-b border-slate-700 pb-3">
+                <div className="w-1.5 h-6 bg-indigo-500 rounded-full"></div>
+                <h3 className="font-black text-base tracking-tight uppercase">Bảng Điều Khiển Nhân Sự (HR Dashboard)</h3>
+              </div>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Hành động tiếp theo */}
+                <div className="bg-slate-800/50 p-5 rounded-sm border border-slate-700">
+                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Hành động Đề xuất</h4>
+                  <div className="space-y-3">
+                    {reliabilityScore < 60 ? (
+                      <p className="text-[11px] text-rose-300 leading-relaxed">
+                        <strong className="text-white block mb-1">🔴 Độ tin cậy thấp ({reliabilityScore}%):</strong> Kết quả bài test có dấu hiệu người làm trả lời không trung thực để tạo ấn tượng tốt (Lie Scale cao). Đề xuất yêu cầu ứng viên làm lại bài hoặc sử dụng các câu hỏi phỏng vấn hành vi để xác minh lại. Không nên dùng kết quả này làm tiêu chí duy nhất.
+                      </p>
+                    ) : reliabilityScore < 80 ? (
+                      <p className="text-[11px] text-amber-300 leading-relaxed">
+                        <strong className="text-white block mb-1">🟡 Cần xác nhận thêm ({reliabilityScore}%):</strong> Ứng viên có xu hướng thể hiện bản thân tốt hơn thực tế đôi chút (Social Desirability). Kết quả có thể dùng được nhưng cần đối chiếu thêm qua phỏng vấn.
+                      </p>
+                    ) : (
+                      <p className="text-[11px] text-emerald-300 leading-relaxed">
+                        <strong className="text-white block mb-1">✅ Kết quả đáng tin ({reliabilityScore}%):</strong> Hình mẫu phân tích qua bài test phản ánh sát với thực tế của ứng viên. Có thể dùng ngay kết quả này để tư vấn phân công hoặc cá nhân hóa lộ trình hội nhập/huấn luyện.
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Câu hỏi phỏng vấn gợi ý */}
+                <div className="bg-slate-800/50 p-5 rounded-sm border border-slate-700">
+                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Gợi ý Câu hỏi Phỏng vấn</h4>
+                  <ul className="space-y-4">
+                    {(() => {
+                      const INTERVIEW_QUESTIONS: Record<string, string> = {
+                        'self_enhancement': 'Hãy kể một tình huống bạn nhận ra mình đánh giá sai năng lực của bản thân. Bạn đã xử lý thế nào?',
+                        'inconsistency':    'Mô tả cách bạn đưa ra quyết định khi gặp dữ liệu mâu thuẫn hoặc thiếu thông tin. Ví dụ cụ thể?',
+                        'burnout_risk':     'Chia sẻ một thời điểm bạn phải đối mặt với áp lực lớn. Bạn quản lý năng lượng và stress ra sao?',
+                        'conflict_risk':    'Hãy kể lần bạn bất đồng quan điểm gay gắt với đồng nghiệp hoặc người quản lý. Kết quả thế nào?',
+                        'early_quit_risk':  'Trong quá khứ, yếu tố then chốt nào khiến bạn quyết định rời bỏ một tổ chức?',
+                        'speed_anomaly':    'Trước khi ra một quyết định quan trọng nhưng cần gấp rút, bạn ưu tiên điều gì?',
+                      };
+                      
+                      const topRisks = negatives.filter(n => n.level === 'risk' || n.level === 'caution').slice(0, 2);
+                      
+                      if (topRisks.length === 0) {
+                        return <li className="text-[11px] text-slate-300 italic py-2">✅ Không phát hiện rủi ro nghiêm trọng. Có thể tập trung hỏi sâu về động lực thay vì rủi ro.</li>;
+                      }
+
+                      return topRisks.map((risk, idx) => (
+                        <li key={idx} className="text-[11px] text-slate-300 leading-relaxed bg-slate-800 p-3 rounded-sm border border-slate-700/50">
+                          <strong className="text-amber-400 block mb-1 text-[10px] uppercase tracking-widest">
+                            Xác minh: {risk.nameVi}
+                          </strong>
+                          {INTERVIEW_QUESTIONS[risk.id] || 'Hãy kể một trải nghiệm thực tế bạn từng gặp liên quan đến vấn đề này.'}
+                        </li>
+                      ));
+                    })()}
+                  </ul>
+                </div>
               </div>
             </div>
           </div>

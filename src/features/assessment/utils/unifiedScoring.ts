@@ -57,6 +57,16 @@ export interface CombatPowerResult {
   label: string;
 }
 
+export interface TechzenCultureFit {
+  core1Score: number; // Người tử tế
+  core2Score: number; // Học tập suốt đời
+  core3Score: number; // Thích ứng linh hoạt & Agile
+  core4Score: number; // Giá trị thật
+  core5Score: number; // Tôn trọng văn hóa đối tác Nhật
+  overallScore: number; // Thang 0-100
+}
+
+
 export interface UnifiedReportData {
   sourceType: 'SPI_V2' | 'SPI_UNIFIED_V4' | 'SPI_DEV_V3_LEGACY';
   groups: UnifiedGroup[];
@@ -69,6 +79,7 @@ export interface UnifiedReportData {
   reliabilityScore?: number;          // 0-100 — chỉ có khi từ SPI_UNIFIED_V4
   interpretationCaveat?: string;      // Cảnh báo hiển thị tầng diễn giải
   interpretationConfidence?: 'high' | 'medium' | 'low'; // Mức confidence
+  techzenCultureFit: TechzenCultureFit;
 }
 
 // ── Hàm trợ giúp ─────────────────────────────────────────────
@@ -514,6 +525,64 @@ function calcSuitability(groups: UnifiedGroup[]): SuitabilityRole[] {
     .sort((a, b) => b.matchScore - a.matchScore);
 }
 
+// ── Tính Culture Fit ──────────────────────────────────────────
+
+function calcCultureFit(dims: DimensionScore[]): TechzenCultureFit {
+  // Trụ cột 1: Người tử tế (Tận tâm, Hòa đồng, Đóng góp xã hội)
+  const core1Dims = [
+    getDimScore(dims, 'conscientiousness'),
+    getDimScore(dims, 'agreeableness'),
+    getDimScore(dims, 'social_contribution')
+  ];
+  const core1Score = core1Dims.reduce((a, b) => a + b, 0) / 3;
+
+  // Trụ cột 2: Học tập suốt đời (Ham học hỏi, Định hướng phát triển, Cởi mở)
+  const core2Dims = [
+    getDimScore(dims, 'learning_curiosity'),
+    getDimScore(dims, 'growth_orientation'),
+    getDimScore(dims, 'openness')
+  ];
+  const core2Score = core2Dims.reduce((a, b) => a + b, 0) / 3;
+
+  // Trụ cột 3: Agile & Linh hoạt (Tốc độ thực thi, Tự chủ, Giao tiếp rõ ràng)
+  const core3Dims = [
+    getDimScore(dims, 'execution_speed'),
+    getDimScore(dims, 'autonomy'),
+    getDimScore(dims, 'communication_clarity')
+  ];
+  const core3Score = core3Dims.reduce((a, b) => a + b, 0) / 3;
+
+  // Trụ cột 4: Giá trị thật (Tư duy logic, Tư duy phản biện, Khát vọng thành tích, Năng lực hiểu dữ liệu)
+  const core4Dims = [
+    getDimScore(dims, 'logical_thinking'),
+    getDimScore(dims, 'critical_thinking'),
+    getDimScore(dims, 'achievement_drive'),
+    getDimScore(dims, 'data_literacy')
+  ];
+  const core4Score = core4Dims.reduce((a, b) => a + b, 0) / 4;
+
+  // Trụ cột 5: Văn hóa Nhật Bản (Đồng cảm/EQ, Thận trọng, Định hướng ổn định/Chịu đựng stress)
+  const core5Dims = [
+    getDimScore(dims, 'empathy'),
+    getDimScore(dims, 'caution'),
+    getDimScore(dims, 'stability_orientation'),
+    getDimScore(dims, 'stress_mental')
+  ];
+  const core5Score = core5Dims.reduce((a, b) => a + b, 0) / 4;
+
+  const avg = (core1Score + core2Score + core3Score + core4Score + core5Score) / 5;
+  const overallScore = Math.round((avg / 10) * 100); // Convert 1-10 to 0-100 percentage. Wait, getDimScore returns 1-10. So avg is 1-10. avg * 10 is 10-100.
+
+  return {
+    core1Score: parseFloat(core1Score.toFixed(1)),
+    core2Score: parseFloat(core2Score.toFixed(1)),
+    core3Score: parseFloat(core3Score.toFixed(1)),
+    core4Score: parseFloat(core4Score.toFixed(1)),
+    core5Score: parseFloat(core5Score.toFixed(1)),
+    overallScore: Math.round(avg * 10)
+  };
+}
+
 // ── Combat Power ─────────────────────────────────────────────
 
 function calcCombatPower(groups: UnifiedGroup[], penaltyApplied: boolean): CombatPowerResult {
@@ -555,6 +624,7 @@ export function buildUnifiedFromV4(result: UnifiedScoringResult, dimensions?: Db
   const suitability = calcSuitability(groups);
   const penaltyApplied = result.penaltyMultiplier < 1.0;
   const combatPower = calcCombatPower(groups, penaltyApplied);
+  const techzenCultureFit = calcCultureFit(dims);
 
   const integrityLevel =
     result.reliabilityLevel === 'low-interpretability' ? 'risk' :
@@ -573,6 +643,7 @@ export function buildUnifiedFromV4(result: UnifiedScoringResult, dimensions?: Db
     reliabilityScore: (adapted.reliability as any).reliabilityScore,
     interpretationCaveat: (adapted.reliability as any).interpretationCaveat,
     interpretationConfidence: (adapted.reliability as any).interpretationConfidence,
+    techzenCultureFit,
   };
 }
 
@@ -592,6 +663,7 @@ export function buildUnifiedFromV2(result: AssessmentResult, dimensions?: DbDime
   const suitability = calcSuitability(groups);
   const penaltyApplied = rel.level !== 'high';
   const combatPower = calcCombatPower(groups, penaltyApplied);
+  const techzenCultureFit = calcCultureFit(dims);
 
   const integrityLevel =
     rel.level === 'invalid' || rel.level === 'low' ? 'risk' :
@@ -605,5 +677,6 @@ export function buildUnifiedFromV2(result: AssessmentResult, dimensions?: DbDime
     combatPower,
     integrityLevel,
     integrityNote: rel.details,
+    techzenCultureFit,
   };
 }

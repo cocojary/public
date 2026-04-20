@@ -24,9 +24,9 @@ export async function getDefaultQuestionSet() {
     if (!qSet) {
       return { success: false, error: "Không tìm thấy bộ câu hỏi. Vui lòng liên hệ Admin." };
     }
-    // Chỉ trả về câu hỏi main (không trả lie questions cho frontend)
-    const mainQuestions = qSet.questions.filter(q => q.questionType === 'main');
-    return { success: true, questions: mainQuestions, setId: qSet.id };
+    // Trả về tất cả câu hỏi (main + lie) đã được sắp xếp xen kẽ theo displayOrder
+    // Lie questions được ẩn về mặt phân loại nhưng người dùng vẫn trả lời — cần thiết cho Lie Scale detection
+    return { success: true, questions: qSet.questions, setId: qSet.id };
   } catch (error) {
     console.error("Lỗi khi lấy câu hỏi:", error);
     return { success: false, error: "Lỗi hệ thống khi tải câu hỏi." };

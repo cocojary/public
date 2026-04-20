@@ -3,7 +3,8 @@
     "allow": [
       "Bash(npx prisma *)",
       "Bash(xargs grep *)",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(npx tsx *)"
     ]
   }
 }

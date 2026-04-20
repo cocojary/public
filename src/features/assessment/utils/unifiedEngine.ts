@@ -311,9 +311,11 @@ export function calculateUnifiedScores(
   };
 
   // 3.6 Acquiescence Bias: xu hướng đồng ý / phủ nhận tất cả (raw answers trước đảo chiều)
-  const rawMean = orderedValues.length > 0
+  // [BUG-001 FIX] Guard isFinite để tránh overflow/NaN khi orderedValues có vấn đề
+  const rawMeanRaw = orderedValues.length > 0
     ? orderedValues.reduce((a, b) => a + b, 0) / orderedValues.length
     : 3;
+  const rawMean = Number.isFinite(rawMeanRaw) ? rawMeanRaw : 3;
   const acquiescenceMetric: QualityMetric = {
     score: rawMean.toFixed(2),
     status:
@@ -398,19 +400,29 @@ export function calculateUnifiedScores(
 
   // [v4.2+] B2 — Combined lie+acquiescence cap:
   // Nếu acquiescence mean cao (tô hồng nhẹ) VÀ extreme responder cao → penalty thêm
-  const rawMeanForCap = typeof acquiescenceMetric.score === 'number'
-    ? acquiescenceMetric.score
-    : parseFloat(String(acquiescenceMetric.score));
+  const rawMeanForCap = parseFloat(String(acquiescenceMetric.score));
   const extremeRatioNum = typeof extremeMetric.score === 'string'
     ? parseFloat(extremeMetric.score) / 100
     : extremeRatio;
-  if (rawMeanForCap > 3.8 && extremeRatioNum > 0.60) {
+  if (Number.isFinite(rawMeanForCap) && rawMeanForCap > 3.8 && extremeRatioNum > 0.60) {
     reliabilityScore = Math.max(0, reliabilityScore - 10);
+  }
+
+  // [BUG-003 FIX] B3 — Extreme responder tinh vi (Lie Cheater nhẹ):
+  // extremeResponder >= 75% VÀ lieScore >= 1.5 → "tô hồng nhẹ có tính toán"
+  if (extremeRatioNum >= 0.75 && lieScore >= 1.5) {
+    reliabilityScore = Math.min(reliabilityScore, 60);
   }
 
   // [v4.2+] B1 — Neutral bias hard cap:
   // Nếu toàn bộ câu trả lời 3 (neutralRatio=100%) → reliabilityScore tối đa 50
   if (neutralRatio >= 0.99) {
+    reliabilityScore = Math.min(reliabilityScore, 50);
+  }
+
+  // [BUG-002 FIX] B4 — Pattern Detection hard cap:
+  // Nếu patternDetection = Risk (khuôn mẫu zigzac/straight-line toàn bộ) → tối đa 50
+  if (patternMetric.status === 'Risk') {
     reliabilityScore = Math.min(reliabilityScore, 50);
   }
 

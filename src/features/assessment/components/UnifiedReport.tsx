@@ -46,11 +46,11 @@ function GaugeChart({ value, max = 10, color, size = 100 }: {
 
   const bgPath = `M ${arcX(startDeg)} ${arcY(startDeg)} A ${r} ${r} 0 0 1 ${arcX(endDeg)} ${arcY(endDeg)}`;
   const fgPath = pct > 0.001
-    ? `M ${arcX(startDeg)} ${arcY(startDeg)} A ${r} ${r} 0 ${pct > 0.5 ? 1 : 0} 1 ${arcX(valDeg)} ${arcY(valDeg)}`
+    ? `M ${arcX(startDeg)} ${arcY(startDeg)} A ${r} ${r} 0 0 1 ${arcX(valDeg)} ${arcY(valDeg)}`
     : '';
 
   return (
-    <svg width={size} height={size * 0.65} viewBox={`0 0 ${size} ${size * 0.65}`}>
+    <svg width={size} height={size * 0.7} viewBox={`-${size*0.15} -${size*0.15} ${size*1.3} ${size*1.3}`}>
       <path d={bgPath} fill="none" stroke="#E5E7EB" strokeWidth={size * 0.09} strokeLinecap="round" />
       {fgPath && (
         <path d={fgPath} fill="none" stroke={color} strokeWidth={size * 0.09} strokeLinecap="round"
@@ -67,8 +67,9 @@ function GaugeChart({ value, max = 10, color, size = 100 }: {
 }
 
 // ─── RADAR CHART SVG ──────────────────────────────────────────
+const RADAR_LABEL_PAD = 52;
+
 function RadarChart({ groups, size = 280 }: { groups: UnifiedGroup[]; size?: number }) {
-  // Lấy 1 item tiêu biểu nhất của mỗi nhóm (bỏ integrity)
   const points = groups
     .filter(g => g.id !== 'integrity' && g.id !== 'leadership')
     .flatMap(g => g.items.slice(0, 3))
@@ -77,18 +78,20 @@ function RadarChart({ groups, size = 280 }: { groups: UnifiedGroup[]; size?: num
   const n = points.length;
   if (n < 3) return null;
 
-  const cx = size / 2, cy = size / 2;
+  // viewBox với padding đủ cho nhãn không bị cắt
+  const totalW = size + RADAR_LABEL_PAD * 2;
+  const totalH = size + RADAR_LABEL_PAD * 2;
+  const cx = totalW / 2, cy = totalH / 2;
   const r = size * 0.38;
   const angleStep = (2 * Math.PI) / n;
+  const labelR = r + RADAR_LABEL_PAD * 0.82;
 
-  // Round 4 chữ số để tránh floating point mismatch SSR vs Client
-  const r4 = (n: number) => Math.round(n * 10000) / 10000;
+  const r4 = (v: number) => Math.round(v * 10000) / 10000;
   const ptX = (i: number, radius: number) => r4(cx + radius * Math.sin(i * angleStep));
   const ptY = (i: number, radius: number) => r4(cy - radius * Math.cos(i * angleStep));
 
   const gridLevels = [0.2, 0.4, 0.6, 0.8, 1.0];
 
-  // Data polygon
   const dataPath = points
     .map((p, i) => {
       const frac = (p.score ?? 0) / 10;
@@ -96,30 +99,37 @@ function RadarChart({ groups, size = 280 }: { groups: UnifiedGroup[]; size?: num
     }).join(' ') + ' Z';
 
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      {/* Grid */}
+    <svg width="100%" viewBox={`0 0 ${totalW} ${totalH}`}>
+      {/* Grid rings */}
       {gridLevels.map((lvl, li) => {
-        const d = Array.from({ length: n }, (_, i) => `${i === 0 ? 'M' : 'L'} ${ptX(i, r * lvl)} ${ptY(i, r * lvl)}`).join(' ') + ' Z';
+        const d = Array.from({ length: n }, (_, i) =>
+          `${i === 0 ? 'M' : 'L'} ${ptX(i, r * lvl)} ${ptY(i, r * lvl)}`
+        ).join(' ') + ' Z';
         return <path key={li} d={d} fill="none" stroke="#E5E7EB" strokeWidth={li === 4 ? 1.5 : 0.8} />;
       })}
       {/* Spokes */}
       {Array.from({ length: n }, (_, i) => (
         <line key={i} x1={cx} y1={cy} x2={ptX(i, r)} y2={ptY(i, r)} stroke="#E5E7EB" strokeWidth={0.8} />
       ))}
-      {/* Data */}
+      {/* Data polygon */}
       <path d={dataPath} fill="rgba(59,130,246,0.15)" stroke="#3B82F6" strokeWidth={2} />
-      {points.map((_, i) => {
-        const frac = (points[i].score ?? 0) / 10;
+      {points.map((p, i) => {
+        const frac = (p.score ?? 0) / 10;
         return <circle key={i} cx={ptX(i, r * frac)} cy={ptY(i, r * frac)} r={3.5} fill="#3B82F6" stroke="white" strokeWidth={1.5} />;
       })}
-      {/* Labels */}
-      {points.map((p, i) => (
-        <text key={i} x={ptX(i, r + 20)} y={ptY(i, r + 20)}
-          textAnchor="middle" dominantBaseline="middle"
-          fontSize={9} fill="#374151" fontFamily="system-ui">
-          {p.label.split(' ')[0]}
-        </text>
-      ))}
+      {/* Labels — full text, anchor theo vị trí trái/phải */}
+      {points.map((p, i) => {
+        const lx = r4(cx + labelR * Math.sin(i * angleStep));
+        const ly = r4(cy - labelR * Math.cos(i * angleStep));
+        const anchor = lx > cx + 10 ? 'start' : lx < cx - 10 ? 'end' : 'middle';
+        return (
+          <text key={i} x={lx} y={ly}
+            textAnchor={anchor} dominantBaseline="middle"
+            fontSize={11} fontWeight="500" fill="#374151" fontFamily="system-ui">
+            {p.label}
+          </text>
+        );
+      })}
     </svg>
   );
 }
@@ -153,7 +163,7 @@ function DimRow({ item, color }: { item: UnifiedScoreItem; color: string }) {
         </div>
         {item.description && (
           <p style={{ fontSize: 11, color: '#6B7280', margin: '3px 0 0', lineHeight: 1.4 }}>
-            {item.description.split('.')[0]}.
+            {item.description}
           </p>
         )}
       </div>
@@ -303,19 +313,46 @@ export default function UnifiedReport({ data, aiReport, candidateName, reportDat
             </div>
           </div>
 
-          {/* Điểm tổng */}
-          <div style={{
-            background: 'rgba(255,255,255,0.12)', borderRadius: 16, padding: '18px 26px',
-            textAlign: 'center', border: '1px solid rgba(255,255,255,0.2)',
-          }}>
-            <div style={{ fontSize: 46, fontWeight: 900, lineHeight: 1 }}>
-              {overallScore.toFixed(1)}
-            </div>
-            <div style={{ fontSize: 11, opacity: 0.7, marginTop: 2 }}>trên thang 10</div>
+          {/* Nhóm thẻ điểm: Điểm tổng & Năng lực */}
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+            {/* Điểm tổng */}
             <div style={{
-              marginTop: 8, fontSize: 12, fontWeight: 700, padding: '3px 12px',
-              background: 'rgba(255,255,255,0.22)', borderRadius: 20,
-            }}>{overallLabel.text}</div>
+              background: 'rgba(255,255,255,0.12)', borderRadius: 16, padding: '18px 26px',
+              textAlign: 'center', border: '1px solid rgba(255,255,255,0.2)',
+              display: 'flex', flexDirection: 'column', justifyContent: 'center'
+            }}>
+              <div style={{ fontSize: 46, fontWeight: 900, lineHeight: 1 }}>
+                {overallScore.toFixed(1)}
+              </div>
+              <div style={{ fontSize: 11, opacity: 0.7, marginTop: 4 }}>trên thang 10</div>
+              <div style={{
+                marginTop: 8, fontSize: 12, fontWeight: 700, padding: '3px 12px',
+                background: 'rgba(255,255,255,0.22)', borderRadius: 20,
+              }}>{overallLabel.text}</div>
+            </div>
+
+            {/* Chỉ số Năng Lực */}
+            {combatPower && (
+              <div style={{
+                background: 'rgba(255,255,255,0.12)', borderRadius: 16, padding: '16px 20px',
+                border: '1px solid rgba(255,255,255,0.2)', maxWidth: 240,
+                display: 'flex', flexDirection: 'column'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, opacity: 0.9 }}>💼 Chỉ số Năng lực</div>
+                  <div style={{ fontSize: 24, fontWeight: 900 }}>{combatPower.total}<span style={{fontSize: 12, fontWeight: 500, opacity: 0.7, marginLeft: 2}}>/100</span></div>
+                </div>
+                <div style={{ fontSize: 11, opacity: 0.85, lineHeight: 1.4, marginBottom: 8, flex: 1 }}>
+                  Dự báo khả năng tạo ra kết quả thực tế, dựa trên sự kết hợp giữa tư duy, động lực và độ ổn định.
+                </div>
+                <div style={{
+                  fontSize: 11, fontWeight: 600, color: '#1E3A8A', background: '#FEF08A',
+                  padding: '5px 8px', borderRadius: 6, marginTop: 'auto', lineHeight: 1.3
+                }}>
+                  {combatPower.label}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -360,68 +397,18 @@ export default function UnifiedReport({ data, aiReport, candidateName, reportDat
               {item.label}: <strong>{item.score.toFixed(1)}</strong>
             </span>
           ))}
-          {combatPower && (
-            <span style={{ fontSize: 11, background: 'rgba(255,255,255,0.15)', padding: '3px 10px', borderRadius: 20, marginLeft: 'auto' }}>
-              💼 Chỉ số Năng Lực: <strong>{combatPower.total}</strong>
-            </span>
-          )}
         </div>
       </div>
 
-      {/* ══ LAYOUT 2 CỘT: RADAR + COMBAT PILLARS ═══════════════ */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}>
-
-        {/* Radar */}
-        <div style={{
-          background: 'white', borderRadius: 16, padding: 20,
-          boxShadow: '0 1px 6px rgba(0,0,0,0.07)', border: '1px solid #F0F0F0',
-          display: 'flex', flexDirection: 'column', alignItems: 'center',
-        }}>
-          <h3 style={{ margin: '0 0 10px', fontWeight: 700, fontSize: 15, alignSelf: 'flex-start', color: '#374151' }}>
-            🕸️ Bản Đồ Năng Lực
-          </h3>
-          <RadarChart groups={data.groups} size={270} />
-        </div>
-
-        {/* Group summary cards */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {mainGroups.slice(0, 5).map(grp => {
-            const meta = GROUP_META[grp.id] ?? { label: grp.title, icon: '📊', color: '#6B7280' };
-            const label = getScoreLabel(grp.groupScore);
-            return (
-              <div key={grp.id} style={{
-                background: 'white', borderRadius: 12, padding: '12px 16px',
-                boxShadow: '0 1px 4px rgba(0,0,0,0.06)', border: '1px solid #F0F0F0',
-                display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer',
-              }} onClick={() => setActiveTab(grp.id)}>
-                <div style={{
-                  width: 42, height: 42, borderRadius: 10, fontSize: 20,
-                  background: `${meta.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  {meta.icon}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                    <span style={{ fontWeight: 600, fontSize: 13 }}>{grp.title}</span>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                      <span style={{ fontWeight: 800, fontSize: 14, color: meta.color }}>
-                        {grp.groupScore.toFixed(1)}
-                      </span>
-                      <span style={{ fontSize: 10, color: label.color, fontWeight: 600,
-                        background: label.bg, padding: '1px 6px', borderRadius: 20 }}>
-                        {label.text}
-                      </span>
-                    </div>
-                  </div>
-                  <div style={{ height: 4, background: '#F3F4F6', borderRadius: 2, overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: `${(grp.groupScore / 10) * 100}%`, background: meta.color, borderRadius: 2 }} />
-                  </div>
-                  <p style={{ fontSize: 10, color: '#9CA3AF', margin: '3px 0 0' }}>{grp.subtitle}</p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+      {/* ══ BẢN ĐỒ NĂNG LỰC — Full width ══════════════════════ */}
+      <div style={{
+        background: 'white', borderRadius: 16, padding: '20px 24px',
+        boxShadow: '0 1px 6px rgba(0,0,0,0.07)', border: '1px solid #F0F0F0', marginBottom: 24,
+      }}>
+        <h3 style={{ margin: '0 0 16px', fontWeight: 700, fontSize: 15, color: '#374151' }}>
+          🕸️ Bản Đồ Năng Lực
+        </h3>
+        <RadarChart groups={data.groups} size={520} />
       </div>
 
       {/* ══ TAB CHI TIẾT ════════════════════════════════════════ */}
@@ -510,7 +497,7 @@ export default function UnifiedReport({ data, aiReport, candidateName, reportDat
             </div>
           )}
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
             {top3Personas.map((item, idx) => {
               const isTop = idx === 0;
               const confidenceColor = item.confidence === 'high' ? '#059669' : item.confidence === 'medium' ? '#D97706' : '#6B7280';

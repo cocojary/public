@@ -1,9 +1,9 @@
-# 📊 Báo Cáo Validation Hệ Thống SPI V4.2 — 20 AI Personas
+# 📊 Báo Cáo Validation Hệ Thống SPI V4.2 — 20 AI Personas (OPENAI)
 
-> **Thời gian chạy:** 11:37:13 20/4/2026
-> **Model AI giả lập:** gpt-4o-mini
-> **Data source:** PostgreSQL DB (SPI V4.2 — 120 câu hỏi chính)
-> **Tổng số personas:** 20
+> **Thời gian chạy:** 13:11:21 20/4/2026
+> **Provider/Model:** OPENAI
+> **Engine:** src/features/assessment/utils/unifiedEngine.ts
+> **Tổng số personas được test:** 20
 
 ---
 
@@ -11,545 +11,545 @@
 
 | Chỉ số | Giá trị |
 |---|---|
-| ✅ PASS | **8/20** |
-| ❌ FAIL | **12/20** |
-| Tỷ lệ chính xác | **40%** |
+| ✅ PASS | **19/20** |
+| ❌ FAIL | **1/20** |
+| Tỷ lệ chính xác | **95%** |
 
-### Kết quả theo nhóm persona
+### Kết quả theo nhóm
 
 | Nhóm | Tổng | PASS | FAIL | Tỷ lệ |
 |---|---|---|---|---|
-| Honest | 7 | 3 | 4 | 43% |
-| Adversarial | 5 | 2 | 3 | 40% |
-| Edge | 8 | 3 | 5 | 38% |
+| Honest | 7 | 7 | 0 | 100% |
+| Adversarial | 5 | 4 | 1 | 80% |
+| Edge | 8 | 8 | 0 | 100% |
 
 ### Giải thích nhóm
-- **Honest** (7 personas): Profile trung thực, đa dạng ngành nghề — hệ thống phải nhận diện đúng dimension score và không flag oan
-- **Adversarial** (5 personas): Gian lận, tô hồng, né tránh — hệ thống **phải** phát hiện và flag
-- **Edge** (8 personas): Trường hợp đặc biệt, mâu thuẫn tâm lý, profile cực đoan nhưng nhất quán
+- **Honest** (7 personas): Profile trung thực — hệ thống KHÔNG được flag oan
+- **Adversarial** (5 personas): Gian lận, tô hồng, né tránh — hệ thống PHẢI phát hiện
+- **Edge** (8 personas): Trường hợp đặc biệt, tâm lý phức tạp
 
 ---
 
 ## 📋 Chi tiết từng persona
 
 
-### 1. ❌ Kỹ sư phần mềm - Cẩn thận, hướng nội `[Honest]`
+### 1. ✅ PASS — Kỹ sư phần mềm - Cẩn thận, hướng nội `[Honest]`
 
 | Chỉ số | Giá trị |
 |---|---|
-| Reliability Score | **100/100** |
-| Reliability Level | 🟢 `reliable` |
-| Số câu trả lời | 84 |
-| Lie Scale | 🟢 Ok (0.0) |
-| Consistency | 🟢 Ok (0 issues) |
-| Neutral Bias | 🟢 Ok (8%) |
-| Pattern | 🟢 Ok (Max 4) |
-| Acquiescence | 🟢 Ok (Mean=3.44) |
-| Extreme Resp. | 🟢 Ok (45%) |
+| Điểm độ tin cậy | **92/100** |
+| Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
+| Số câu trả lời | 120 |
+| Nói dối / Tô hồng | 🟢 Tốt (0) |
+| Độ nhất quán | 🟡 Cảnh báo (2 intra + 1 cross-dim lỗi) |
+| Thiên kiến trung lập | 🟢 Tốt (8%) |
+| Khuôn mẫu (Straight-line/Zigzac) | 🟢 Tốt (Max 6 câu liên tiếp) |
+| Xu hướng đồng thuận | 🟢 Tốt (TB=3.42) |
+| Chọn cực đoan | 🟢 Tốt (40%) |
 
-**Top 5 Dimensions cao nhất:** conscientiousness(10.0), achievement_drive(10.0), challenge_spirit(9.3), autonomy(9.3), learning_curiosity(9.3)
+**5 Chiều cao nhất:** logical_thinking(10.0), autonomy(9.6), learning_curiosity(9.6), caution(9.3), critical_thinking(9.3)
 
-**Check Expected High Dims:** ✅ logical_thinking: 9.3 | ✅ conscientiousness: 10.0 | ✅ autonomy: 9.3 | ❌ caution: 0.0
+**Kiểm tra điểm cao mong đợi:** ✅ logical_thinking: 10.0 | ✅ conscientiousness: 8.5 | ✅ autonomy: 9.6 | ✅ caution: 9.3
 
-**Check Expected Low Dims:** ✅ extraversion: 1.0 | ❌ agreeableness: 6.6
+**Kiểm tra điểm thấp mong đợi:** ✅ extraversion: 1.4 | ✅ agreeableness: 3.3
 
-**Reliability Check:** ✅ (Expected: `reliable | mostly-reliable` → Actual: `reliable`)
+**Kiểm tra độ tin cậy:** ✅ Đúng (Kỳ vọng: `reliable | mostly-reliable` → Thực tế: `reliable`)
 
-**Flags:** `LOW_EXPECTED_HIGH: caution=0.0`, `HIGH_EXPECTED_LOW: agreeableness=6.6`
+**Lỗi phát hiện:** Không có
 
 ---
 
-### 2. ❌ Nhân viên Sales - Hướng ngoại, nhiệt tình `[Honest]`
+### 2. ✅ PASS — Nhân viên Sales - Hướng ngoại, nhiệt tình `[Honest]`
 
 | Chỉ số | Giá trị |
 |---|---|
-| Reliability Score | **98/100** |
-| Reliability Level | 🟢 `reliable` |
-| Số câu trả lời | 109 |
-| Lie Scale | 🟢 Ok (0.0) |
-| Consistency | 🟢 Ok (0 issues) |
-| Neutral Bias | 🟢 Ok (0%) |
-| Pattern | 🟢 Ok (Max 5) |
-| Acquiescence | 🟢 Ok (Mean=3.56) |
-| Extreme Resp. | 🟡 Warning (90%) |
+| Điểm độ tin cậy | **100/100** |
+| Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
+| Số câu trả lời | 120 |
+| Nói dối / Tô hồng | 🟢 Tốt (0) |
+| Độ nhất quán | 🟢 Tốt (1 intra + 0 cross-dim lỗi) |
+| Thiên kiến trung lập | 🟢 Tốt (3%) |
+| Khuôn mẫu (Straight-line/Zigzac) | 🟢 Tốt (Max 5 câu liên tiếp) |
+| Xu hướng đồng thuận | 🟢 Tốt (TB=3.27) |
+| Chọn cực đoan | 🟢 Tốt (42%) |
 
-**Top 5 Dimensions cao nhất:** extraversion(10.0), openness(10.0), emotional_stability(10.0), achievement_drive(10.0), challenge_spirit(10.0)
+**5 Chiều cao nhất:** achievement_drive(9.6), recognition_need(9.3), execution_speed(9.3), stress_mental(9.3), stress_physical(9.3)
 
-**Check Expected High Dims:** ✅ extraversion: 10.0 | ✅ achievement_drive: 10.0 | ✅ challenge_spirit: 10.0
+**Kiểm tra điểm cao mong đợi:** ✅ extraversion: 8.9 | ✅ achievement_drive: 9.6 | ✅ challenge_spirit: 8.9
 
-**Check Expected Low Dims:** ❌ caution: 8.9 | ❌ stability_orientation: 9.6
+**Kiểm tra điểm thấp mong đợi:** ✅ caution: 2.5 | ✅ stability_orientation: 1.8
 
-**Reliability Check:** ✅ (Expected: `reliable | mostly-reliable` → Actual: `reliable`)
+**Kiểm tra độ tin cậy:** ✅ Đúng (Kỳ vọng: `reliable | mostly-reliable` → Thực tế: `reliable`)
 
-**Flags:** `HIGH_EXPECTED_LOW: caution=8.9`, `HIGH_EXPECTED_LOW: stability_orientation=9.6`
+**Lỗi phát hiện:** Không có
 
 ---
 
-### 3. ❌ HR Manager - Đồng cảm, quan tâm người khác `[Honest]`
+### 3. ✅ PASS — HR Manager - Đồng cảm, quan tâm người khác `[Honest]`
 
 | Chỉ số | Giá trị |
 |---|---|
-| Reliability Score | **100/100** |
-| Reliability Level | 🟢 `reliable` |
-| Số câu trả lời | 108 |
-| Lie Scale | 🟢 Ok (0.0) |
-| Consistency | 🟢 Ok (0 issues) |
-| Neutral Bias | 🟢 Ok (0%) |
-| Pattern | 🟢 Ok (Max 4) |
-| Acquiescence | 🟢 Ok (Mean=3.65) |
-| Extreme Resp. | 🟢 Ok (35%) |
+| Điểm độ tin cậy | **100/100** |
+| Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
+| Số câu trả lời | 120 |
+| Nói dối / Tô hồng | 🟢 Tốt (0) |
+| Độ nhất quán | 🟢 Tốt (0 intra + 0 cross-dim lỗi) |
+| Thiên kiến trung lập | 🟢 Tốt (18%) |
+| Khuôn mẫu (Straight-line/Zigzac) | 🟢 Tốt (Max 6 câu liên tiếp) |
+| Xu hướng đồng thuận | 🟢 Tốt (TB=3.16) |
+| Chọn cực đoan | 🟢 Tốt (22%) |
 
-**Top 5 Dimensions cao nhất:** challenge_spirit(9.3), learning_curiosity(9.3), logical_thinking(9.3), empathy(9.3), caution(9.3)
+**5 Chiều cao nhất:** agreeableness(10.0), empathy(10.0), learning_curiosity(9.3), social_contribution(8.9), caution(8.5)
 
-**Check Expected High Dims:** ✅ empathy: 9.3 | ✅ agreeableness: 8.5 | ✅ social_contribution: 9.3
+**Kiểm tra điểm cao mong đợi:** ✅ empathy: 10.0 | ✅ agreeableness: 10.0 | ✅ social_contribution: 8.9
 
-**Check Expected Low Dims:** ❌ achievement_drive: 7.8 | ❌ challenge_spirit: 9.3
+**Kiểm tra điểm thấp mong đợi:** ✅ achievement_drive: 3.3 | ✅ challenge_spirit: 3.3
 
-**Reliability Check:** ✅ (Expected: `reliable | mostly-reliable` → Actual: `reliable`)
+**Kiểm tra độ tin cậy:** ✅ Đúng (Kỳ vọng: `reliable | mostly-reliable` → Thực tế: `reliable`)
 
-**Flags:** `HIGH_EXPECTED_LOW: achievement_drive=7.8`, `HIGH_EXPECTED_LOW: challenge_spirit=9.3`
+**Lỗi phát hiện:** Không có
 
 ---
 
-### 4. ❌ Kế toán - Ổn định, nguyên tắc `[Honest]`
+### 4. ✅ PASS — Kế toán - Ổn định, nguyên tắc `[Honest]`
 
 | Chỉ số | Giá trị |
 |---|---|
-| Reliability Score | **100/100** |
-| Reliability Level | 🟢 `reliable` |
-| Số câu trả lời | 84 |
-| Lie Scale | 🟢 Ok (0.0) |
-| Consistency | 🟢 Ok (1 issues) |
-| Neutral Bias | 🟢 Ok (0%) |
-| Pattern | 🟢 Ok (Max 6) |
-| Acquiescence | 🟢 Ok (Mean=2.85) |
-| Extreme Resp. | 🟢 Ok (51%) |
+| Điểm độ tin cậy | **70/100** |
+| Đánh giá độ tin cậy | 🟡 Tương đối đáng tin |
+| Số câu trả lời | 120 |
+| Nói dối / Tô hồng | 🟢 Tốt (0) |
+| Độ nhất quán | 🔴 Nguy hiểm (3 intra + 1 cross-dim lỗi) |
+| Thiên kiến trung lập | 🟢 Tốt (10%) |
+| Khuôn mẫu (Straight-line/Zigzac) | 🟢 Tốt (Max 4 câu liên tiếp) |
+| Xu hướng đồng thuận | 🔴 Nguy hiểm (TB=3195453.52) |
+| Chọn cực đoan | 🟢 Tốt (40%) |
 
-**Top 5 Dimensions cao nhất:** conscientiousness(10.0), stress_physical(9.3), agreeableness(8.9), emotional_stability(8.5), achievement_drive(8.5)
+**5 Chiều cao nhất:** conscientiousness(10.0), logical_thinking(10.0), caution(10.0), stability_orientation(10.0), critical_thinking(10.0)
 
-**Check Expected High Dims:** ✅ conscientiousness: 10.0 | ❌ caution: 0.0 | ❌ stability_orientation: 0.0
+**Kiểm tra điểm cao mong đợi:** ✅ conscientiousness: 10.0 | ✅ caution: 10.0 | ✅ stability_orientation: 10.0
 
-**Check Expected Low Dims:** ❌ challenge_spirit: 6.3 | ✅ openness: 1.0
+**Kiểm tra điểm thấp mong đợi:** ✅ challenge_spirit: 4.4 | ✅ openness: 3.6
 
-**Reliability Check:** ✅ (Expected: `reliable | mostly-reliable` → Actual: `reliable`)
+**Kiểm tra độ tin cậy:** ✅ Đúng (Kỳ vọng: `reliable | mostly-reliable` → Thực tế: `mostly-reliable`)
 
-**Flags:** `LOW_EXPECTED_HIGH: caution=0.0`, `LOW_EXPECTED_HIGH: stability_orientation=0.0`, `HIGH_EXPECTED_LOW: challenge_spirit=6.3`
+**Lỗi phát hiện:** Không có
 
 ---
 
-### 5. ✅ Designer UX - Sáng tạo, cởi mở `[Honest]`
+### 5. ✅ PASS — Designer UX - Sáng tạo, cởi mở `[Honest]`
 
 | Chỉ số | Giá trị |
 |---|---|
-| Reliability Score | **100/100** |
-| Reliability Level | 🟢 `reliable` |
-| Số câu trả lời | 84 |
-| Lie Scale | 🟢 Ok (0.0) |
-| Consistency | 🟢 Ok (0 issues) |
-| Neutral Bias | 🟢 Ok (1%) |
-| Pattern | 🟢 Ok (Max 4) |
-| Acquiescence | 🟢 Ok (Mean=3.63) |
-| Extreme Resp. | 🟢 Ok (33%) |
+| Điểm độ tin cậy | **100/100** |
+| Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
+| Số câu trả lời | 121 |
+| Nói dối / Tô hồng | 🟢 Tốt (0) |
+| Độ nhất quán | 🟢 Tốt (0 intra + 0 cross-dim lỗi) |
+| Thiên kiến trung lập | 🟢 Tốt (6%) |
+| Khuôn mẫu (Straight-line/Zigzac) | 🟢 Tốt (Max 6 câu liên tiếp) |
+| Xu hướng đồng thuận | 🟢 Tốt (TB=3.30) |
+| Chọn cực đoan | 🟢 Tốt (41%) |
 
-**Top 5 Dimensions cao nhất:** openness(9.3), achievement_drive(9.3), challenge_spirit(9.3), autonomy(9.3), learning_curiosity(9.3)
+**5 Chiều cao nhất:** challenge_spirit(10.0), learning_curiosity(10.0), openness(9.6), autonomy(9.6), achievement_drive(9.3)
 
-**Check Expected High Dims:** ✅ openness: 9.3 | ✅ learning_curiosity: 9.3 | ✅ challenge_spirit: 9.3
+**Kiểm tra điểm cao mong đợi:** ✅ openness: 9.6 | ✅ learning_curiosity: 10.0 | ✅ challenge_spirit: 10.0
 
-**Check Expected Low Dims:** ✅ caution: 0.0 | ✅ stability_orientation: 0.0
+**Kiểm tra điểm thấp mong đợi:** ✅ caution: 3.3 | ✅ stability_orientation: 2.1
 
-**Reliability Check:** ✅ (Expected: `reliable | mostly-reliable` → Actual: `reliable`)
+**Kiểm tra độ tin cậy:** ✅ Đúng (Kỳ vọng: `reliable | mostly-reliable` → Thực tế: `reliable`)
 
-**Flags:** Không có
+**Lỗi phát hiện:** Không có
 
 ---
 
-### 6. ✅ Project Manager - Cân bằng, lãnh đạo `[Honest]`
+### 6. ✅ PASS — Project Manager - Cân bằng, lãnh đạo `[Honest]`
 
 | Chỉ số | Giá trị |
 |---|---|
-| Reliability Score | **100/100** |
-| Reliability Level | 🟢 `reliable` |
-| Số câu trả lời | 117 |
-| Lie Scale | 🟢 Ok (0.0) |
-| Consistency | 🟢 Ok (0 issues) |
-| Neutral Bias | 🟢 Ok (3%) |
-| Pattern | 🟢 Ok (Max 5) |
-| Acquiescence | 🟢 Ok (Mean=3.54) |
-| Extreme Resp. | 🟢 Ok (24%) |
+| Điểm độ tin cậy | **92/100** |
+| Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
+| Số câu trả lời | 120 |
+| Nói dối / Tô hồng | 🟢 Tốt (0) |
+| Độ nhất quán | 🟡 Cảnh báo (4 intra + 0 cross-dim lỗi) |
+| Thiên kiến trung lập | 🟢 Tốt (9%) |
+| Khuôn mẫu (Straight-line/Zigzac) | 🟢 Tốt (Max 5 câu liên tiếp) |
+| Xu hướng đồng thuận | 🟢 Tốt (TB=3.58) |
+| Chọn cực đoan | 🟢 Tốt (30%) |
 
-**Top 5 Dimensions cao nhất:** conscientiousness(9.3), achievement_drive(9.3), autonomy(9.3), learning_curiosity(9.3), logical_thinking(9.3)
+**5 Chiều cao nhất:** conscientiousness(10.0), autonomy(9.6), emotional_stability(9.3), achievement_drive(9.3), challenge_spirit(8.9)
 
-**Check Expected High Dims:** ✅ autonomy: 9.3 | ✅ conscientiousness: 9.3 | ✅ achievement_drive: 9.3
+**Kiểm tra điểm cao mong đợi:** ✅ autonomy: 9.6 | ✅ conscientiousness: 10.0 | ✅ achievement_drive: 9.3
 
-**Check Expected Low Dims:** —
+**Kiểm tra điểm thấp mong đợi:** —
 
-**Reliability Check:** ✅ (Expected: `reliable | mostly-reliable` → Actual: `reliable`)
+**Kiểm tra độ tin cậy:** ✅ Đúng (Kỳ vọng: `reliable | mostly-reliable` → Thực tế: `reliable`)
 
-**Flags:** Không có
+**Lỗi phát hiện:** Không có
 
 ---
 
-### 7. ✅ Nhân viên mới ra trường - Chưa xác định `[Honest]`
+### 7. ✅ PASS — Nhân viên mới ra trường - Chưa xác định `[Honest]`
 
 | Chỉ số | Giá trị |
 |---|---|
-| Reliability Score | **100/100** |
-| Reliability Level | 🟢 `reliable` |
-| Số câu trả lời | 101 |
-| Lie Scale | 🟢 Ok (0.0) |
-| Consistency | 🟢 Ok (0 issues) |
-| Neutral Bias | 🟢 Ok (23%) |
-| Pattern | 🟢 Ok (Max 5) |
-| Acquiescence | 🟢 Ok (Mean=3.48) |
-| Extreme Resp. | 🟢 Ok (0%) |
+| Điểm độ tin cậy | **93/100** |
+| Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
+| Số câu trả lời | 121 |
+| Nói dối / Tô hồng | 🟢 Tốt (0) |
+| Độ nhất quán | 🟢 Tốt (0 intra + 0 cross-dim lỗi) |
+| Thiên kiến trung lập | 🟡 Cảnh báo (29%) |
+| Khuôn mẫu (Straight-line/Zigzac) | 🟢 Tốt (Max 5 câu liên tiếp) |
+| Xu hướng đồng thuận | 🟢 Tốt (TB=3.26) |
+| Chọn cực đoan | 🟢 Tốt (5%) |
 
-**Top 5 Dimensions cao nhất:** achievement_drive(7.8), learning_curiosity(7.8), recognition_need(7.8), logical_thinking(7.8), empathy(7.8)
+**5 Chiều cao nhất:** openness(8.9), learning_curiosity(8.9), autonomy(7.8), conscientiousness(7.4), achievement_drive(7.4)
 
-**Check Expected High Dims:** ✅ learning_curiosity: 7.8
+**Kiểm tra điểm cao mong đợi:** ✅ learning_curiosity: 8.9
 
-**Check Expected Low Dims:** —
+**Kiểm tra điểm thấp mong đợi:** —
 
-**Reliability Check:** ✅ (Expected: `reliable | mostly-reliable | use-with-caution` → Actual: `reliable`)
+**Kiểm tra độ tin cậy:** ✅ Đúng (Kỳ vọng: `reliable | mostly-reliable | use-with-caution` → Thực tế: `reliable`)
 
-**Flags:** Không có
+**Lỗi phát hiện:** Không có
 
 ---
 
-### 8. ✅ Tô hồng hồ sơ - Toàn điểm 5 `[Adversarial]`
+### 8. ✅ PASS — Tô hồng hồ sơ - Toàn điểm 5 `[Adversarial]`
 
 | Chỉ số | Giá trị |
 |---|---|
-| Reliability Score | **45/100** |
-| Reliability Level | 🟠 `use-with-caution` |
-| Số câu trả lời | 82 |
-| Lie Scale | 🟢 Ok (0.0) |
-| Consistency | 🔴 Risk (14 issues) |
-| Neutral Bias | 🟢 Ok (0%) |
-| Pattern | 🔴 Risk (Max 82) |
-| Acquiescence | 🔴 Risk (Mean=5.00) |
-| Extreme Resp. | 🔴 Risk (100%) |
+| Điểm độ tin cậy | **44/100** |
+| Đánh giá độ tin cậy | 🟠 Cần thận trọng |
+| Số câu trả lời | 120 |
+| Nói dối / Tô hồng | 🟢 Tốt (0) |
+| Độ nhất quán | 🔴 Nguy hiểm (20 intra + 0 cross-dim lỗi) |
+| Thiên kiến trung lập | 🟢 Tốt (0%) |
+| Khuôn mẫu (Straight-line/Zigzac) | 🔴 Nguy hiểm (Max 120 câu liên tiếp) |
+| Xu hướng đồng thuận | 🔴 Nguy hiểm (TB=5.00) |
+| Chọn cực đoan | 🔴 Nguy hiểm (100%) |
 
-**Top 5 Dimensions cao nhất:** execution_speed(10.0), autonomy(8.2), extraversion(7.0), conscientiousness(7.0), openness(7.0)
+**5 Chiều cao nhất:** extraversion(7.0), conscientiousness(7.0), openness(7.0), emotional_stability(7.0), achievement_drive(7.0)
 
-**Check Expected High Dims:** —
+**Kiểm tra điểm cao mong đợi:** —
 
-**Check Expected Low Dims:** —
+**Kiểm tra điểm thấp mong đợi:** —
 
-**Reliability Check:** ✅ (Expected: `low-interpretability | use-with-caution` → Actual: `use-with-caution`)
+**Kiểm tra độ tin cậy:** ✅ Đúng (Kỳ vọng: `low-interpretability | use-with-caution` → Thực tế: `use-with-caution`)
 
-**Flags:** Không có
+**Lỗi phát hiện:** Không có
 
 ---
 
-### 9. ✅ Khiêm tốn thái quá - Toàn điểm 1 `[Adversarial]`
+### 9. ✅ PASS — Khiêm tốn thái quá - Toàn điểm 1 `[Adversarial]`
 
 | Chỉ số | Giá trị |
 |---|---|
-| Reliability Score | **45/100** |
-| Reliability Level | 🟠 `use-with-caution` |
-| Số câu trả lời | 82 |
-| Lie Scale | 🟢 Ok (0.0) |
-| Consistency | 🔴 Risk (14 issues) |
-| Neutral Bias | 🟢 Ok (0%) |
-| Pattern | 🔴 Risk (Max 81) |
-| Acquiescence | 🔴 Risk (Mean=1.00) |
-| Extreme Resp. | 🔴 Risk (100%) |
+| Điểm độ tin cậy | **50/100** |
+| Đánh giá độ tin cậy | 🟠 Cần thận trọng |
+| Số câu trả lời | 120 |
+| Nói dối / Tô hồng | 🟢 Tốt (0) |
+| Độ nhất quán | 🔴 Nguy hiểm (20 intra + 0 cross-dim lỗi) |
+| Thiên kiến trung lập | 🟢 Tốt (0%) |
+| Khuôn mẫu (Straight-line/Zigzac) | 🔴 Nguy hiểm (Max 120 câu liên tiếp) |
+| Xu hướng đồng thuận | 🔴 Nguy hiểm (TB=1.00) |
+| Chọn cực đoan | 🔴 Nguy hiểm (100%) |
 
-**Top 5 Dimensions cao nhất:** stress_physical(7.0), agreeableness(4.6), emotional_stability(4.6), extraversion(4.0), conscientiousness(4.0)
+**5 Chiều cao nhất:** agreeableness(5.5), stress_mental(5.5), extraversion(4.0), conscientiousness(4.0), openness(4.0)
 
-**Check Expected High Dims:** —
+**Kiểm tra điểm cao mong đợi:** —
 
-**Check Expected Low Dims:** —
+**Kiểm tra điểm thấp mong đợi:** —
 
-**Reliability Check:** ✅ (Expected: `low-interpretability | use-with-caution` → Actual: `use-with-caution`)
+**Kiểm tra độ tin cậy:** ✅ Đúng (Kỳ vọng: `low-interpretability | use-with-caution` → Thực tế: `use-with-caution`)
 
-**Flags:** Không có
+**Lỗi phát hiện:** Không có
 
 ---
 
-### 10. ❌ Trả lời toàn 3 - Né tránh `[Adversarial]`
+### 10. ✅ PASS — Trả lời toàn 3 - Né tránh `[Adversarial]`
 
 | Chỉ số | Giá trị |
 |---|---|
-| Reliability Score | **70/100** |
-| Reliability Level | 🟡 `mostly-reliable` |
-| Số câu trả lời | 81 |
-| Lie Scale | 🟢 Ok (0.0) |
-| Consistency | 🟢 Ok (0 issues) |
-| Neutral Bias | 🔴 Risk (100%) |
-| Pattern | 🔴 Risk (Max 81) |
-| Acquiescence | 🟢 Ok (Mean=3.00) |
-| Extreme Resp. | 🟢 Ok (0%) |
+| Điểm độ tin cậy | **50/100** |
+| Đánh giá độ tin cậy | 🟠 Cần thận trọng |
+| Số câu trả lời | 120 |
+| Nói dối / Tô hồng | 🟢 Tốt (0) |
+| Độ nhất quán | 🟢 Tốt (0 intra + 0 cross-dim lỗi) |
+| Thiên kiến trung lập | 🔴 Nguy hiểm (100%) |
+| Khuôn mẫu (Straight-line/Zigzac) | 🔴 Nguy hiểm (Max 120 câu liên tiếp) |
+| Xu hướng đồng thuận | 🟢 Tốt (TB=3.00) |
+| Chọn cực đoan | 🟢 Tốt (0%) |
 
-**Top 5 Dimensions cao nhất:** extraversion(5.5), agreeableness(5.5), conscientiousness(5.5), openness(5.5), emotional_stability(5.5)
+**5 Chiều cao nhất:** extraversion(5.5), agreeableness(5.5), conscientiousness(5.5), openness(5.5), emotional_stability(5.5)
 
-**Check Expected High Dims:** —
+**Kiểm tra điểm cao mong đợi:** —
 
-**Check Expected Low Dims:** —
+**Kiểm tra điểm thấp mong đợi:** —
 
-**Reliability Check:** ❌ (Expected: `low-interpretability | use-with-caution` → Actual: `mostly-reliable`)
+**Kiểm tra độ tin cậy:** ✅ Đúng (Kỳ vọng: `low-interpretability | use-with-caution` → Thực tế: `use-with-caution`)
 
-**Flags:** `WRONG_RELIABILITY: got=mostly-reliable, expected=low-interpretability|use-with-caution`
+**Lỗi phát hiện:** Không có
 
 ---
 
-### 11. ❌ Zigzac - Xen kẽ 1-5-1-5 `[Adversarial]`
+### 11. ✅ PASS — Zigzac - Xen kẽ 1-5 (DỮ LIỆU THỦ CÔNG) `[Adversarial]`
 
 | Chỉ số | Giá trị |
 |---|---|
-| Reliability Score | **95/100** |
-| Reliability Level | 🟢 `reliable` |
-| Số câu trả lời | 104 |
-| Lie Scale | 🟢 Ok (0.0) |
-| Consistency | 🟢 Ok (1 issues) |
-| Neutral Bias | 🟢 Ok (0%) |
-| Pattern | 🟢 Ok (Max 2) |
-| Acquiescence | 🟢 Ok (Mean=2.98) |
-| Extreme Resp. | 🔴 Risk (100%) |
+| Điểm độ tin cậy | **50/100** |
+| Đánh giá độ tin cậy | 🟠 Cần thận trọng |
+| Số câu trả lời | 120 |
+| Nói dối / Tô hồng | 🟢 Tốt (0) |
+| Độ nhất quán | 🟢 Tốt (0 intra + 0 cross-dim lỗi) |
+| Thiên kiến trung lập | 🟢 Tốt (0%) |
+| Khuôn mẫu (Straight-line/Zigzac) | 🔴 Nguy hiểm (Max 119 câu liên tiếp) |
+| Xu hướng đồng thuận | 🟢 Tốt (TB=3.00) |
+| Chọn cực đoan | 🔴 Nguy hiểm (100%) |
 
-**Top 5 Dimensions cao nhất:** stress_physical(10.0), social_contribution(8.5), growth_orientation(8.2), stress_mental(7.0), extraversion(5.5)
+**5 Chiều cao nhất:** extraversion(5.5), conscientiousness(5.5), openness(5.5), emotional_stability(5.5), achievement_drive(5.5)
 
-**Check Expected High Dims:** —
+**Kiểm tra điểm cao mong đợi:** —
 
-**Check Expected Low Dims:** —
+**Kiểm tra điểm thấp mong đợi:** —
 
-**Reliability Check:** ❌ (Expected: `low-interpretability | use-with-caution` → Actual: `reliable`)
+**Kiểm tra độ tin cậy:** ✅ Đúng (Kỳ vọng: `low-interpretability | use-with-caution` → Thực tế: `use-with-caution`)
 
-**Flags:** `WRONG_RELIABILITY: got=reliable, expected=low-interpretability|use-with-caution`
+**Lỗi phát hiện:** Không có
 
 ---
 
-### 12. ❌ Lie Cheater - Tô vẽ nhẹ hơn `[Adversarial]`
+### 12. ❌ FAIL — Lie Cheater - Tô vẽ nhẹ hơn `[Adversarial]`
 
 | Chỉ số | Giá trị |
 |---|---|
-| Reliability Score | **96/100** |
-| Reliability Level | 🟢 `reliable` |
-| Số câu trả lời | 109 |
-| Lie Scale | 🟢 Ok (0.0) |
-| Consistency | 🟢 Ok (1 issues) |
-| Neutral Bias | 🟢 Ok (0%) |
-| Pattern | 🟢 Ok (Max 5) |
-| Acquiescence | 🟡 Warning (Mean=3.98) |
-| Extreme Resp. | 🟢 Ok (66%) |
+| Điểm độ tin cậy | **100/100** |
+| Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
+| Số câu trả lời | 120 |
+| Nói dối / Tô hồng | 🟢 Tốt (0) |
+| Độ nhất quán | 🟢 Tốt (0 intra + 1 cross-dim lỗi) |
+| Thiên kiến trung lập | 🟢 Tốt (0%) |
+| Khuôn mẫu (Straight-line/Zigzac) | 🟢 Tốt (Max 4 câu liên tiếp) |
+| Xu hướng đồng thuận | 🟢 Tốt (TB=3.46) |
+| Chọn cực đoan | 🟡 Cảnh báo (86%) |
 
-**Top 5 Dimensions cao nhất:** stress_physical(10.0), extraversion(9.3), conscientiousness(9.3), openness(9.3), emotional_stability(9.3)
+**5 Chiều cao nhất:** challenge_spirit(10.0), autonomy(10.0), learning_curiosity(10.0), recognition_need(10.0), empathy(10.0)
 
-**Check Expected High Dims:** —
+**Kiểm tra điểm cao mong đợi:** —
 
-**Check Expected Low Dims:** —
+**Kiểm tra điểm thấp mong đợi:** —
 
-**Reliability Check:** ❌ (Expected: `low-interpretability | use-with-caution` → Actual: `reliable`)
+**Kiểm tra độ tin cậy:** ❌ Sai (Kỳ vọng: `low-interpretability | use-with-caution` → Thực tế: `reliable`)
 
-**Flags:** `WRONG_RELIABILITY: got=reliable, expected=low-interpretability|use-with-caution`
+**Lỗi phát hiện:** `SAI_ĐỘ_TIN_CẬY: thực_tế=reliable, kỳ_vọng=low-interpretability|use-with-caution`
 
 ---
 
-### 13. ✅ Người hoàn hảo nhưng nhất quán `[Edge]`
+### 13. ✅ PASS — Người hoàn hảo nhưng nhất quán `[Edge]`
 
 | Chỉ số | Giá trị |
 |---|---|
-| Reliability Score | **95/100** |
-| Reliability Level | 🟢 `reliable` |
-| Số câu trả lời | 84 |
-| Lie Scale | 🟢 Ok (0.0) |
-| Consistency | 🟢 Ok (0 issues) |
-| Neutral Bias | 🟢 Ok (0%) |
-| Pattern | 🟢 Ok (Max 5) |
-| Acquiescence | 🟢 Ok (Mean=3.62) |
-| Extreme Resp. | 🔴 Risk (100%) |
+| Điểm độ tin cậy | **100/100** |
+| Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
+| Số câu trả lời | 120 |
+| Nói dối / Tô hồng | 🟢 Tốt (0) |
+| Độ nhất quán | 🟢 Tốt (0 intra + 1 cross-dim lỗi) |
+| Thiên kiến trung lập | 🟢 Tốt (0%) |
+| Khuôn mẫu (Straight-line/Zigzac) | 🟢 Tốt (Max 5 câu liên tiếp) |
+| Xu hướng đồng thuận | 🟢 Tốt (TB=3.55) |
+| Chọn cực đoan | 🟢 Tốt (68%) |
 
-**Top 5 Dimensions cao nhất:** extraversion(10.0), agreeableness(10.0), conscientiousness(10.0), openness(10.0), emotional_stability(10.0)
+**5 Chiều cao nhất:** recognition_need(10.0), logical_thinking(10.0), extraversion(9.6), empathy(9.6), execution_speed(9.6)
 
-**Check Expected High Dims:** ✅ extraversion: 10.0 | ✅ conscientiousness: 10.0 | ✅ emotional_stability: 10.0 | ✅ learning_curiosity: 10.0
+**Kiểm tra điểm cao mong đợi:** ✅ extraversion: 9.6 | ✅ conscientiousness: 9.3 | ✅ emotional_stability: 9.3 | ✅ learning_curiosity: 8.9
 
-**Check Expected Low Dims:** —
+**Kiểm tra điểm thấp mong đợi:** —
 
-**Reliability Check:** ✅ (Expected: `reliable | mostly-reliable | use-with-caution` → Actual: `reliable`)
+**Kiểm tra độ tin cậy:** ✅ Đúng (Kỳ vọng: `reliable | mostly-reliable | use-with-caution` → Thực tế: `reliable`)
 
-**Flags:** Không có
+**Lỗi phát hiện:** Không có
 
 ---
 
-### 14. ❌ Mâu thuẫn tâm lý - Hướng ngoại + Autonomy thấp `[Edge]`
+### 14. ✅ PASS — Mâu thuẫn tâm lý - Hướng ngoại + Autonomy thấp `[Edge]`
 
 | Chỉ số | Giá trị |
 |---|---|
-| Reliability Score | **95/100** |
-| Reliability Level | 🟢 `reliable` |
-| Số câu trả lời | 83 |
-| Lie Scale | 🟢 Ok (0.0) |
-| Consistency | 🟢 Ok (0 issues) |
-| Neutral Bias | 🟢 Ok (0%) |
-| Pattern | 🟢 Ok (Max 5) |
-| Acquiescence | 🟢 Ok (Mean=3.65) |
-| Extreme Resp. | 🔴 Risk (100%) |
+| Điểm độ tin cậy | **79/100** |
+| Đánh giá độ tin cậy | 🟡 Tương đối đáng tin |
+| Số câu trả lời | 120 |
+| Nói dối / Tô hồng | 🟢 Tốt (0) |
+| Độ nhất quán | 🟡 Cảnh báo (1 intra + 1 cross-dim lỗi) |
+| Thiên kiến trung lập | 🟡 Cảnh báo (26%) |
+| Khuôn mẫu (Straight-line/Zigzac) | 🟡 Cảnh báo (Max 9 câu liên tiếp) |
+| Xu hướng đồng thuận | 🟢 Tốt (TB=3.33) |
+| Chọn cực đoan | 🟢 Tốt (21%) |
 
-**Top 5 Dimensions cao nhất:** extraversion(10.0), agreeableness(10.0), conscientiousness(10.0), openness(10.0), emotional_stability(10.0)
+**5 Chiều cao nhất:** extraversion(10.0), recognition_need(10.0), execution_speed(10.0), emotional_stability(7.4), empathy(7.4)
 
-**Check Expected High Dims:** ✅ extraversion: 10.0
+**Kiểm tra điểm cao mong đợi:** ✅ extraversion: 10.0
 
-**Check Expected Low Dims:** ❌ autonomy: 10.0
+**Kiểm tra điểm thấp mong đợi:** ✅ autonomy: 2.1
 
-**Reliability Check:** ✅ (Expected: `reliable | mostly-reliable | use-with-caution` → Actual: `reliable`)
+**Kiểm tra độ tin cậy:** ✅ Đúng (Kỳ vọng: `reliable | mostly-reliable | use-with-caution` → Thực tế: `mostly-reliable`)
 
-**Flags:** `HIGH_EXPECTED_LOW: autonomy=10.0`
+**Lỗi phát hiện:** Không có
 
 ---
 
-### 15. ❌ Lười biếng - Ít cam kết `[Edge]`
+### 15. ✅ PASS — Lười biếng - Ít cam kết `[Edge]`
 
 | Chỉ số | Giá trị |
 |---|---|
-| Reliability Score | **100/100** |
-| Reliability Level | 🟢 `reliable` |
-| Số câu trả lời | 116 |
-| Lie Scale | 🟢 Ok (0.0) |
-| Consistency | 🟢 Ok (2 issues) |
-| Neutral Bias | 🟢 Ok (9%) |
-| Pattern | 🟢 Ok (Max 5) |
-| Acquiescence | 🟢 Ok (Mean=2.94) |
-| Extreme Resp. | 🟢 Ok (7%) |
+| Điểm độ tin cậy | **94/100** |
+| Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
+| Số câu trả lời | 120 |
+| Nói dối / Tô hồng | 🟢 Tốt (0) |
+| Độ nhất quán | 🟢 Tốt (0 intra + 0 cross-dim lỗi) |
+| Thiên kiến trung lập | 🟢 Tốt (1%) |
+| Khuôn mẫu (Straight-line/Zigzac) | 🟡 Cảnh báo (Max 7 câu liên tiếp) |
+| Xu hướng đồng thuận | 🟢 Tốt (TB=2.80) |
+| Chọn cực đoan | 🟢 Tốt (21%) |
 
-**Top 5 Dimensions cao nhất:** recognition_need(4.8), stability_orientation(4.8), social_contribution(4.8), agreeableness(4.4), caution(4.2)
+**5 Chiều cao nhất:** stability_orientation(9.3), emotional_stability(8.9), agreeableness(6.6), extraversion(3.3), conscientiousness(3.3)
 
-**Check Expected High Dims:** ❌ stability_orientation: 4.8
+**Kiểm tra điểm cao mong đợi:** ✅ stability_orientation: 9.3
 
-**Check Expected Low Dims:** ✅ conscientiousness: 2.5 | ✅ achievement_drive: 3.3 | ✅ autonomy: 3.3
+**Kiểm tra điểm thấp mong đợi:** ✅ conscientiousness: 3.3 | ✅ achievement_drive: 2.5 | ✅ autonomy: 2.5
 
-**Reliability Check:** ✅ (Expected: `reliable | mostly-reliable` → Actual: `reliable`)
+**Kiểm tra độ tin cậy:** ✅ Đúng (Kỳ vọng: `reliable | mostly-reliable` → Thực tế: `reliable`)
 
-**Flags:** `LOW_EXPECTED_HIGH: stability_orientation=4.8`
+**Lỗi phát hiện:** Không có
 
 ---
 
-### 16. ❌ Burnout - Stress cao, cảm xúc không ổn `[Edge]`
+### 16. ✅ PASS — Burnout - Stress cao, cảm xúc không ổn `[Edge]`
 
 | Chỉ số | Giá trị |
 |---|---|
-| Reliability Score | **71/100** |
-| Reliability Level | 🟡 `mostly-reliable` |
-| Số câu trả lời | 117 |
-| Lie Scale | 🟢 Ok (0.0) |
-| Consistency | 🔴 Risk (15 issues) |
-| Neutral Bias | 🟢 Ok (0%) |
-| Pattern | 🟢 Ok (Max 5) |
-| Acquiescence | 🟡 Warning (Mean=3.96) |
-| Extreme Resp. | 🟢 Ok (33%) |
+| Điểm độ tin cậy | **100/100** |
+| Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
+| Số câu trả lời | 120 |
+| Nói dối / Tô hồng | 🟢 Tốt (0) |
+| Độ nhất quán | 🟢 Tốt (0 intra + 0 cross-dim lỗi) |
+| Thiên kiến trung lập | 🟢 Tốt (13%) |
+| Khuôn mẫu (Straight-line/Zigzac) | 🟢 Tốt (Max 5 câu liên tiếp) |
+| Xu hướng đồng thuận | 🟢 Tốt (TB=2.96) |
+| Chọn cực đoan | 🟢 Tốt (18%) |
 
-**Top 5 Dimensions cao nhất:** agreeableness(7.8), execution_speed(6.1), caution(6.0), conscientiousness(5.5), achievement_drive(5.5)
+**5 Chiều cao nhất:** stress_physical(8.9), stability_orientation(7.8), agreeableness(6.6), logical_thinking(5.1), caution(4.4)
 
-**Check Expected High Dims:** —
+**Kiểm tra điểm cao mong đợi:** —
 
-**Check Expected Low Dims:** ✅ emotional_stability: 2.5 | ✅ learning_curiosity: 2.5 | ❌ achievement_drive: 5.5
+**Kiểm tra điểm thấp mong đợi:** ✅ emotional_stability: 1.8 | ✅ learning_curiosity: 2.5 | ✅ achievement_drive: 2.9
 
-**Reliability Check:** ✅ (Expected: `reliable | mostly-reliable` → Actual: `mostly-reliable`)
+**Kiểm tra độ tin cậy:** ✅ Đúng (Kỳ vọng: `reliable | mostly-reliable` → Thực tế: `reliable`)
 
-**Flags:** `HIGH_EXPECTED_LOW: achievement_drive=5.5`
+**Lỗi phát hiện:** Không có
 
 ---
 
-### 17. ❌ Nhân viên cũ - Ít đổi mới `[Edge]`
+### 17. ✅ PASS — Nhân viên cũ - Ít đổi mới `[Edge]`
 
 | Chỉ số | Giá trị |
 |---|---|
-| Reliability Score | **94/100** |
-| Reliability Level | 🟢 `reliable` |
-| Số câu trả lời | 81 |
-| Lie Scale | 🟢 Ok (0.0) |
-| Consistency | 🟢 Ok (1 issues) |
-| Neutral Bias | 🟢 Ok (0%) |
-| Pattern | 🟡 Warning (Max 7) |
-| Acquiescence | 🟢 Ok (Mean=2.94) |
-| Extreme Resp. | 🟢 Ok (20%) |
+| Điểm độ tin cậy | **94/100** |
+| Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
+| Số câu trả lời | 120 |
+| Nói dối / Tô hồng | 🟢 Tốt (0) |
+| Độ nhất quán | 🟢 Tốt (2 intra + 0 cross-dim lỗi) |
+| Thiên kiến trung lập | 🟢 Tốt (8%) |
+| Khuôn mẫu (Straight-line/Zigzac) | 🟡 Cảnh báo (Max 7 câu liên tiếp) |
+| Xu hướng đồng thuận | 🟢 Tốt (TB=3.28) |
+| Chọn cực đoan | 🟢 Tốt (48%) |
 
-**Top 5 Dimensions cao nhất:** agreeableness(7.8), conscientiousness(7.8), emotional_stability(7.8), achievement_drive(7.8), social_contribution(7.8)
+**5 Chiều cao nhất:** conscientiousness(10.0), logical_thinking(10.0), caution(10.0), stability_orientation(10.0), emotional_stability(9.3)
 
-**Check Expected High Dims:** ❌ stability_orientation: 0.0 | ✅ conscientiousness: 7.8
+**Kiểm tra điểm cao mong đợi:** ✅ stability_orientation: 10.0 | ✅ conscientiousness: 10.0
 
-**Check Expected Low Dims:** ✅ openness: 1.8 | ✅ learning_curiosity: 1.8 | ✅ challenge_spirit: 1.8
+**Kiểm tra điểm thấp mong đợi:** ✅ openness: 2.5 | ✅ learning_curiosity: 2.5 | ✅ challenge_spirit: 2.5
 
-**Reliability Check:** ✅ (Expected: `reliable | mostly-reliable` → Actual: `reliable`)
+**Kiểm tra độ tin cậy:** ✅ Đúng (Kỳ vọng: `reliable | mostly-reliable` → Thực tế: `reliable`)
 
-**Flags:** `LOW_EXPECTED_HIGH: stability_orientation=0.0`
+**Lỗi phát hiện:** Không có
 
 ---
 
-### 18. ✅ Leader tiềm năng - Toàn diện `[Edge]`
+### 18. ✅ PASS — Leader tiềm năng - Toàn diện `[Edge]`
 
 | Chỉ số | Giá trị |
 |---|---|
-| Reliability Score | **96/100** |
-| Reliability Level | 🟢 `reliable` |
-| Số câu trả lời | 108 |
-| Lie Scale | 🟢 Ok (0.0) |
-| Consistency | 🟢 Ok (0 issues) |
-| Neutral Bias | 🟢 Ok (0%) |
-| Pattern | 🟢 Ok (Max 5) |
-| Acquiescence | 🟡 Warning (Mean=3.90) |
-| Extreme Resp. | 🟢 Ok (60%) |
+| Điểm độ tin cậy | **100/100** |
+| Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
+| Số câu trả lời | 120 |
+| Nói dối / Tô hồng | 🟢 Tốt (0) |
+| Độ nhất quán | 🟢 Tốt (0 intra + 0 cross-dim lỗi) |
+| Thiên kiến trung lập | 🟢 Tốt (1%) |
+| Khuôn mẫu (Straight-line/Zigzac) | 🟢 Tốt (Max 4 câu liên tiếp) |
+| Xu hướng đồng thuận | 🟢 Tốt (TB=3.57) |
+| Chọn cực đoan | 🟢 Tốt (41%) |
 
-**Top 5 Dimensions cao nhất:** stress_physical(10.0), openness(9.3), emotional_stability(9.3), achievement_drive(9.3), challenge_spirit(9.3)
+**5 Chiều cao nhất:** empathy(9.3), growth_orientation(9.3), social_contribution(9.3), critical_thinking(9.3), emotional_stability(8.9)
 
-**Check Expected High Dims:** ✅ extraversion: 8.1 | ✅ achievement_drive: 9.3 | ✅ empathy: 9.3 | ✅ emotional_stability: 9.3 | ✅ autonomy: 9.3
+**Kiểm tra điểm cao mong đợi:** ✅ extraversion: 7.8 | ✅ achievement_drive: 8.9 | ✅ empathy: 9.3 | ✅ emotional_stability: 8.9 | ✅ autonomy: 8.9
 
-**Check Expected Low Dims:** —
+**Kiểm tra điểm thấp mong đợi:** —
 
-**Reliability Check:** ✅ (Expected: `reliable | mostly-reliable` → Actual: `reliable`)
+**Kiểm tra độ tin cậy:** ✅ Đúng (Kỳ vọng: `reliable | mostly-reliable` → Thực tế: `reliable`)
 
-**Flags:** Không có
+**Lỗi phát hiện:** Không có
 
 ---
 
-### 19. ❌ Người hướng ngoại thích ổn định (mâu thuẫn nhẹ) `[Edge]`
+### 19. ✅ PASS — Người hướng ngoại thích ổn định `[Edge]`
 
 | Chỉ số | Giá trị |
 |---|---|
-| Reliability Score | **94/100** |
-| Reliability Level | 🟢 `reliable` |
-| Số câu trả lời | 83 |
-| Lie Scale | 🟢 Ok (0.0) |
-| Consistency | 🟢 Ok (1 issues) |
-| Neutral Bias | 🟢 Ok (0%) |
-| Pattern | 🟡 Warning (Max 8) |
-| Acquiescence | 🟢 Ok (Mean=3.25) |
-| Extreme Resp. | 🟢 Ok (7%) |
+| Điểm độ tin cậy | **92/100** |
+| Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
+| Số câu trả lời | 121 |
+| Nói dối / Tô hồng | 🟢 Tốt (0) |
+| Độ nhất quán | 🟡 Cảnh báo (1 intra + 2 cross-dim lỗi) |
+| Thiên kiến trung lập | 🟢 Tốt (3%) |
+| Khuôn mẫu (Straight-line/Zigzac) | 🟢 Tốt (Max 5 câu liên tiếp) |
+| Xu hướng đồng thuận | 🟢 Tốt (TB=3.23) |
+| Chọn cực đoan | 🟢 Tốt (42%) |
 
-**Top 5 Dimensions cao nhất:** extraversion(9.3), agreeableness(7.8), conscientiousness(7.8), emotional_stability(7.8), achievement_drive(7.8)
+**5 Chiều cao nhất:** achievement_drive(10.0), logical_thinking(10.0), stability_orientation(9.6), extraversion(9.3), recognition_need(9.3)
 
-**Check Expected High Dims:** ✅ extraversion: 9.3 | ❌ stability_orientation: 0.0
+**Kiểm tra điểm cao mong đợi:** ✅ extraversion: 9.3 | ✅ stability_orientation: 9.6
 
-**Check Expected Low Dims:** ✅ challenge_spirit: 4.8 | ✅ openness: 2.5
+**Kiểm tra điểm thấp mong đợi:** ✅ challenge_spirit: 1.8 | ✅ openness: 2.5
 
-**Reliability Check:** ✅ (Expected: `reliable | mostly-reliable | use-with-caution` → Actual: `reliable`)
+**Kiểm tra độ tin cậy:** ✅ Đúng (Kỳ vọng: `reliable | mostly-reliable | use-with-caution` → Thực tế: `reliable`)
 
-**Flags:** `LOW_EXPECTED_HIGH: stability_orientation=0.0`
+**Lỗi phát hiện:** Không có
 
 ---
 
-### 20. ✅ Người thực dụng - Trung bình ổn định `[Edge]`
+### 20. ✅ PASS — Người thực dụng - Trung bình ổn định `[Edge]`
 
 | Chỉ số | Giá trị |
 |---|---|
-| Reliability Score | **100/100** |
-| Reliability Level | 🟢 `reliable` |
-| Số câu trả lời | 83 |
-| Lie Scale | 🟢 Ok (0.0) |
-| Consistency | 🟢 Ok (0 issues) |
-| Neutral Bias | 🟢 Ok (5%) |
-| Pattern | 🟢 Ok (Max 5) |
-| Acquiescence | 🟢 Ok (Mean=3.30) |
-| Extreme Resp. | 🟢 Ok (0%) |
+| Điểm độ tin cậy | **100/100** |
+| Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
+| Số câu trả lời | 120 |
+| Nói dối / Tô hồng | 🟢 Tốt (0) |
+| Độ nhất quán | 🟢 Tốt (0 intra + 0 cross-dim lỗi) |
+| Thiên kiến trung lập | 🟢 Tốt (21%) |
+| Khuôn mẫu (Straight-line/Zigzac) | 🟢 Tốt (Max 6 câu liên tiếp) |
+| Xu hướng đồng thuận | 🟢 Tốt (TB=3.13) |
+| Chọn cực đoan | 🟢 Tốt (2%) |
 
-**Top 5 Dimensions cao nhất:** conscientiousness(7.8), openness(7.8), emotional_stability(7.8), achievement_drive(7.8), challenge_spirit(7.8)
+**5 Chiều cao nhất:** logical_thinking(7.8), growth_orientation(7.8), critical_thinking(7.8), conscientiousness(7.4), challenge_spirit(7.4)
 
-**Check Expected High Dims:** —
+**Kiểm tra điểm cao mong đợi:** —
 
-**Check Expected Low Dims:** —
+**Kiểm tra điểm thấp mong đợi:** —
 
-**Reliability Check:** ✅ (Expected: `reliable | mostly-reliable` → Actual: `reliable`)
+**Kiểm tra độ tin cậy:** ✅ Đúng (Kỳ vọng: `reliable | mostly-reliable` → Thực tế: `reliable`)
 
-**Flags:** Không có
+**Lỗi phát hiện:** Không có
 
 ---
 
@@ -557,89 +557,30 @@
 
 ## 🔍 Phân tích tổng hợp
 
-### Điểm mạnh của hệ thống
-- ✅ **Designer UX - Sáng tạo, cởi mở**: Phát hiện đúng (reliable)
-- ✅ **Project Manager - Cân bằng, lãnh đạo**: Phát hiện đúng (reliable)
-- ✅ **Nhân viên mới ra trường - Chưa xác định**: Phát hiện đúng (reliable)
-- ✅ **Tô hồng hồ sơ - Toàn điểm 5**: Phát hiện đúng (use-with-caution)
-- ✅ **Khiêm tốn thái quá - Toàn điểm 1**: Phát hiện đúng (use-with-caution)
-- ✅ **Người hoàn hảo nhưng nhất quán**: Phát hiện đúng (reliable)
-- ✅ **Leader tiềm năng - Toàn diện**: Phát hiện đúng (reliable)
-- ✅ **Người thực dụng - Trung bình ổn định**: Phát hiện đúng (reliable)
+### Điểm mạnh
+- ✅ **Kỹ sư phần mềm - Cẩn thận, hướng nội**: Phát hiện đúng (`reliable`)
+- ✅ **Nhân viên Sales - Hướng ngoại, nhiệt tình**: Phát hiện đúng (`reliable`)
+- ✅ **HR Manager - Đồng cảm, quan tâm người khác**: Phát hiện đúng (`reliable`)
+- ✅ **Kế toán - Ổn định, nguyên tắc**: Phát hiện đúng (`mostly-reliable`)
+- ✅ **Designer UX - Sáng tạo, cởi mở**: Phát hiện đúng (`reliable`)
+- ✅ **Project Manager - Cân bằng, lãnh đạo**: Phát hiện đúng (`reliable`)
+- ✅ **Nhân viên mới ra trường - Chưa xác định**: Phát hiện đúng (`reliable`)
+- ✅ **Tô hồng hồ sơ - Toàn điểm 5**: Phát hiện đúng (`use-with-caution`)
+- ✅ **Khiêm tốn thái quá - Toàn điểm 1**: Phát hiện đúng (`use-with-caution`)
+- ✅ **Trả lời toàn 3 - Né tránh**: Phát hiện đúng (`use-with-caution`)
+- ✅ **Zigzac - Xen kẽ 1-5 (DỮ LIỆU THỦ CÔNG)**: Phát hiện đúng (`use-with-caution`)
+- ✅ **Người hoàn hảo nhưng nhất quán**: Phát hiện đúng (`reliable`)
+- ✅ **Mâu thuẫn tâm lý - Hướng ngoại + Autonomy thấp**: Phát hiện đúng (`mostly-reliable`)
+- ✅ **Lười biếng - Ít cam kết**: Phát hiện đúng (`reliable`)
+- ✅ **Burnout - Stress cao, cảm xúc không ổn**: Phát hiện đúng (`reliable`)
+- ✅ **Nhân viên cũ - Ít đổi mới**: Phát hiện đúng (`reliable`)
+- ✅ **Leader tiềm năng - Toàn diện**: Phát hiện đúng (`reliable`)
+- ✅ **Người hướng ngoại thích ổn định**: Phát hiện đúng (`reliable`)
+- ✅ **Người thực dụng - Trung bình ổn định**: Phát hiện đúng (`reliable`)
 
 ### Điểm cần cải thiện
-- ❌ **Kỹ sư phần mềm - Cẩn thận, hướng nội**: LOW_EXPECTED_HIGH: caution=0.0; HIGH_EXPECTED_LOW: agreeableness=6.6
-- ❌ **Nhân viên Sales - Hướng ngoại, nhiệt tình**: HIGH_EXPECTED_LOW: caution=8.9; HIGH_EXPECTED_LOW: stability_orientation=9.6
-- ❌ **HR Manager - Đồng cảm, quan tâm người khác**: HIGH_EXPECTED_LOW: achievement_drive=7.8; HIGH_EXPECTED_LOW: challenge_spirit=9.3
-- ❌ **Kế toán - Ổn định, nguyên tắc**: LOW_EXPECTED_HIGH: caution=0.0; LOW_EXPECTED_HIGH: stability_orientation=0.0; HIGH_EXPECTED_LOW: challenge_spirit=6.3
-- ❌ **Trả lời toàn 3 - Né tránh**: WRONG_RELIABILITY: got=mostly-reliable, expected=low-interpretability|use-with-caution
-- ❌ **Zigzac - Xen kẽ 1-5-1-5**: WRONG_RELIABILITY: got=reliable, expected=low-interpretability|use-with-caution
-- ❌ **Lie Cheater - Tô vẽ nhẹ hơn**: WRONG_RELIABILITY: got=reliable, expected=low-interpretability|use-with-caution
-- ❌ **Mâu thuẫn tâm lý - Hướng ngoại + Autonomy thấp**: HIGH_EXPECTED_LOW: autonomy=10.0
-- ❌ **Lười biếng - Ít cam kết**: LOW_EXPECTED_HIGH: stability_orientation=4.8
-- ❌ **Burnout - Stress cao, cảm xúc không ổn**: HIGH_EXPECTED_LOW: achievement_drive=5.5
-- ❌ **Nhân viên cũ - Ít đổi mới**: LOW_EXPECTED_HIGH: stability_orientation=0.0
-- ❌ **Người hướng ngoại thích ổn định (mâu thuẫn nhẹ)**: LOW_EXPECTED_HIGH: stability_orientation=0.0
+- ❌ **Lie Cheater - Tô vẽ nhẹ hơn**: SAI_ĐỘ_TIN_CẬY: thực_tế=reliable, kỳ_vọng=low-interpretability|use-with-caution
 
 ---
 
-## 🧠 Phân tích chuyên sâu — Root Cause
-
-### Nhóm lỗi 1: Dimension ID không khớp schema DB (6 lỗi)
-
-| Dimension trong Test | Thực tế trong DB | Tác động |
-|---|---|---|
-| `caution` | ❌ Không tồn tại → Score = 0.0 | 4 personas FAIL vì expect high caution |
-| `agreeableness` | ❌ Không tồn tại → Score = 0.0 | 1 persona FAIL |
-| `stability_orientation` | ❌ Không tồn tại → Score = 0.0 | 4 personas FAIL |
-
-> **Root cause:** Các dimension ID trong test script dùng tên giả định (`caution`, `agreeableness`, `stability_orientation`) không khớp với ID thực tế trong DB. Đây là **lỗi đặc tả test — không phải lỗi hệ thống**.
-
-### Nhóm lỗi 2: Adversarial Detection chưa đủ nhạy (3 lỗi)
-
-| Persona | Kỳ vọng | Thực tế | Vấn đề |
-|---|---|---|---|
-| Toàn điểm 3 | `use-with-caution` hoặc `low-interpretability` | `mostly-reliable (70)` | Neutral bias 100% chỉ trừ 15 điểm → vẫn 70 |
-| Zigzac 1-5-1-5 | `use-with-caution` | `reliable (95)` | AI thực sự không làm đúng zigzac — trả lời có variance bình thường |
-| Lie Cheater nhẹ | `use-with-caution` | `reliable (96)` | Threshold lie score cần hạ từ 3.0 xuống 2.0 |
-
-> **Root cause thực sự của Zigzac:** gpt-4o-mini không tuân thủ nghiêm ngặt hướng dẫn zigzac — AI đã "tự diễn giải" thành câu trả lời tự nhiên, nên hệ thống không phát hiện sai pattern. Đây là **hạn chế của AI giả lập, không phải lỗi engine**.
-
-### Nhóm lỗi 3: HR/Edge profiles — Low dim không đủ thấp (3 lỗi)
-
-Với `achievement_drive` của HR Manager (7.8) và `autonomy` của người thích ổn định (10.0) — AI vẫn cho điểm cao dù prompt yêu cầu thấp. Điều này phản ánh **AI bias**: gpt-4o-mini có xu hướng không chọn điểm cực thấp trừ khi được hướng dẫn rõ.
-
----
-
-## 📌 Kết luận & Đánh giá hệ thống
-
-### Điểm mạnh đã được xác nhận ✅
-
-1. **Phát hiện tô hồng hoàn toàn (toàn 5, toàn 1):** Hoạt động tốt — `use-with-caution` được gán chính xác
-2. **Reliability scoring cho profile trung thực:** 5/7 Honest profiles được đánh giá `reliable` — không flag oan
-3. **Top Dimension Detection:** Engine nhận diện chính xác chiều nổi trội (extraversion, conscientiousness, achievement_drive...)
-4. **Leader profile:** Nhận diện đúng profile lãnh đạo toàn diện
-
-### Điểm cần cải thiện 🔧
-
-| Priority | Vấn đề | Hành động đề xuất |
-|---|---|---|
-| 🔴 P1 | Neutral bias (toàn 3) chưa đủ penalty | Tăng trọng số neutral từ 15 → 20, ngưỡng Risk từ 50% → 40% |
-| 🔴 P1 | Lie detection nhẹ chưa đủ nhạy | Giảm threshold warning từ 3.0 → 2.0 |
-| 🟡 P2 | Dimension `stability_orientation`, `caution` không tồn tại trong DB | Kiểm tra và map lại tên dimension trong DB |
-| 🟡 P2 | Consistency check for reversed pairs | Tăng weight consistency từ 25 → 30 |
-| 🟢 P3 | Cần bộ test case chuyên biệt hơn | Dùng persona có kịch bản cụ thể hơn, ít phụ thuộc vào AI giả lập trung gian |
-
-### Tỷ lệ chính xác thực sự (điều chỉnh cho lỗi test spec)
-
-Loại trừ 6 lỗi do dimension ID không khớp (lỗi test spec, không phải lỗi hệ thống):
-
-| | Tổng | PASS thực tế |
-|---|---|---|
-| Tỷ lệ hiệu chỉnh | 14 tests hợp lệ | **11/14 = 78.6%** |
-
-> **Kết luận:** Hệ thống SPI V4.2 đạt ~**79% độ chính xác** khi loại trừ lỗi đặc tả test. Đây là mức chấp nhận được cho giai đoạn V4.2, với khả năng phát hiện gian lận rõ ràng (toàn 5, toàn 1) ở mức tin cậy cao.
-
----
-
-*Báo cáo tự động bởi script validation-20-personas.ts — SPI V4.2 Techzen — ${new Date().toLocaleString('vi-VN')}*
+*Báo cáo tự động bởi validation-20-personas.ts — SPI V4.2 Techzen*

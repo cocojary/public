@@ -285,17 +285,32 @@ async function main() {
 
   // ── 4. Seed Questions ─────────────────────────────────────
   console.log('4️⃣  Seeding questions...');
-  const allQ = [...MAIN_QUESTIONS, ...LIE_QUESTIONS];
-  let qIdx = 0;
-  for (const q of allQ) {
+
+  // Xen kẽ lie questions đều đặn vào giữa main questions (mỗi 10 câu chính chèn 1 câu lie)
+  // Mục đích: người dùng không nhận ra câu nào là lie scale → kết quả trung thực hơn
+  const INTERLEAVE_EVERY = Math.floor(MAIN_QUESTIONS.length / LIE_QUESTIONS.length); // = 10
+  type AnyQuestion = { legacyId: number; dimId: string; type: string; reversed?: boolean; lieWeight?: number; text: string };
+  const interleavedQ: AnyQuestion[] = [];
+  let lieIdx = 0;
+  for (let i = 0; i < MAIN_QUESTIONS.length; i++) {
+    interleavedQ.push(MAIN_QUESTIONS[i]);
+    if ((i + 1) % INTERLEAVE_EVERY === 0 && lieIdx < LIE_QUESTIONS.length) {
+      interleavedQ.push(LIE_QUESTIONS[lieIdx++]);
+    }
+  }
+  while (lieIdx < LIE_QUESTIONS.length) {
+    interleavedQ.push(LIE_QUESTIONS[lieIdx++]);
+  }
+
+  for (let qIdx = 0; qIdx < interleavedQ.length; qIdx++) {
+    const q = interleavedQ[qIdx];
     await prisma.question.upsert({
       where: { legacyId: q.legacyId },
       update: { textVi: q.text, questionType: q.type, reversed: q.reversed ?? false, lieWeight: q.lieWeight ?? 1.0, setId: qSet.id, dimensionId: q.dimId, displayOrder: qIdx },
       create: { legacyId: q.legacyId, setId: qSet.id, dimensionId: q.dimId, textVi: q.text, questionType: q.type, reversed: q.reversed ?? false, lieWeight: q.lieWeight ?? 1.0, displayOrder: qIdx },
     });
-    qIdx++;
   }
-  console.log(`   ✅ ${allQ.length} questions OK (${MAIN_QUESTIONS.length} main + ${LIE_QUESTIONS.length} lie)\n`);
+  console.log(`   ✅ ${interleavedQ.length} questions OK (${MAIN_QUESTIONS.length} main + ${LIE_QUESTIONS.length} lie, xen kẽ mỗi ${INTERLEAVE_EVERY} câu)\n`);
 
   // ── 5. Seed Question Relations (forward/reversed pairs) ───
   console.log('5️⃣  Seeding question relations (intra-dim pairs)...');
@@ -346,7 +361,7 @@ async function main() {
   console.log('✨ Seed hoàn tất!');
   console.log(`   Dimensions: ${DIMS.length}`);
   console.log(`   DimRelations: ${DIM_RELATIONS.length}`);
-  console.log(`   Questions: ${allQ.length}`);
+  console.log(`   Questions: ${interleavedQ.length}`);
   console.log(`   QRelations: ${relCount}`);
 }
 
