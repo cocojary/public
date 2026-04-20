@@ -6,7 +6,7 @@
 // Thiết kế: Gauge Chart + Tab Navigation + Role Matrix + AI Card
 // ============================================================
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import type { UnifiedReportData, UnifiedGroup, UnifiedScoreItem } from '../utils/unifiedScoring';
 import type { AIReport } from '../utils/openaiService';
 import { detectPersonaRanked } from '../data/aiAnalysis';
@@ -64,6 +64,180 @@ function GaugeChart({ value, max = 10, color, size = 100 }: {
         fontSize={size * 0.1} fontFamily="system-ui">/10</text>
     </svg>
   );
+}
+
+// ─── COMMENT THEO TỪNG CHỈ SỐ & MỨC ĐIỂM ────────────────────
+// Thứ tự: [Yếu <3, Cần phát triển 3–4.9, Trung bình 5–6.9, Tốt 7–8.4, Xuất sắc ≥8.5]
+type CommentTiers = [string, string, string, string, string];
+const DIM_COMMENTS: Record<string, CommentTiers> = {
+  extraversion: [
+    'Xu hướng hướng nội rõ rệt. Phù hợp công việc nghiên cứu, phân tích độc lập. Cần hỗ trợ khi đảm nhận vai trò tiếp xúc khách hàng.',
+    'Thích không gian cá nhân, ít chủ động trong giao tiếp nhóm. Nên luyện tập tham gia cuộc họp và nêu ý kiến tích cực hơn.',
+    'Cân bằng hướng nội – hướng ngoại. Có thể thích nghi theo ngữ cảnh, nhưng chưa thật sự nổi bật ở cả hai môi trường.',
+    'Giao tiếp tự nhiên, cởi mở và năng động. Hoạt động tốt cả trong làm việc nhóm lẫn trình bày trước đám đông.',
+    'Năng lượng xã hội nổi bật — dễ dàng dẫn dắt nhóm và tạo bầu không khí tích cực. Tài sản quý cho vai trò Sale, PR, Team Lead.',
+  ],
+  agreeableness: [
+    'Rất độc lập trong quyết định, đôi khi bị xem là khó hợp tác. Cần lắng nghe quan điểm đồng nghiệp nhiều hơn.',
+    'Thẳng thắn, có chính kiến riêng. Cần chú ý đến cách truyền đạt để tránh gây căng thẳng không cần thiết.',
+    'Hợp tác ở mức vừa phải. Cần phát triển thêm kỹ năng đàm phán và đồng cảm để làm việc nhóm hiệu quả hơn.',
+    'Hợp tác tốt, sẵn sàng lắng nghe và hỗ trợ đồng đội. Dễ xây dựng lòng tin và giữ không khí nhóm tích cực.',
+    'Đồng cảm và hợp tác xuất sắc. Là chất kết dính của đội nhóm — phù hợp vai trò điều phối, HR, chăm sóc khách hàng.',
+  ],
+  conscientiousness: [
+    'Thiếu tính kỷ luật và tổ chức. Hay bỏ lỡ deadline hoặc bỏ sót chi tiết quan trọng. Cần cải thiện kỹ năng quản lý công việc.',
+    'Đôi khi thiếu nhất quán trong việc hoàn thành cam kết. Nên dùng công cụ quản lý task để tăng độ tin cậy.',
+    'Có tổ chức ở mức cơ bản nhưng chưa xuất sắc. Có thể nâng cao bằng cách xây dựng thói quen và quy trình rõ ràng hơn.',
+    'Kỷ luật, đáng tin cậy và hoàn thành tốt công việc được giao. Đồng nghiệp và quản lý đều có thể tin tưởng bạn.',
+    'Kỷ luật và tổ chức ở mức xuất sắc. Bạn là hình mẫu về sự nhất quán — rất phù hợp vai trò quản lý dự án.',
+  ],
+  openness: [
+    'Tư duy cứng nhắc, khó thích nghi với thay đổi hoặc ý tưởng mới. Cần mở rộng tiếp xúc với các quan điểm khác nhau.',
+    'Thực dụng và ổn định nhưng đôi khi bỏ lỡ cơ hội cải tiến vì ngại thay đổi. Nên thử một ý tưởng mới mỗi tháng.',
+    'Cân bằng giữa sáng tạo và thực tế. Có thể cởi mở hơn với các phương pháp mới trong khi vẫn giữ nền tảng vững chắc.',
+    'Sáng tạo và tò mò. Bạn sẵn sàng thử nghiệm cách tiếp cận mới và không ngại thay đổi khi có lý do chính đáng.',
+    'Tư duy sáng tạo vượt trội — luôn tìm kiếm ý tưởng đột phá và cách làm khác biệt. Là nhân tố đổi mới quan trọng của tổ chức.',
+  ],
+  emotional_stability: [
+    'Rất nhạy cảm với áp lực và cảm xúc tiêu cực, dễ mất bình tĩnh. Cần môi trường làm việc hỗ trợ và kỹ năng điều tiết cảm xúc.',
+    'Cảm xúc chưa thật sự ổn định trong tình huống căng thẳng. Nên thực hành mindfulness và kỹ thuật kiểm soát stress.',
+    'Ổn định cảm xúc ở mức trung bình. Có thể bị ảnh hưởng bởi áp lực, nhưng thường hồi phục tốt sau đó.',
+    'Bình tĩnh và kiên định trước thử thách. Ít bị dao động bởi tình huống tiêu cực, là chỗ dựa tinh thần cho đội nhóm.',
+    'Trạng thái cảm xúc cực kỳ ổn định — bạn là "neo" của đội trong các giai đoạn khó khăn. Rất phù hợp vai trò lãnh đạo.',
+  ],
+  achievement_drive: [
+    'Thiếu động lực để vươn lên. Cần xác định lại mục tiêu cá nhân và lý do làm việc để tạo thêm năng lượng nội tại.',
+    'Hài lòng với hiện trạng, ít đặt áp lực cho bản thân. Có thể phát triển bằng cách đặt mục tiêu nhỏ cụ thể hàng tuần.',
+    'Có động lực nhưng chưa đủ mạnh để vươn xa. Cần môi trường cạnh tranh lành mạnh hoặc mentor để kích thích phát triển.',
+    'Luôn đặt mục tiêu cao và nỗ lực vượt qua giới hạn bản thân. Đây là nguồn năng lượng quan trọng cho sự nghiệp dài hạn.',
+    'Khát vọng thành tích ở đỉnh cao — bạn không dừng lại ở "đủ tốt". Đặc tính cốt lõi của người thành công xuất sắc.',
+  ],
+  challenge_spirit: [
+    'Ngại rủi ro và thách thức mới. Xu hướng ở lại vùng thoải mái có thể hạn chế tốc độ phát triển cá nhân.',
+    'Thích ổn định hơn là thử thách. Cần dần dần tăng ngưỡng chịu đựng rủi ro bằng các bước nhỏ có kiểm soát.',
+    'Chấp nhận thách thức khi được chuẩn bị kỹ. Có thể chủ động hơn trong việc tìm kiếm cơ hội học ngoài vùng quen thuộc.',
+    'Chủ động đón nhận thử thách và không dễ dàng bỏ cuộc khi gặp khó khăn. Phù hợp môi trường startup và thay đổi nhanh.',
+    'Tinh thần chinh phục mạnh mẽ — khó khăn là nhiên liệu thúc đẩy bạn. Là người tiên phong lý tưởng trong bất kỳ tổ chức nào.',
+  ],
+  autonomy: [
+    'Phụ thuộc nhiều vào hướng dẫn và sự giám sát. Cần phát triển khả năng tự ra quyết định và giải quyết vấn đề độc lập.',
+    'Làm việc tốt khi có hướng dẫn rõ ràng, nhưng còn ngại tự khởi xướng. Nên luyện tập đưa ra đề xuất mà không chờ được yêu cầu.',
+    'Có thể tự làm việc trong phạm vi rõ ràng nhưng cần thêm sự tự tin để chủ động trong các tình huống mơ hồ.',
+    'Chủ động cao, tự định hướng và ra quyết định tốt. Không cần giám sát chặt chẽ — phù hợp môi trường làm việc linh hoạt.',
+    'Tinh thần tự chủ xuất sắc — bạn xác định hướng đi, tự tổ chức và tạo ra kết quả mà không cần thúc đẩy từ bên ngoài.',
+  ],
+  learning_curiosity: [
+    'Ít quan tâm đến việc học hỏi và phát triển kỹ năng mới. Trong môi trường thay đổi nhanh, đây là điểm cần cải thiện khẩn cấp.',
+    'Chủ yếu học khi bắt buộc. Nên dành ít nhất 30 phút mỗi ngày để đọc sách, xem video hoặc làm bài tập nâng cao.',
+    'Có tò mò học hỏi nhưng chưa đủ nhất quán. Cần xây dựng thói quen học tập bền vững hơn.',
+    'Luôn tìm kiếm kiến thức mới và chủ động nâng cao kỹ năng. Đây là lợi thế cạnh tranh quan trọng trong thời đại thay đổi nhanh.',
+    'Tinh thần học hỏi không ngừng nghỉ — bạn luôn đứng ở đỉnh của đường cong học tập. Rất phù hợp vai trò đòi hỏi chuyên môn sâu.',
+  ],
+  recognition_need: [
+    'Hoàn toàn không cần sự công nhận từ bên ngoài. Lưu ý: đôi khi khiến người khác hiểu nhầm là bạn không quan tâm đến kết quả.',
+    'Ít phụ thuộc vào lời khen. Có thể cần thêm feedback định kỳ để biết mình đang tiến triển đúng hướng.',
+    'Cần được ghi nhận ở mức độ vừa phải. Phù hợp với hầu hết môi trường làm việc có feedback đều đặn.',
+    'Động lực tăng cao khi được công nhận công khai. Nên trao đổi với quản lý về cách nhận feedback thường xuyên hơn.',
+    'Nhu cầu được công nhận rất cao — bạn phát huy tốt nhất khi kết quả được ghi nhận rõ ràng. Cần quản lý nội tâm khi thiếu feedback.',
+  ],
+  logical_thinking: [
+    'Tư duy chủ yếu dựa trên trực giác. Cần rèn luyện kỹ năng phân tích dữ liệu và lập luận có cấu trúc.',
+    'Tư duy logic ở mức cơ bản. Nên luyện tập qua các case study và thực hành đặt câu hỏi "Tại sao?" trước mỗi quyết định.',
+    'Có tư duy logic tương đối nhưng chưa đủ sắc bén. Có thể cải thiện bằng cách thực hành phân tích vấn đề nhiều chiều hơn.',
+    'Phân tích có hệ thống, giỏi phân loại vấn đề và tìm nguyên nhân gốc rễ. Thế mạnh quan trọng trong xử lý tình huống phức tạp.',
+    'Tư duy logic xuất sắc — bạn giải quyết vấn đề phức tạp một cách có hệ thống và dựa trên dữ liệu. Rất phù hợp vai trò phân tích, kỹ thuật, chiến lược.',
+  ],
+  empathy: [
+    'Ít chú trọng đến cảm xúc người khác trong giao tiếp. Cần cải thiện kỹ năng lắng nghe chủ động và nhận diện cảm xúc.',
+    'Tập trung vào kết quả hơn là cảm xúc. Nên luyện tập đặt mình vào vị trí người khác trước khi phản hồi.',
+    'EQ ở mức trung bình — đủ để giao tiếp cơ bản nhưng chưa đủ để xây dựng quan hệ sâu. Cần phát triển thêm kỹ năng đọc vibe nhóm.',
+    'Nhạy bén với cảm xúc người khác và phản hồi phù hợp. Nền tảng xây dựng quan hệ làm việc bền vững và hiệu quả.',
+    'EQ xuất sắc — bạn đọc được cảm xúc tinh tế và phản ứng đúng lúc. Tài sản hiếm có, đặc biệt trong vai trò quản lý và lãnh đạo.',
+  ],
+  execution_speed: [
+    'Tốc độ xử lý và ra quyết định chậm. Cần rèn luyện kỹ năng quyết đoán và đặt deadline chặt chẽ hơn cho bản thân.',
+    'Thường mất nhiều thời gian hơn mức cần thiết. Thử áp dụng kỹ thuật "đủ tốt và tiến lên" thay vì tìm kiếm giải pháp hoàn hảo.',
+    'Tốc độ thực thi ở mức ổn. Đôi khi còn do dự, nhưng thường hoàn thành được nhiệm vụ trong thời gian hợp lý.',
+    'Quyết đoán và hành động nhanh khi cần thiết. Bạn không bị tê liệt bởi sự không chắc chắn và luôn giữ được momentum.',
+    'Tốc độ thực thi cực nhanh và hiệu quả. Bạn là người "make things happen" — rất phù hợp môi trường đòi hỏi phản ứng tức thì.',
+  ],
+  caution: [
+    'Có xu hướng hành động thiếu cân nhắc, dễ mắc sai sót do chủ quan. Cần xây dựng thói quen kiểm tra lại trước khi gửi/triển khai.',
+    'Đôi khi bỏ qua chi tiết quan trọng. Nên áp dụng checklist hoặc review partner để giảm tỉ lệ lỗi.',
+    'Mức độ thận trọng vừa phải — đủ để tránh sai sót lớn nhưng vẫn giữ được tốc độ làm việc. Có thể cân chỉnh theo từng loại công việc.',
+    'Kiểm tra kỹ lưỡng trước khi hành động. Ít mắc sai sót chi tiết, phù hợp công việc đòi hỏi độ chính xác cao như finance, QA, legal.',
+    'Cẩn thận và tỉ mỉ ở mức xuất sắc. Gần như không để lọt lỗi — là người không thể thiếu trong các quy trình kiểm soát chất lượng.',
+  ],
+  growth_orientation: [
+    'Ít quan tâm đến lộ trình phát triển bản thân và sự nghiệp dài hạn. Cần xác định lại kỳ vọng tương lai để có thêm động lực.',
+    'Tập trung vào công việc hiện tại, chưa có kế hoạch phát triển rõ ràng. Nên tạo bản đồ kỹ năng và lộ trình 1–3 năm cụ thể.',
+    'Có định hướng phát triển nhưng chưa nhất quán. Cần cam kết cụ thể hơn với mục tiêu học tập và thăng tiến.',
+    'Luôn hướng tới cải thiện bản thân và đóng góp vào sự phát triển tổ chức. Nền tảng để thăng tiến nhanh và bền vững.',
+    'Định hướng phát triển ở đỉnh cao — bạn không ngừng nâng cấp bản thân và truyền cảm hứng cho người xung quanh. Tiềm năng lãnh đạo rõ rệt.',
+  ],
+  stability_orientation: [
+    'Rất thích thay đổi và đa dạng — có thể gặp khó khăn ở môi trường cần sự ổn định dài hạn. Cần cân nhắc khi chọn vị trí.',
+    'Ít coi trọng sự ổn định, thích môi trường linh hoạt. Phù hợp startup nhưng cần điều chỉnh kỳ vọng ở doanh nghiệp truyền thống.',
+    'Cân bằng giữa ổn định và thay đổi — sự linh hoạt đáng quý trong nhiều môi trường làm việc khác nhau.',
+    'Coi trọng sự an toàn và nhất quán. Làm việc tốt nhất trong môi trường có quy trình rõ ràng và lộ trình sự nghiệp minh bạch.',
+    'Định hướng ổn định rất cao — bạn là người gắn bó lâu dài và xây dựng nền tảng vững chắc. Phù hợp tổ chức cần sự liên tục và đáng tin cậy.',
+  ],
+  social_contribution: [
+    'Tập trung vào mục tiêu cá nhân, ít quan tâm đến tác động xã hội rộng hơn. Không phải điểm yếu, nhưng cần chú ý đến văn hóa tổ chức.',
+    'Mục tiêu xã hội chưa phải ưu tiên hàng đầu. Có thể tìm kiếm những dự án có tác động cụ thể để tăng thêm ý nghĩa trong công việc.',
+    'Có ý thức về đóng góp xã hội nhưng chưa phải động lực chính. Phù hợp hầu hết môi trường doanh nghiệp thông thường.',
+    'Muốn công việc có ý nghĩa xã hội — nguồn động lực bền vững, phù hợp tổ chức có sứ mệnh rõ ràng.',
+    'Đóng góp xã hội là giá trị cốt lõi của bạn. Rất phù hợp tổ chức phi lợi nhuận, B-Corp, hoặc doanh nghiệp có CSR mạnh mẽ.',
+  ],
+  stress_mental: [
+    'Rất nhạy cảm với áp lực tâm lý. Cần môi trường làm việc ít xung đột, có hỗ trợ sức khỏe tinh thần và thời gian phục hồi.',
+    'Dễ bị ảnh hưởng bởi áp lực tinh thần. Nên học kỹ thuật thở, mindfulness và thiết lập ranh giới công việc – cuộc sống rõ ràng.',
+    'Chịu được stress tâm lý ở mức trung bình. Hoạt động tốt trong điều kiện bình thường nhưng cần hỗ trợ trong giai đoạn cao điểm.',
+    'Khả năng chịu đựng áp lực tâm lý tốt, duy trì hiệu suất trong hầu hết tình huống khó khăn. Là điểm tựa tinh thần cho nhóm.',
+    'Sức chịu đựng tâm lý xuất sắc — bạn giữ được bình tĩnh và hiệu suất ngay cả trong khủng hoảng. Rất phù hợp môi trường áp lực cao.',
+  ],
+  stress_physical: [
+    'Sức bền thể chất thấp, dễ kiệt sức khi làm việc cường độ cao. Cần ưu tiên sức khỏe thể chất và quản lý tải công việc cẩn thận.',
+    'Cần cân bằng nghiêm túc giữa làm việc và nghỉ ngơi. Không phù hợp với vị trí yêu cầu làm thêm giờ liên tục hoặc xuất sai đột xuất.',
+    'Sức bền thể chất ở mức trung bình — đủ cho cường độ làm việc bình thường nhưng cần theo dõi khi dự án căng thẳng kéo dài.',
+    'Sức khỏe và năng lượng tốt, duy trì hiệu suất ngay cả khi áp lực công việc tăng cao.',
+    'Sức bền thể chất xuất sắc — bạn duy trì cường độ làm việc cao mà không ảnh hưởng đến chất lượng. Lợi thế lớn trong các giai đoạn sprint dự án.',
+  ],
+  critical_thinking: [
+    'Có xu hướng chấp nhận thông tin mà không kiểm chứng. Cần rèn luyện thói quen đặt câu hỏi và tìm kiếm nguồn thứ hai.',
+    'Tư duy phản biện còn hạn chế. Nên thực hành kỹ thuật "5 Whys" và socratic questioning trong công việc hàng ngày.',
+    'Có khả năng phản biện cơ bản nhưng chưa nhất quán. Cần chủ động hơn trong việc thách thức các giả định mặc định.',
+    'Thường xuyên phân tích đa chiều trước khi tin vào một kết luận. Lá chắn quan trọng tránh sai lầm chiến lược.',
+    'Tư duy phản biện sắc bén — bạn luôn đặt câu hỏi đúng và phát hiện lỗ hổng logic mà người khác bỏ qua. Giá trị cao trong mọi vị trí.',
+  ],
+  communication_clarity: [
+    'Trình bày thường mơ hồ hoặc vòng vo, khiến người nghe khó nắm bắt. Cần luyện tập cấu trúc PREP hoặc Pyramid Principle.',
+    'Đôi khi truyền đạt chưa rõ ràng, dẫn đến hiểu lầm. Nên tập tóm tắt key message trước khi đi vào chi tiết.',
+    'Giao tiếp ở mức ổn, đủ hiểu nhưng chưa đặc biệt ấn tượng. Có thể cải thiện bằng cách đơn giản hóa ngôn ngữ và dùng ví dụ cụ thể.',
+    'Trình bày ý tưởng ngắn gọn, súc tích và dễ hiểu. Kỹ năng then chốt giúp ảnh hưởng và thuyết phục người khác.',
+    'Kỹ năng giao tiếp xuất sắc — bạn truyền đạt thông điệp phức tạp một cách đơn giản và thuyết phục. Rất phù hợp vai trò lãnh đạo, training, sales.',
+  ],
+  time_management: [
+    'Hay trễ deadline và bị quá tải. Cần áp dụng ngay các hệ thống quản lý thời gian như GTD, time-blocking hoặc Pomodoro.',
+    'Thường gặp khó khăn trong việc ưu tiên và hay bị phân tán. Thử dùng ma trận Eisenhower để phân loại việc quan trọng vs. khẩn cấp.',
+    'Quản lý thời gian ở mức trung bình — thỉnh thoảng bị trễ hoặc quá tải nhưng thường kiểm soát được. Cần ổn định hơn.',
+    'Sắp xếp ưu tiên tốt và hoàn thành công việc đúng hạn trong phần lớn trường hợp. Ít khi rơi vào tình huống "cháy".',
+    'Quản lý thời gian đỉnh cao — bạn làm được nhiều hơn người khác trong cùng thời gian mà không cần làm thêm giờ. Năng suất là thế mạnh hàng đầu.',
+  ],
+  data_literacy: [
+    'Ra quyết định chủ yếu bằng trực giác, khó làm việc với báo cáo số. Cần học cơ bản về Excel/Google Sheets và tư duy dữ liệu.',
+    'Hiểu số liệu cơ bản nhưng gặp khó khăn với phân tích phức tạp. Nên học thêm về data visualization và các công cụ BI đơn giản.',
+    'Có thể đọc hiểu báo cáo thông thường nhưng chưa khai thác hết giá trị từ dữ liệu. Cần nâng cao kỹ năng phân tích sâu hơn.',
+    'Nhạy bén với số liệu và dễ dàng rút ra quyết định từ dữ liệu. Đây là lợi thế cạnh tranh lớn trong thời đại data-driven.',
+    'Năng lực phân tích dữ liệu xuất sắc — bạn biến số liệu thành insight hành động. Rất phù hợp vai trò analyst, product, strategy.',
+  ],
+};
+
+function getDimComment(dimId: string, score: number): string {
+  const tiers = DIM_COMMENTS[dimId];
+  if (!tiers) return '';
+  const idx = score >= 8.5 ? 4 : score >= 7 ? 3 : score >= 5 ? 2 : score >= 3 ? 1 : 0;
+  return tiers[idx];
 }
 
 // ─── RADAR CHART SVG ──────────────────────────────────────────
@@ -134,18 +308,39 @@ function RadarChart({ groups, size = 280 }: { groups: UnifiedGroup[]; size?: num
   );
 }
 
-// ─── DIMENSION ROW ─────────────────────────────────────────────
 function DimRow({ item, color }: { item: UnifiedScoreItem; color: string }) {
+  const [isHovered, setIsHovered] = useState(false);
   const label = getScoreLabel(item.score);
+  const comment = getDimComment(item.id, item.score) || item.description;
+
   return (
-    <div style={{
-      display: 'flex', alignItems: 'center', gap: 10,
-      padding: '9px 12px', borderRadius: 10,
-      background: '#FAFAFA', border: '1px solid #F0F0F0', marginBottom: 6,
-    }}>
+    <div 
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 10,
+        padding: '9px 12px', borderRadius: 10,
+        background: isHovered ? '#F3F4F6' : '#FAFAFA', 
+        border: '1px solid #F0F0F0', marginBottom: 6,
+        position: 'relative',
+        transition: 'background 0.2s ease',
+        cursor: 'default'
+      }}
+    >
       <div style={{ flex: 1 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-          <span style={{ fontWeight: 600, fontSize: 13, color: '#1F2937' }}>{item.label}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontWeight: 600, fontSize: 13, color: '#1F2937' }}>{item.label}</span>
+            {comment && (
+              <span style={{ 
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                width: 14, height: 14, borderRadius: '50%', background: '#E5E7EB',
+                color: '#6B7280', fontSize: 10, fontWeight: 'bold'
+              }}>
+                ?
+              </span>
+            )}
+          </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <span style={{ fontWeight: 700, fontSize: 15, color }}>{item.score.toFixed(1)}</span>
             <span style={{
@@ -161,12 +356,40 @@ function DimRow({ item, color }: { item: UnifiedScoreItem; color: string }) {
             borderRadius: 3, transition: 'width 0.8s ease-out',
           }} />
         </div>
-        {item.description && (
-          <p style={{ fontSize: 11, color: '#6B7280', margin: '3px 0 0', lineHeight: 1.4 }}>
-            {item.description}
-          </p>
-        )}
       </div>
+
+      {isHovered && comment && (
+        <div style={{
+          position: 'absolute',
+          top: '100%',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          background: '#1F2937',
+          color: '#FFFFFF',
+          padding: '8px 12px',
+          borderRadius: 6,
+          fontSize: 12,
+          lineHeight: 1.4,
+          whiteSpace: 'normal',
+          width: 'max-content',
+          maxWidth: 320,
+          zIndex: 50,
+          marginTop: 6,
+          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+          pointerEvents: 'none'
+        }}>
+          {comment}
+          <div style={{
+            position: 'absolute',
+            bottom: '100%',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            borderWidth: 6,
+            borderStyle: 'solid',
+            borderColor: 'transparent transparent #1F2937 transparent'
+          }} />
+        </div>
+      )}
     </div>
   );
 }
@@ -795,6 +1018,67 @@ export default function UnifiedReport({ data, aiReport, candidateName, reportDat
                       <p style={{ margin: 0, fontSize: 11, color: '#94A3B8', lineHeight: 1.55 }}>{c.rationale}</p>
                     </div>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {/* ── 6. Độ Phù Hợp Văn Hóa Techzen (Culture Fit) ─────────────────────── */}
+            {data.techzenCultureFit && (
+              <div style={{ background: 'rgba(236,72,153,0.08)', border: '1px solid rgba(236,72,153,0.25)', borderRadius: 12, padding: '16px 20px', marginTop: 12 }}>
+                <div style={{ fontWeight: 700, fontSize: 11, color: '#F472B6', marginBottom: 16, letterSpacing: '0.07em' }}>
+                  6 · ĐỘ PHÙ HỢP VĂN HÓA TECHZEN
+                </div>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 1fr', gap: 20 }}>
+                  {/* Cột trái: 5 Trụ cột văn hóa */}
+                  <div>
+                    {[
+                      { key: 'core1Score', label: '1. Người tử tế (Làm việc từ Tâm)', color: '#F472B6' },
+                      { key: 'core2Score', label: '2. Học tập suốt đời & Chia sẻ', color: '#60A5FA' },
+                      { key: 'core3Score', label: '3. Agile & Thích ứng linh hoạt', color: '#34D399' },
+                      { key: 'core4Score', label: '4. Tạo ra Giá trị thật', color: '#FBBF24' },
+                      { key: 'core5Score', label: '5. Cẩn trọng & Trọng Văn hóa Nhật', color: '#A78BFA' }
+                    ].map((col, i) => {
+                      const score = (data.techzenCultureFit as any)[col.key] || 0;
+                      return (
+                        <div key={i} style={{ marginBottom: 12 }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#E2E8F0', marginBottom: 5, fontWeight: 600 }}>
+                            <span>{col.label}</span>
+                            <span style={{ color: col.color, fontWeight: 800 }}>{score}/100</span>
+                          </div>
+                          <div style={{ height: 6, background: 'rgba(255,255,255,0.08)', borderRadius: 3, overflow: 'hidden' }}>
+                            <div style={{ height: '100%', width: `${score}%`, background: col.color, borderRadius: 3, transition: 'width 1s ease-out' }} />
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                  
+                  {/* Cột phải: Nhận xét AI */}
+                  {((aiReport as any).techzenCultureFitInsight || data.techzenCultureFit.overallScore) && (
+                    <div style={{ background: 'rgba(0,0,0,0.15)', borderRadius: 10, padding: '16px 20px', display: 'flex', flexDirection: 'column', height: '100%', border: '1px solid rgba(236,72,153,0.15)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
+                        <div style={{ width: 50, height: 50, borderRadius: '50%', background: 'linear-gradient(135deg, #BE185D, #DB2777)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 18, boxShadow: '0 4px 12px rgba(190,24,93,0.35)' }}>
+                          {data.techzenCultureFit.overallScore}
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 14, fontWeight: 800, color: '#FBCFE8', letterSpacing: '0.02em' }}>CULTURE FIT SCORE</div>
+                          <div style={{ fontSize: 11, color: '#F472B6', fontWeight: 500, marginTop: 2 }}>Mức độ phù hợp với tổ chức</div>
+                        </div>
+                      </div>
+                      
+                      {/* Nhận xét từ AI */}
+                      {(aiReport as any).techzenCultureFitInsight ? (
+                        <div style={{ fontSize: 13, lineHeight: 1.65, color: '#F1F5F9', borderTop: '1px solid rgba(236,72,153,0.2)', paddingTop: 12, marginTop: 'auto', flex: 1 }}>
+                          {(aiReport as any).techzenCultureFitInsight}
+                        </div>
+                      ) : (
+                        <div style={{ fontSize: 11, color: '#94A3B8', fontStyle: 'italic', marginTop: 10, borderTop: '1px solid rgba(236,72,153,0.2)', paddingTop: 12, flex: 1 }}>
+                          (Đang chờ phân tích tự động từ AI...)
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             )}

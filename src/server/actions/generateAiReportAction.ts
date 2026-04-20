@@ -7,6 +7,7 @@ import { detectPersona, calcCombatPower, calcDutySuitability } from "@/features/
 import type { AIReport } from "@/features/assessment/utils/openaiService";
 import type { UnifiedScoringResult } from "@/features/assessment/utils/unifiedEngine";
 import { adaptToAssessmentResult } from "@/features/assessment/utils/unifiedEngine";
+import { calcCultureFit } from "@/features/assessment/utils/unifiedScoring";
 
 export async function fetchAiReportAction(
   recordId: string,
@@ -41,9 +42,10 @@ export async function fetchAiReportAction(
     const persona     = detectPersona(standardResult.dimensions);
     const combatPower = calcCombatPower(standardResult.dimensions);
     const duties      = calcDutySuitability(standardResult.dimensions);
+    const cultureFit  = calcCultureFit(standardResult.dimensions);
 
     // 4. Gọi AI
-    const report = await generateAIReport(standardResult, persona, combatPower, duties, lang);
+    const report = await generateAIReport(standardResult, persona, combatPower, duties, cultureFit, lang);
 
     if (!report) {
       return {

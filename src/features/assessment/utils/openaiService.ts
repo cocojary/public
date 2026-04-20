@@ -20,6 +20,7 @@ export interface AIReport {
     management: { score: number; comment: string };
   };
   coachingAdvice: Array<{ area: string; action: string; rationale: string }>;
+  techzenCultureFitInsight: string;
   language: string;
   generatedAt: string;
   fromCache: boolean;
@@ -31,6 +32,7 @@ function buildPrompt(
   persona: PersonaType,
   combatPower: CombatPower,
   duties: DutyScore[],
+  cultureFit: any, // TechzenCultureFit object
   lang: 'vi' | 'en' | 'ja',
   dimensions?: DbDimension[],
 ): string {
@@ -80,7 +82,8 @@ NHIỆM VỤ CỐT LÕI:
 2. Vẽ chân dung bản ngã chuyên sâu (Persona) của ứng viên, tập trung vào cách "Bạn" vận hành trong tổ chức.
 3. Phân loại mức độ tương thích (Job-Fit) cho 4 nhóm ngành: Technical, Business, Operations, Management.
 4. QUAN TRỌNG: Với mỗi nhóm ngành, không chỉ đưa ra điểm số, bạn phải phân tích sâu và đề xuất các "VAI TRÒ NGÁCH" (Niche roles) cụ thể mà người này sẽ tỏa sáng nhất (Ví dụ: Thay vì chỉ 'Lập trình viên', hãy gợi ý 'Kỹ sư hạ tầng chịu tải lớn' hoặc 'Frontend Engineer hướng UX').
-5. Đọc vị các mâu thuẫn trong điểm số (Nếu có) để đưa ra cảnh báo về rủi ro hành vi.
+5. Đánh giá MỨC ĐỘ PHÙ HỢP VĂN HÓA TECHZEN dựa trên 5 trụ cột: Người tử tế (core1Score), Học tập suốt đời (core2Score), Agile (core3Score), Giá trị thật (core4Score), Trọng văn hóa Nhật (core5Score). Viết đoạn nhận xét từ 3-4 câu, chuyên nghiệp, khích lệ. KHÔNG dùng từ tiêu cực nặng nề.
+6. Đọc vị các mâu thuẫn trong điểm số (Nếu có) để đưa ra cảnh báo về rủi ro hành vi.
 
 DỮ LIỆU ĐẦU VÀO CỦA ỨNG VIÊN:
 - Chỉ số nói dối (Lie Scale): ${lieScore10}/10 ${lieScore10 > 7 ? '⚠️ CAO — nghi ngờ tô hồng' : '✓ Trong ngưỡng an toàn'}
@@ -90,6 +93,13 @@ DỮ LIỆU ĐẦU VÀO CỦA ỨNG VIÊN:
 - Combat Power: ${combatPower.total}/100 — Tầng bậc: ${combatPower.label}
 - Persona hệ thống: ${persona.emoji} ${persona.title}
 - Gợi ý vai trò (SMA Algorithm): ${topDuties}
+- Độ phù hợp Văn hóa Techzen:
+  + Người tử tế (Tâm/Minh bạch): ${cultureFit.core1Score}/100
+  + Học tập suốt đời: ${cultureFit.core2Score}/100
+  + Agile & Thích ứng: ${cultureFit.core3Score}/100
+  + Tạo Giá trị thật: ${cultureFit.core4Score}/100
+  + Trọng Văn hóa Nhật: ${cultureFit.core5Score}/100
+  + Điểm tổng quát (Culture Fit): ${cultureFit.overallScore}/100
 ${contradictionNote}
 
 QUY TẮC NGÔN NGỮ (BẮT BUỘC):
@@ -127,7 +137,8 @@ QUY TẮC NGÔN NGỮ (BẮT BUỘC):
   "coachingAdvice": [
     {"area": "Kỹ năng chuyên môn", "action": "Hành động 1", "rationale": "Lý do và kết quả kỳ vọng cho Bạn (1 câu)."},
     {"area": "Kỹ năng mềm/Quản trị", "action": "Hành động 2", "rationale": "Lý do và kết quả kỳ vọng cho Bạn (1 câu)."}
-  ]
+  ],
+  "techzenCultureFitInsight": "Đoạn nhận xét (3-4 câu) đánh giá mức độ phù hợp văn hóa Techzen của Bạn, dựa trên 5 trụ cột và điểm số tương ứng. Viết bằng ngôi 'Bạn', chuyên nghiệp, xây dựng và không dùng từ ngữ tiêu cực nặng nề."
 }
 `;
 }
@@ -184,12 +195,13 @@ export async function generateAIReport(
   persona: PersonaType,
   combatPower: CombatPower,
   duties: DutyScore[],
+  cultureFit: any, // TechzenCultureFit object
   lang: 'vi' | 'en' | 'ja' = 'vi',
 ): Promise<AIReport | null> {
   const apiKey = process.env.OPENAI_KEY || process.env.OPENAI_API_KEY;
   if (!apiKey) return null;
 
-  const prompt = buildPrompt(result, persona, combatPower, duties, lang);
+  const prompt = buildPrompt(result, persona, combatPower, duties, cultureFit, lang);
   const content = await callOpenAIWithRetry(apiKey, prompt);
 
   if (!content) return null;

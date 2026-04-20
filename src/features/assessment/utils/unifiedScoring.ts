@@ -106,7 +106,7 @@ function getDimScore(dims: DimensionScore[], id: string): number {
 
 // ── Xây dựng 6 nhóm từ 20 dimensions ────────────────────────
 
-function buildGroups(dims: DimensionScore[], lieScore: number, consistencyScore: number, speedFlag: boolean, dimensions?: DbDimension[]): UnifiedGroup[] {
+function buildGroups(dims: DimensionScore[], lieScore: number, consistencyScore: number, speedFlag: boolean, dimensions?: any[]): UnifiedGroup[] {
   const makeItem = (id: string): UnifiedScoreItem => {
     const dim = dimensions?.find(d => d.id === id);
     const score = getDimScore(dims, id);
@@ -527,7 +527,7 @@ function calcSuitability(groups: UnifiedGroup[]): SuitabilityRole[] {
 
 // ── Tính Culture Fit ──────────────────────────────────────────
 
-function calcCultureFit(dims: DimensionScore[]): TechzenCultureFit {
+export function calcCultureFit(dims: DimensionScore[]): TechzenCultureFit {
   // Trụ cột 1: Người tử tế (Tận tâm, Hòa đồng, Đóng góp xã hội)
   const core1Dims = [
     getDimScore(dims, 'conscientiousness'),
@@ -571,14 +571,13 @@ function calcCultureFit(dims: DimensionScore[]): TechzenCultureFit {
   const core5Score = core5Dims.reduce((a, b) => a + b, 0) / 4;
 
   const avg = (core1Score + core2Score + core3Score + core4Score + core5Score) / 5;
-  const overallScore = Math.round((avg / 10) * 100); // Convert 1-10 to 0-100 percentage. Wait, getDimScore returns 1-10. So avg is 1-10. avg * 10 is 10-100.
 
   return {
-    core1Score: parseFloat(core1Score.toFixed(1)),
-    core2Score: parseFloat(core2Score.toFixed(1)),
-    core3Score: parseFloat(core3Score.toFixed(1)),
-    core4Score: parseFloat(core4Score.toFixed(1)),
-    core5Score: parseFloat(core5Score.toFixed(1)),
+    core1Score: Math.round(core1Score * 10),
+    core2Score: Math.round(core2Score * 10),
+    core3Score: Math.round(core3Score * 10),
+    core4Score: Math.round(core4Score * 10),
+    core5Score: Math.round(core5Score * 10),
     overallScore: Math.round(avg * 10)
   };
 }
@@ -609,7 +608,7 @@ function calcCombatPower(groups: UnifiedGroup[], penaltyApplied: boolean): Comba
 // ── Hàm Public ───────────────────────────────────────────────
 
 /** Tổng hợp UnifiedScoringResult (V4) → UnifiedReportData */
-export function buildUnifiedFromV4(result: UnifiedScoringResult, dimensions?: DbDimension[]): UnifiedReportData {
+export function buildUnifiedFromV4(result: UnifiedScoringResult, dimensions?: any[]): UnifiedReportData {
   const adapted = adaptToAssessmentResult(result);
   const dims = adapted.dimensions as DimensionScore[];
 
@@ -648,7 +647,7 @@ export function buildUnifiedFromV4(result: UnifiedScoringResult, dimensions?: Db
 }
 
 /** Tổng hợp AssessmentResult (V2 legacy) → UnifiedReportData */
-export function buildUnifiedFromV2(result: AssessmentResult, dimensions?: DbDimension[]): UnifiedReportData {
+export function buildUnifiedFromV2(result: AssessmentResult, dimensions?: any[]): UnifiedReportData {
   const dims = result.dimensions;
   const rel  = result.reliability;
 

@@ -65,5 +65,6 @@ export const ADMIN_AI_REPORT_MOCK: AIReport = {
   ],
   language: "vi",
   generatedAt: new Date().toISOString(),
-  fromCache: true
+  fromCache: true,
+  techzenCultureFitInsight: "Chuyên nghiệp, có tính ổn định phù hợp với môi trường kỷ luật nhưng có thể cần hỗ trợ thêm khi làm việc trong các startup hoặc đội nhóm có sự thay đổi liên tục."
 };
