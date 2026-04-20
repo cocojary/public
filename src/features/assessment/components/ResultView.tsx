@@ -5,8 +5,6 @@ import type { AssessmentResult } from "@/features/assessment/data/scoring";
 import { Button } from "@/components/ui/button";
 import { fetchAiReportAction } from "@/server/actions/generateAiReportAction";
 import type { AIReport } from "@/features/assessment/utils/openaiService";
-import html2canvas from "html2canvas";
-import { jsPDF } from "jspdf";
 import { Loader2, Download, AlertCircle, RefreshCw } from "lucide-react";
 import ScouterReport from "./ScouterReport";
 
@@ -24,7 +22,6 @@ export function ResultView({ recordId, user, resultData, date, cachedAiReport }:
   const [aiReport, setAiReport] = useState<AIReport | null>(cachedAiReport);
   const [loadingAi, setLoadingAi] = useState(!cachedAiReport);
   const [aiError, setAiError] = useState<string | null>(null);
-  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     // Nếu đã có cache từ server thì không cần fetch
@@ -50,33 +47,22 @@ export function ResultView({ recordId, user, resultData, date, cachedAiReport }:
     }
   }
 
-  const handleExportPDF = async () => {
-    if (!reportRef.current) return;
-    setExporting(true);
-    try {
-      const canvas = await html2canvas(reportRef.current, {
-        scale: 3,
-        useCORS: true,
-        logging: false,
-      });
-      const imgData = canvas.toDataURL("image/jpeg", 1.0);
-      const pdf = new jsPDF("l", "mm", "a4");
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-      pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`ScouterSS_${user?.fullName ?? "UngVien"}.pdf`);
-    } catch (err) {
-      console.error("PDF Export failed", err);
-      alert("Xuất PDF thất bại. Vui lòng thử lại.");
-    } finally {
-      setExporting(false);
-    }
+  const handleExportPDF = () => {
+    window.print();
   };
 
   return (
-    <div className="w-full flex flex-col items-center space-y-6 pb-20 bg-slate-100 min-h-screen pt-8">
+    <div className="w-full flex flex-col items-center space-y-6 pb-20 bg-slate-100 min-h-screen pt-8 print:bg-white print:pt-0 print:pb-0">
+      <style dangerouslySetInnerHTML={{__html: `
+        @media print {
+          @page { size: A4 portrait; margin: 10mm; }
+          body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          .print\\:break-inside-avoid { break-inside: avoid; }
+        }
+      `}} />
+
       {/* Action Bar */}
-      <div className="w-full max-w-[1000px] flex flex-wrap justify-between items-center gap-3 bg-white p-4 rounded-lg shadow-sm">
+      <div className="print:hidden w-full max-w-[1000px] flex flex-wrap justify-between items-center gap-3 bg-white p-4 rounded-lg shadow-sm">
         <div className="text-slate-600 font-bold flex items-center gap-2 min-w-0">
           {loadingAi && (
             <>
@@ -104,20 +90,15 @@ export function ResultView({ recordId, user, resultData, date, cachedAiReport }:
         </div>
         <Button
           onClick={handleExportPDF}
-          disabled={exporting}
           className="bg-blue-800 hover:bg-blue-900 shadow-md shrink-0"
         >
-          {exporting ? (
-            <><Loader2 className="animate-spin mr-2 h-4 w-4" /> Đang xuất...</>
-          ) : (
-            <><Download className="mr-2 h-4 w-4" /> Xuất Báo Cáo A4 (PDF)</>
-          )}
+          <><Download className="mr-2 h-4 w-4" /> Bản In Mịn (A4 Vector)</>
         </Button>
       </div>
 
       {/* Report */}
-      <div className="overflow-x-auto w-full flex justify-center pb-8 p-4">
-        <div ref={reportRef} className="shadow-2xl">
+      <div className="overflow-x-auto w-full flex justify-center pb-8 p-4 print:p-0 print:m-0 print:block">
+        <div ref={reportRef} className="shadow-2xl print:shadow-none print:w-full max-w-[1000px]">
           <ScouterReport
             user={user}
             resultData={resultData}
