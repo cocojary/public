@@ -1,6 +1,6 @@
 {
   "version": "2.0",
-  "generatedAt": "2026-04-20T15:10:21.920Z",
+  "generatedAt": "2026-04-20T15:10:38.676Z",
   "questionSetId": "7d3c42f5-dabf-4565-ae83-fb7bda194e83",
   "model": "o4+manual-132",
   "totalPersonas": 50,
@@ -7024,9 +7024,9 @@
       "personaId": 50,
       "personaName": "Người có trí tuệ cảm xúc cao — EQ vượt trội nhưng IQ trung bình",
       "model": "o4-mini",
-      "generatedAt": "2026-04-20T14:53:16.724Z",
-      "totalQuestions": 120,
-      "answeredQuestions": 120,
+      "generatedAt": "2026-04-20T15:10:38.676Z",
+      "totalQuestions": 132,
+      "answeredQuestions": 132,
       "completionRate": 1,
       "answers": {
         "242d0fdd-ff5b-4032-aa50-c4b1a11acd94": 5,
@@ -7148,7 +7148,19 @@
         "46522960-78f9-4f56-9928-baeb93576028": 3,
         "32839378-4125-40d2-aa8e-5a6da897a0f5": 3,
         "69d2f375-bf1b-4269-80d5-a531a5c8820b": 2,
-        "eea77b9d-ab9e-4c90-aa85-5573df538dc4": 2
+        "eea77b9d-ab9e-4c90-aa85-5573df538dc4": 2,
+        "2786d9ac-5386-4f77-95be-1e8451088806": 3,
+        "3b88956d-3872-4c4d-bafc-6643c44512f1": 2,
+        "c5ab09f6-81d3-4370-8f5d-9a6553915ced": 2,
+        "8db4dc32-92a5-4bb5-93ea-a3765e9ea313": 3,
+        "b96a66e7-f40f-4488-85f1-0f2850d8f8b9": 4,
+        "9ac9a0db-b69e-48e4-8996-45d7ed49c46a": 3,
+        "1c073d3f-ae74-4752-b891-129ab0143cec": 3,
+        "91e0c0ea-4980-4fa7-a343-774ef9022e14": 3,
+        "caa36aed-edbe-44c3-a165-ce10ee21a3b6": 4,
+        "0d916889-491d-464c-9e47-8d72cfef0fbb": 4,
+        "385f14e3-b6ab-4d74-abb6-4ea4b99e1f28": 3,
+        "6373cc00-1cb2-4473-9a4a-7282d7cd7dde": 2
       }
     }
   }
