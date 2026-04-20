@@ -39,7 +39,8 @@ export async function getDefaultQuestionSet() {
 
 export async function submitAssessmentAction(
   userId: string,
-  answers: Record<string, number>,
+  answers: Record<string, any>,
+  answerTimes: Record<string, number>,
   setId: string,
   lang: 'vi' | 'en' | 'ja',
   startTime: number,
@@ -74,9 +75,10 @@ export async function submitAssessmentAction(
     if (!qSet) throw new Error("Question set not found");
 
     // Lấy dimension info và relations từ DB (thay vì hardcode)
-    const [activeDims, dimRelations] = await Promise.all([
+    const [activeDims, dimRelations, roleTemplates] = await Promise.all([
       getActiveDimensions(),
       getDimensionRelations(),
+      db.roleTemplate.findMany({ where: { isActive: true } }),
     ]);
 
     const activeDimIds = activeDims.map(d => d.id);
@@ -94,6 +96,8 @@ export async function submitAssessmentAction(
       endTime,
       activeDimIds,
       dimRelations,
+      answerTimes,
+      roleTemplates,
     );
 
     const record = await db.assessmentRecord.create({
@@ -103,6 +107,7 @@ export async function submitAssessmentAction(
         version,
         assessmentDate: new Date(),
         answers: answers,
+        answerTimes: answerTimes,
         resultData: resultData as any,
         submissionIp: ip,
       },

@@ -392,7 +392,7 @@ async function main() {
     where: { setId: activeSet.id, isActive: true },
     orderBy: { displayOrder: 'asc' },
   });
-  const mainQs = allQuestions.filter(q => q.questionType === 'main');
+  const mainQs = allQuestions; // Do not filter out control questions, AI needs to answer all of them
 
   console.log(`   DB: ${allQuestions.length} câu tổng, ${mainQs.length} câu chính\n`);
 
@@ -425,7 +425,9 @@ async function main() {
   const questionDataForAI = mainQs.map(q => ({
     id: q.id,
     chieuTinhCach: DIM_NAME_MAP[q.dimensionId] ?? q.dimensionId,
+    format: q.format,
     text: q.textVi,
+    options: q.options ? q.options : undefined,
     reversed: q.reversed,
   }));
 
@@ -454,11 +456,13 @@ QUY TẮC QUAN TRỌNG:
 - Mỗi câu hỏi có "chieuTinhCach": chiều tính cách được đo — dùng để chọn điểm phù hợp nhân vật
 - "reversed: true" = câu ĐẢO CHIỀU: điểm THẤP = chiều đó CAO; điểm CAO = chiều đó THẤP
 - Trả lời TẤT CẢ câu trong chunk được giao, KHÔNG BỎ XÓT câu nào
-- Thang điểm: 1=Hoàn toàn không đồng ý, 2=Không đồng ý, 3=Trung lập, 4=Đồng ý, 5=Hoàn toàn đồng ý
+- Nếu câu hỏi có \`format\` là 'LIKERT' hoặc không có \`options\`, thang điểm: 1=Hoàn toàn không đồng ý, 2=Không đồng ý, 3=Trung lập, 4=Đồng ý, 5=Hoàn toàn đồng ý
+- Nếu câu hỏi CÓ \`options\`, ĐỪNG trả về điểm 1-5. Hãy phân tích tính cách nhân vật (dựa vào \`chieuTinhCach\`) để trả về KHÓA option (ví dụ: "a", "b", "c", "d") tương ứng với lựa chọn phù hợp nhất với nhân vật này.
 - Phân phối điểm tự nhiên phù hợp với nhân vật — không phải tất cả giống nhau
+- LƯU Ý: Rất cẩn thận với những câu đo lường sự trung thực như "Tôi luôn luôn tốt bụng". Hãy điền điểm nếu nhân vật có xu hướng "tô hồng", hoặc nói dối. Nếu nhân vật vô cùng chân thật, sẽ điền mức thấp hơn.
 
 Trả về JSON hợp lệ DUY NHẤT có dạng:
-{ "answers": { "[uuid]": điểm, ... } }`;
+{ "answers": { "[uuid]": điểm_hoặc_key_option, ... } }`;
 
     try {
       // Gọi song song tất cả chunks

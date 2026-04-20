@@ -132,6 +132,7 @@ export function toEngineQuestion(q: DbQuestion): {
   isLieScale: boolean;
   isLieSubtle: boolean;
   lieWeight: number;
+  options?: any;
 } {
   return {
     id: q.id,
@@ -140,6 +141,7 @@ export function toEngineQuestion(q: DbQuestion): {
     isLieScale: q.questionType === 'lie_absolute' || q.questionType === 'lie_subtle',
     isLieSubtle: q.questionType === 'lie_subtle',
     lieWeight: q.lieWeight,
+    options: q.options,
   };
 }
 

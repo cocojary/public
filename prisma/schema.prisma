@@ -104,6 +104,10 @@ model Question {
 
   // 'main' | 'lie_absolute' | 'lie_subtle' | 'ceo_only'
   questionType String   @default("main")
+  // 'likert' | 'sjt' | 'forced_choice'
+  format       String   @default("likert")
+  options      Json?    // Chứa cấu trúc đáp án cho SJT/Forced-choice (VD: [{id: 1, text: "A", points: 5}])
+
   reversed     Boolean  @default(false)
   lieWeight    Float    @default(1.0) // absolute=1.0, subtle=0.5
   displayOrder Int      @default(0)
@@ -183,4 +187,20 @@ model RateLimit {
   updatedAt   DateTime @updatedAt
 
   @@map("rate_limits")
+}
+
+// ──────────────────────────────────────────────────────────────
+// ROLE TEMPLATE — Khuôn mẫu chuẩn cho các vị trí (Backend, QA...)
+// ──────────────────────────────────────────────────────────────
+model RoleTemplate {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  name        String
+  description String?
+  coreValues  Json     // JSON map điểm lý tưởng cho từng Dimension (VD: {"Openness": 4.5, "Conscientiousness": 4.0})
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("role_templates")
 }

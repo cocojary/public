@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 const STORAGE_KEY = (userId: string) => `quiz_progress_${userId}`;
 
 interface SavedProgress {
-  answers: Record<string, number>;
+  answers: Record<string, any>;
+  answerTimes: Record<string, number>;
   currentIndex: number;
   setId: string;
   lang: 'vi' | 'en' | 'ja';
@@ -26,11 +27,13 @@ export function QuizStep({
   const [setId, setSetId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [answers, setAnswers] = useState<Record<string, any>>({});
+  const [answerTimes, setAnswerTimes] = useState<Record<string, number>>({});
   const [isPending, startTransition] = useTransition();
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const startTimeRef = useRef<number>(Date.now());
+  const lastActionTimeRef = useRef<number>(Date.now());
   const storageKey = STORAGE_KEY(userId);
 
   useEffect(() => {
@@ -52,9 +55,11 @@ export function QuizStep({
           const progress: SavedProgress = JSON.parse(saved);
           if (progress.setId === res.setId && progress.currentIndex < res.questions.length) {
             setAnswers(progress.answers);
+            setAnswerTimes(progress.answerTimes || {});
             setCurrentIndex(progress.currentIndex);
             setLang(progress.lang);
             startTimeRef.current = progress.startTime;
+            lastActionTimeRef.current = Date.now();
           }
         }
       } catch {
@@ -66,10 +71,11 @@ export function QuizStep({
     loadQuestions();
   }, []);
 
-  const saveProgress = (newAnswers: Record<string, number>, index: number, currentLang: 'vi' | 'en' | 'ja', sid: string) => {
+  const saveProgress = (newAnswers: Record<string, any>, newAnswerTimes: Record<string, number>, index: number, currentLang: 'vi' | 'en' | 'ja', sid: string) => {
     try {
       const progress: SavedProgress = {
         answers: newAnswers,
+        answerTimes: newAnswerTimes,
         currentIndex: index,
         setId: sid,
         lang: currentLang,
@@ -109,21 +115,30 @@ export function QuizStep({
     ];
   };
 
-  const handleAnswer = (value: number) => {
+  const handleAnswer = (value: any) => {
     const currentQuestion = questions[currentIndex];
+    
+    // Tracking Response Time
+    const now = Date.now();
+    const timeSpent = now - lastActionTimeRef.current;
+    lastActionTimeRef.current = now; // reset
+
     const newAnswers = { ...answers, [currentQuestion.id]: value };
+    const newAnswerTimes = { ...answerTimes, [currentQuestion.id]: timeSpent };
+
     setAnswers(newAnswers);
+    setAnswerTimes(newAnswerTimes);
 
     if (currentIndex < questions.length - 1) {
       const nextIndex = currentIndex + 1;
       setCurrentIndex(nextIndex);
-      if (setId) saveProgress(newAnswers, nextIndex, lang, setId);
+      if (setId) saveProgress(newAnswers, newAnswerTimes, nextIndex, lang, setId);
     } else {
       // Câu cuối — nộp bài
       startTransition(async () => {
         if (!setId) return;
         setSubmitError(null);
-        const res = await submitAssessmentAction(userId, newAnswers, setId, lang, startTimeRef.current);
+        const res = await submitAssessmentAction(userId, newAnswers, newAnswerTimes, setId, lang, startTimeRef.current);
         if (res.success && res.recordId) {
           clearProgress();
           onComplete(res.recordId);
@@ -204,16 +219,29 @@ export function QuizStep({
         </h3>
 
         <div className="flex flex-col space-y-4 w-full max-w-xl">
-          {getOptions(lang).map(option => (
-            <button
-              key={option.value}
-              onClick={() => handleAnswer(option.value)}
-              disabled={isPending}
-              className="py-4 px-6 text-lg text-left bg-blue-50 hover:bg-blue-100 text-blue-900 font-medium rounded-xl border border-blue-200 transition-all shadow-sm flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <span className="flex-1">{option.text}</span>
-            </button>
-          ))}
+          {currentQ.format === 'sjt' || currentQ.format === 'forced_choice' ? (
+            (currentQ.options as any[])?.map((option: any) => (
+              <button
+                key={option.id}
+                onClick={() => handleAnswer(option.text)}
+                disabled={isPending}
+                className="py-4 px-6 text-lg text-left bg-blue-50 hover:bg-blue-100 text-blue-900 font-medium rounded-xl border border-blue-200 transition-all shadow-sm flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span className="flex-1">{option.text}</span>
+              </button>
+            ))
+          ) : (
+            getOptions(lang).map(option => (
+              <button
+                key={option.value}
+                onClick={() => handleAnswer(option.value)}
+                disabled={isPending}
+                className="py-4 px-6 text-lg text-left bg-blue-50 hover:bg-blue-100 text-blue-900 font-medium rounded-xl border border-blue-200 transition-all shadow-sm flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span className="flex-1">{option.text}</span>
+              </button>
+            ))
+          )}
         </div>
 
         {isPending && (

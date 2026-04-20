@@ -1,6 +1,6 @@
 # 📊 Báo Cáo Validation Hệ Thống SPI V4.2 — 50 AI Personas (OPENAI)
 
-> **Thời gian chạy:** 22:12:27 20/4/2026
+> **Thời gian chạy:** 23:05:39 20/4/2026
 > **Provider/Model:** OPENAI
 > **Engine:** src/features/assessment/utils/unifiedEngine.ts
 > **Tổng số personas được test:** 50
@@ -11,15 +11,15 @@
 
 | Chỉ số | Giá trị |
 |---|---|
-| ✅ PASS | **38/50** |
-| ❌ FAIL | **12/50** |
-| Tỷ lệ chính xác | **76%** |
+| ✅ PASS | **39/50** |
+| ❌ FAIL | **11/50** |
+| Tỷ lệ chính xác | **78%** |
 
 ### Kết quả theo nhóm
 
 | Nhóm | Tổng | PASS | FAIL | Tỷ lệ |
 |---|---|---|---|---|
-| Honest | 16 | 11 | 5 | 69% |
+| Honest | 16 | 12 | 4 | 75% |
 | Adversarial | 10 | 7 | 3 | 70% |
 | Edge | 24 | 20 | 4 | 83% |
 
@@ -111,29 +111,29 @@
 
 ---
 
-### 4. ❌ FAIL — Kế toán - Ổn định, nguyên tắc `[Honest]`
+### 4. ✅ PASS — Kế toán - Ổn định, nguyên tắc `[Honest]`
 
 | Chỉ số | Giá trị |
 |---|---|
-| Điểm độ tin cậy | **50/100** |
-| Đánh giá độ tin cậy | 🟠 Cần thận trọng |
+| Điểm độ tin cậy | **92/100** |
+| Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
 | Số câu trả lời | 132 |
 | Nói dối / Tô hồng | 🟢 Tốt (0) |
-| Độ nhất quán | 🔴 Nguy hiểm (3 intra + 1 cross-dim lỗi) |
+| Độ nhất quán | 🟡 Cảnh báo (2 intra + 1 cross-dim lỗi) |
 | Thiên kiến trung lập | 🟢 Tốt (9%) |
 | Khuôn mẫu (Straight-line/Zigzac) | 🟢 Tốt (Max 4 câu liên tiếp) |
-| Xu hướng đồng thuận | 🔴 Nguy hiểm (TB=5.00) |
+| Xu hướng đồng thuận | 🟢 Tốt (TB=3.36) |
 | Chọn cực đoan | 🟢 Tốt (40%) |
 
-**5 Chiều cao nhất:** conscientiousness(10.0), logical_thinking(10.0), caution(10.0), stability_orientation(10.0), critical_thinking(10.0)
+**5 Chiều cao nhất:** conscientiousness(10.0), logical_thinking(10.0), caution(10.0), stability_orientation(10.0), emotional_stability(9.6)
 
 **Kiểm tra điểm cao mong đợi:** ✅ conscientiousness: 10.0 | ✅ caution: 10.0 | ✅ stability_orientation: 10.0
 
 **Kiểm tra điểm thấp mong đợi:** ✅ challenge_spirit: 4.4 | ✅ openness: 3.6
 
-**Kiểm tra độ tin cậy:** ❌ Sai (Kỳ vọng: `reliable | mostly-reliable` → Thực tế: `use-with-caution`)
+**Kiểm tra độ tin cậy:** ✅ Đúng (Kỳ vọng: `reliable | mostly-reliable` → Thực tế: `reliable`)
 
-**Lỗi phát hiện:** `SAI_ĐỘ_TIN_CẬY: thực_tế=use-with-caution, kỳ_vọng=reliable|mostly-reliable`
+**Lỗi phát hiện:** Không có
 
 ---
 
@@ -559,7 +559,7 @@
 |---|---|
 | Điểm độ tin cậy | **92/100** |
 | Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
-| Số câu trả lời | 132 |
+| Số câu trả lời | 134 |
 | Nói dối / Tô hồng | 🟢 Tốt (0) |
 | Độ nhất quán | 🟡 Cảnh báo (2 intra + 1 cross-dim lỗi) |
 | Thiên kiến trung lập | 🟢 Tốt (9%) |
@@ -585,7 +585,7 @@
 |---|---|
 | Điểm độ tin cậy | **100/100** |
 | Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
-| Số câu trả lời | 133 |
+| Số câu trả lời | 135 |
 | Nói dối / Tô hồng | 🟢 Tốt (0) |
 | Độ nhất quán | 🟢 Tốt (1 intra + 0 cross-dim lỗi) |
 | Thiên kiến trung lập | 🟢 Tốt (10%) |
@@ -611,7 +611,7 @@
 |---|---|
 | Điểm độ tin cậy | **55/100** |
 | Đánh giá độ tin cậy | 🟠 Cần thận trọng |
-| Số câu trả lời | 133 |
+| Số câu trả lời | 135 |
 | Nói dối / Tô hồng | 🟡 Cảnh báo (5) |
 | Độ nhất quán | 🟢 Tốt (0 intra + 0 cross-dim lỗi) |
 | Thiên kiến trung lập | 🟢 Tốt (3%) |
@@ -637,10 +637,10 @@
 |---|---|
 | Điểm độ tin cậy | **100/100** |
 | Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
-| Số câu trả lời | 132 |
+| Số câu trả lời | 134 |
 | Nói dối / Tô hồng | 🟢 Tốt (2) |
 | Độ nhất quán | 🟢 Tốt (0 intra + 0 cross-dim lỗi) |
-| Thiên kiến trung lập | 🟢 Tốt (8%) |
+| Thiên kiến trung lập | 🟢 Tốt (7%) |
 | Khuôn mẫu (Straight-line/Zigzac) | 🟢 Tốt (Max 5 câu liên tiếp) |
 | Xu hướng đồng thuận | 🟢 Tốt (TB=3.17) |
 | Chọn cực đoan | 🟢 Tốt (67%) |
@@ -663,10 +663,10 @@
 |---|---|
 | Điểm độ tin cậy | **87/100** |
 | Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
-| Số câu trả lời | 132 |
+| Số câu trả lời | 134 |
 | Nói dối / Tô hồng | 🟡 Cảnh báo (4) |
 | Độ nhất quán | 🟢 Tốt (1 intra + 0 cross-dim lỗi) |
-| Thiên kiến trung lập | 🟢 Tốt (8%) |
+| Thiên kiến trung lập | 🟢 Tốt (7%) |
 | Khuôn mẫu (Straight-line/Zigzac) | 🟢 Tốt (Max 4 câu liên tiếp) |
 | Xu hướng đồng thuận | 🟢 Tốt (TB=3.38) |
 | Chọn cực đoan | 🟢 Tốt (43%) |
@@ -689,7 +689,7 @@
 |---|---|
 | Điểm độ tin cậy | **87/100** |
 | Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
-| Số câu trả lời | 133 |
+| Số câu trả lời | 135 |
 | Nói dối / Tô hồng | 🟡 Cảnh báo (4) |
 | Độ nhất quán | 🟢 Tốt (0 intra + 0 cross-dim lỗi) |
 | Thiên kiến trung lập | 🟢 Tốt (14%) |
@@ -715,7 +715,7 @@
 |---|---|
 | Điểm độ tin cậy | **100/100** |
 | Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
-| Số câu trả lời | 132 |
+| Số câu trả lời | 134 |
 | Nói dối / Tô hồng | 🟢 Tốt (2) |
 | Độ nhất quán | 🟢 Tốt (0 intra + 1 cross-dim lỗi) |
 | Thiên kiến trung lập | 🟢 Tốt (17%) |
@@ -741,10 +741,10 @@
 |---|---|
 | Điểm độ tin cậy | **67/100** |
 | Đánh giá độ tin cậy | 🟡 Tương đối đáng tin |
-| Số câu trả lời | 132 |
+| Số câu trả lời | 134 |
 | Nói dối / Tô hồng | 🔴 Nguy hiểm (6) |
 | Độ nhất quán | 🟢 Tốt (2 intra + 0 cross-dim lỗi) |
-| Thiên kiến trung lập | 🟢 Tốt (8%) |
+| Thiên kiến trung lập | 🟢 Tốt (7%) |
 | Khuôn mẫu (Straight-line/Zigzac) | 🟢 Tốt (Max 4 câu liên tiếp) |
 | Xu hướng đồng thuận | 🟢 Tốt (TB=3.40) |
 | Chọn cực đoan | 🟢 Tốt (73%) |
@@ -767,7 +767,7 @@
 |---|---|
 | Điểm độ tin cậy | **61/100** |
 | Đánh giá độ tin cậy | 🟡 Tương đối đáng tin |
-| Số câu trả lời | 132 |
+| Số câu trả lời | 134 |
 | Nói dối / Tô hồng | 🔴 Nguy hiểm (6) |
 | Độ nhất quán | 🟢 Tốt (1 intra + 0 cross-dim lỗi) |
 | Thiên kiến trung lập | 🟢 Tốt (9%) |
@@ -793,7 +793,7 @@
 |---|---|
 | Điểm độ tin cậy | **67/100** |
 | Đánh giá độ tin cậy | 🟡 Tương đối đáng tin |
-| Số câu trả lời | 132 |
+| Số câu trả lời | 134 |
 | Nói dối / Tô hồng | 🔴 Nguy hiểm (11) |
 | Độ nhất quán | 🟢 Tốt (0 intra + 0 cross-dim lỗi) |
 | Thiên kiến trung lập | 🟢 Tốt (4%) |
@@ -819,10 +819,10 @@
 |---|---|
 | Điểm độ tin cậy | **80/100** |
 | Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
-| Số câu trả lời | 132 |
+| Số câu trả lời | 134 |
 | Nói dối / Tô hồng | 🟡 Cảnh báo (5) |
 | Độ nhất quán | 🟢 Tốt (0 intra + 0 cross-dim lỗi) |
-| Thiên kiến trung lập | 🟡 Cảnh báo (32%) |
+| Thiên kiến trung lập | 🟡 Cảnh báo (31%) |
 | Khuôn mẫu (Straight-line/Zigzac) | 🟢 Tốt (Max 3 câu liên tiếp) |
 | Xu hướng đồng thuận | 🟢 Tốt (TB=2.97) |
 | Chọn cực đoan | 🟢 Tốt (11%) |
@@ -843,14 +843,14 @@
 
 | Chỉ số | Giá trị |
 |---|---|
-| Điểm độ tin cậy | **77/100** |
-| Đánh giá độ tin cậy | 🟡 Tương đối đáng tin |
-| Số câu trả lời | 132 |
+| Điểm độ tin cậy | **87/100** |
+| Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
+| Số câu trả lời | 134 |
 | Nói dối / Tô hồng | 🟡 Cảnh báo (5) |
-| Độ nhất quán | 🟢 Tốt (1 intra + 0 cross-dim lỗi) |
+| Độ nhất quán | 🟢 Tốt (0 intra + 0 cross-dim lỗi) |
 | Thiên kiến trung lập | 🟢 Tốt (22%) |
 | Khuôn mẫu (Straight-line/Zigzac) | 🟢 Tốt (Max 5 câu liên tiếp) |
-| Xu hướng đồng thuận | 🔴 Nguy hiểm (TB=5.00) |
+| Xu hướng đồng thuận | 🟢 Tốt (TB=3.45) |
 | Chọn cực đoan | 🟢 Tốt (35%) |
 
 **5 Chiều cao nhất:** agreeableness(10.0), conscientiousness(10.0), emotional_stability(10.0), empathy(10.0), caution(10.0)
@@ -859,9 +859,9 @@
 
 **Kiểm tra điểm thấp mong đợi:** —
 
-**Kiểm tra độ tin cậy:** ❌ Sai (Kỳ vọng: `use-with-caution | low-interpretability` → Thực tế: `mostly-reliable`)
+**Kiểm tra độ tin cậy:** ❌ Sai (Kỳ vọng: `use-with-caution | low-interpretability` → Thực tế: `reliable`)
 
-**Lỗi phát hiện:** `SAI_ĐỘ_TIN_CẬY: thực_tế=mostly-reliable, kỳ_vọng=use-with-caution|low-interpretability`
+**Lỗi phát hiện:** `SAI_ĐỘ_TIN_CẬY: thực_tế=reliable, kỳ_vọng=use-with-caution|low-interpretability`
 
 ---
 
@@ -871,7 +871,7 @@
 |---|---|
 | Điểm độ tin cậy | **31/100** |
 | Đánh giá độ tin cậy | 🔴 Không đáng tin / Từ chối giải nghĩa |
-| Số câu trả lời | 132 |
+| Số câu trả lời | 134 |
 | Nói dối / Tô hồng | 🔴 Nguy hiểm (11) |
 | Độ nhất quán | 🔴 Nguy hiểm (20 intra + 0 cross-dim lỗi) |
 | Thiên kiến trung lập | 🟢 Tốt (7%) |
@@ -897,7 +897,7 @@
 |---|---|
 | Điểm độ tin cậy | **50/100** |
 | Đánh giá độ tin cậy | 🟠 Cần thận trọng |
-| Số câu trả lời | 132 |
+| Số câu trả lời | 134 |
 | Nói dối / Tô hồng | 🟢 Tốt (0) |
 | Độ nhất quán | 🔴 Nguy hiểm (20 intra + 0 cross-dim lỗi) |
 | Thiên kiến trung lập | 🟢 Tốt (11%) |
@@ -923,7 +923,7 @@
 |---|---|
 | Điểm độ tin cậy | **53/100** |
 | Đánh giá độ tin cậy | 🟠 Cần thận trọng |
-| Số câu trả lời | 132 |
+| Số câu trả lời | 134 |
 | Nói dối / Tô hồng | 🔴 Nguy hiểm (7) |
 | Độ nhất quán | 🟡 Cảnh báo (4 intra + 0 cross-dim lỗi) |
 | Thiên kiến trung lập | 🟢 Tốt (5%) |
@@ -949,10 +949,10 @@
 |---|---|
 | Điểm độ tin cậy | **100/100** |
 | Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
-| Số câu trả lời | 133 |
+| Số câu trả lời | 135 |
 | Nói dối / Tô hồng | 🟢 Tốt (0) |
 | Độ nhất quán | 🟢 Tốt (0 intra + 0 cross-dim lỗi) |
-| Thiên kiến trung lập | 🟢 Tốt (23%) |
+| Thiên kiến trung lập | 🟢 Tốt (22%) |
 | Khuôn mẫu (Straight-line/Zigzac) | 🟢 Tốt (Max 6 câu liên tiếp) |
 | Xu hướng đồng thuận | 🟢 Tốt (TB=3.02) |
 | Chọn cực đoan | 🟢 Tốt (8%) |
@@ -975,7 +975,7 @@
 |---|---|
 | Điểm độ tin cậy | **100/100** |
 | Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
-| Số câu trả lời | 132 |
+| Số câu trả lời | 134 |
 | Nói dối / Tô hồng | 🟢 Tốt (2) |
 | Độ nhất quán | 🟢 Tốt (0 intra + 1 cross-dim lỗi) |
 | Thiên kiến trung lập | 🟢 Tốt (6%) |
@@ -1001,7 +1001,7 @@
 |---|---|
 | Điểm độ tin cậy | **100/100** |
 | Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
-| Số câu trả lời | 132 |
+| Số câu trả lời | 134 |
 | Nói dối / Tô hồng | 🟢 Tốt (0) |
 | Độ nhất quán | 🟢 Tốt (0 intra + 0 cross-dim lỗi) |
 | Thiên kiến trung lập | 🟢 Tốt (9%) |
@@ -1027,7 +1027,7 @@
 |---|---|
 | Điểm độ tin cậy | **87/100** |
 | Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
-| Số câu trả lời | 132 |
+| Số câu trả lời | 134 |
 | Nói dối / Tô hồng | 🟡 Cảnh báo (5) |
 | Độ nhất quán | 🟢 Tốt (2 intra + 0 cross-dim lỗi) |
 | Thiên kiến trung lập | 🟢 Tốt (5%) |
@@ -1053,10 +1053,10 @@
 |---|---|
 | Điểm độ tin cậy | **81/100** |
 | Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
-| Số câu trả lời | 133 |
+| Số câu trả lời | 135 |
 | Nói dối / Tô hồng | 🟡 Cảnh báo (4) |
 | Độ nhất quán | 🟢 Tốt (1 intra + 0 cross-dim lỗi) |
-| Thiên kiến trung lập | 🟢 Tốt (14%) |
+| Thiên kiến trung lập | 🟢 Tốt (13%) |
 | Khuôn mẫu (Straight-line/Zigzac) | 🟡 Cảnh báo (Max 7 câu liên tiếp) |
 | Xu hướng đồng thuận | 🟢 Tốt (TB=3.17) |
 | Chọn cực đoan | 🟢 Tốt (48%) |
@@ -1079,7 +1079,7 @@
 |---|---|
 | Điểm độ tin cậy | **100/100** |
 | Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
-| Số câu trả lời | 132 |
+| Số câu trả lời | 134 |
 | Nói dối / Tô hồng | 🟢 Tốt (0) |
 | Độ nhất quán | 🟢 Tốt (0 intra + 0 cross-dim lỗi) |
 | Thiên kiến trung lập | 🟢 Tốt (8%) |
@@ -1105,7 +1105,7 @@
 |---|---|
 | Điểm độ tin cậy | **67/100** |
 | Đánh giá độ tin cậy | 🟡 Tương đối đáng tin |
-| Số câu trả lời | 132 |
+| Số câu trả lời | 134 |
 | Nói dối / Tô hồng | 🔴 Nguy hiểm (12) |
 | Độ nhất quán | 🟢 Tốt (2 intra + 0 cross-dim lỗi) |
 | Thiên kiến trung lập | 🟢 Tốt (11%) |
@@ -1131,10 +1131,10 @@
 |---|---|
 | Điểm độ tin cậy | **76/100** |
 | Đánh giá độ tin cậy | 🟡 Tương đối đáng tin |
-| Số câu trả lời | 132 |
+| Số câu trả lời | 134 |
 | Nói dối / Tô hồng | 🟢 Tốt (1) |
 | Độ nhất quán | 🟢 Tốt (0 intra + 0 cross-dim lỗi) |
-| Thiên kiến trung lập | 🔴 Nguy hiểm (67%) |
+| Thiên kiến trung lập | 🔴 Nguy hiểm (66%) |
 | Khuôn mẫu (Straight-line/Zigzac) | 🟡 Cảnh báo (Max 8 câu liên tiếp) |
 | Xu hướng đồng thuận | 🟢 Tốt (TB=3.04) |
 | Chọn cực đoan | 🟢 Tốt (0%) |
@@ -1157,7 +1157,7 @@
 |---|---|
 | Điểm độ tin cậy | **67/100** |
 | Đánh giá độ tin cậy | 🟡 Tương đối đáng tin |
-| Số câu trả lời | 132 |
+| Số câu trả lời | 134 |
 | Nói dối / Tô hồng | 🔴 Nguy hiểm (6) |
 | Độ nhất quán | 🟢 Tốt (0 intra + 1 cross-dim lỗi) |
 | Thiên kiến trung lập | 🟢 Tốt (12%) |
@@ -1209,10 +1209,10 @@
 |---|---|
 | Điểm độ tin cậy | **50/100** |
 | Đánh giá độ tin cậy | 🟠 Cần thận trọng |
-| Số câu trả lời | 132 |
+| Số câu trả lời | 134 |
 | Nói dối / Tô hồng | 🟡 Cảnh báo (6) |
 | Độ nhất quán | 🟢 Tốt (0 intra + 0 cross-dim lỗi) |
-| Thiên kiến trung lập | 🟢 Tốt (23%) |
+| Thiên kiến trung lập | 🟢 Tốt (22%) |
 | Khuôn mẫu (Straight-line/Zigzac) | 🔴 Nguy hiểm (Max 10 câu liên tiếp) |
 | Xu hướng đồng thuận | 🟢 Tốt (TB=3.32) |
 | Chọn cực đoan | 🟢 Tốt (34%) |
@@ -1235,7 +1235,7 @@
 |---|---|
 | Điểm độ tin cậy | **87/100** |
 | Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
-| Số câu trả lời | 133 |
+| Số câu trả lời | 135 |
 | Nói dối / Tô hồng | 🟡 Cảnh báo (3) |
 | Độ nhất quán | 🟢 Tốt (0 intra + 0 cross-dim lỗi) |
 | Thiên kiến trung lập | 🟢 Tốt (12%) |
@@ -1261,10 +1261,10 @@
 |---|---|
 | Điểm độ tin cậy | **87/100** |
 | Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
-| Số câu trả lời | 132 |
+| Số câu trả lời | 134 |
 | Nói dối / Tô hồng | 🟡 Cảnh báo (4) |
 | Độ nhất quán | 🟢 Tốt (0 intra + 0 cross-dim lỗi) |
-| Thiên kiến trung lập | 🟢 Tốt (14%) |
+| Thiên kiến trung lập | 🟢 Tốt (13%) |
 | Khuôn mẫu (Straight-line/Zigzac) | 🟢 Tốt (Max 6 câu liên tiếp) |
 | Xu hướng đồng thuận | 🟢 Tốt (TB=3.38) |
 | Chọn cực đoan | 🟢 Tốt (34%) |
@@ -1287,7 +1287,7 @@
 |---|---|
 | Điểm độ tin cậy | **92/100** |
 | Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
-| Số câu trả lời | 132 |
+| Số câu trả lời | 134 |
 | Nói dối / Tô hồng | 🟢 Tốt (0) |
 | Độ nhất quán | 🟡 Cảnh báo (4 intra + 0 cross-dim lỗi) |
 | Thiên kiến trung lập | 🟢 Tốt (15%) |
@@ -1313,7 +1313,7 @@
 |---|---|
 | Điểm độ tin cậy | **100/100** |
 | Đánh giá độ tin cậy | 🟢 Đáng tin cậy |
-| Số câu trả lời | 132 |
+| Số câu trả lời | 134 |
 | Nói dối / Tô hồng | 🟢 Tốt (3) |
 | Độ nhất quán | 🟢 Tốt (0 intra + 0 cross-dim lỗi) |
 | Thiên kiến trung lập | 🟢 Tốt (24%) |
@@ -1341,6 +1341,7 @@
 - ✅ **Kỹ sư phần mềm - Cẩn thận, hướng nội**: Phát hiện đúng (`reliable`)
 - ✅ **Nhân viên Sales - Hướng ngoại, nhiệt tình**: Phát hiện đúng (`reliable`)
 - ✅ **HR Manager - Đồng cảm, quan tâm người khác**: Phát hiện đúng (`reliable`)
+- ✅ **Kế toán - Ổn định, nguyên tắc**: Phát hiện đúng (`reliable`)
 - ✅ **Designer UX - Sáng tạo, cởi mở**: Phát hiện đúng (`reliable`)
 - ✅ **Project Manager - Cân bằng, lãnh đạo**: Phát hiện đúng (`reliable`)
 - ✅ **Nhân viên mới ra trường - Chưa xác định**: Phát hiện đúng (`reliable`)
@@ -1378,14 +1379,13 @@
 - ✅ **Người thay đổi thường xuyên — Linh hoạt cực cao nhưng không cam kết dài hạn**: Phát hiện đúng (`reliable`)
 
 ### Điểm cần cải thiện
-- ❌ **Kế toán - Ổn định, nguyên tắc**: SAI_ĐỘ_TIN_CẬY: thực_tế=use-with-caution, kỳ_vọng=reliable|mostly-reliable
 - ❌ **Bác sĩ / Y tế — Áp lực cao, trách nhiệm lớn**: CAO_HƠN_KỲ_VỌNG: challenge_spirit=5.1
 - ❌ **Luật sư tranh tụng — Phân tích sắc bén, tự tin**: SAI_ĐỘ_TIN_CẬY: thực_tế=use-with-caution, kỳ_vọng=reliable|mostly-reliable
 - ❌ **Nhà khoa học/Nghiên cứu — Tư duy sâu, hướng nội**: THẤP_HƠN_KỲ_VỌNG: data_literacy=0.0
 - ❌ **Marketing Manager — Sáng tạo, nhanh nhạy**: THẤP_HƠN_KỲ_VỌNG: communication_clarity=0.0
 - ❌ **Social Desirability — Biết mình muốn gì để trả lời**: SAI_ĐỘ_TIN_CẬY: thực_tế=mostly-reliable, kỳ_vọng=use-with-caution|low-interpretability
 - ❌ **Random Response — Mệt mỏi không đọc câu**: SAI_ĐỘ_TIN_CẬY: thực_tế=reliable, kỳ_vọng=use-with-caution|low-interpretability
-- ❌ **Faking Good — Chỉ tô hồng chiều "quan trọng"**: SAI_ĐỘ_TIN_CẬY: thực_tế=mostly-reliable, kỳ_vọng=use-with-caution|low-interpretability
+- ❌ **Faking Good — Chỉ tô hồng chiều "quan trọng"**: SAI_ĐỘ_TIN_CẬY: thực_tế=reliable, kỳ_vọng=use-with-caution|low-interpretability
 - ❌ **Perfectionist thật sự — Stress cao vì yêu cầu cá nhân**: SAI_ĐỘ_TIN_CẬY: thực_tế=use-with-caution, kỳ_vọng=reliable|mostly-reliable
 - ❌ **Người có Impostor Syndrome — Thực lực cao, tự đánh giá thấp**: CAO_HƠN_KỲ_VỌNG: recognition_need=7.8; CAO_HƠN_KỲ_VỌNG: autonomy=8.5
 - ❌ **Người chuyển ngành (Career Changer) — Lo lắng, thích nghi thấp**: CAO_HƠN_KỲ_VỌNG: openness=8.1

@@ -57,6 +57,9 @@ export interface UnifiedScoringResult {
   // [v4.1] Confidence của phần diễn giải (Persona, Duty Suitability, Risk)
   interpretationConfidence: 'high' | 'medium' | 'low';
   interpretationCaveat: string; // Cảnh báo hiển thị trong UI cho phần Tầng 3
+  
+  // [v4.3] Tham chiếu với Role Templates
+  roleFits?: Array<{ roleKey: string; roleName: string; matchPercent: number }>;
 }
 
 // ── Hàm trợ giúp ─────────────────────────────────────────────
@@ -83,7 +86,7 @@ function normalCDF(z: number): number {
  * @param answerTimes  questionId → ms để trả lời (optional)
  */
 export function calculateUnifiedScores(
-  answers: Record<string, number>,
+  answers: Record<string, any>,
   questions: Array<{
     id: string;
     dimensionId: string;
@@ -91,12 +94,14 @@ export function calculateUnifiedScores(
     isLieScale?: boolean;
     isLieSubtle?: boolean;
     lieWeight?: number;
+    options?: any;
   }>,
   startTime: number,
   endTime: number,
   activeDimIds: string[],
   dimRelations: DbDimensionRelation[],
   answerTimes?: Record<string, number>,
+  roleTemplates?: Array<{ key: string; name: string; coreValues: any }>,
 ): UnifiedScoringResult {
   const durationSeconds = (endTime - startTime) / 1000;
   const totalAnswered = Object.keys(answers).length;
@@ -116,8 +121,21 @@ export function calculateUnifiedScores(
   const orderedValues: number[] = [];
 
   for (const q of questions) {
-    const ans = answers[q.id];
+    let ans = answers[q.id];
     if (ans === undefined || ans === null) continue;
+
+    // Handle SJT formatting if string was passed
+    if (typeof ans === 'string') {
+      let foundPoint = NaN;
+      if (q.options && Array.isArray(q.options)) {
+        const foundOpt = q.options.find((o: any) => o.text === ans);
+        if (foundOpt && foundOpt.points !== undefined) {
+          foundPoint = Number(foundOpt.points);
+        }
+      }
+      if (isNaN(foundPoint)) continue;
+      ans = foundPoint;
+    }
 
     if (ans === 3) neutralCount++;
 
@@ -343,9 +361,9 @@ export function calculateUnifiedScores(
       'Biên độ phản hồi tự nhiên.',
   };
 
-  // 3.8 Quick Answers: câu trả lời dưới 2 giây
+  // 3.8 Quick Answers: câu trả lời dưới 1.5 giây
   const quickEntries   = answerTimes ? Object.entries(answerTimes) : [];
-  const quickCount     = quickEntries.filter(([, t]) => t < 2000).length;
+  const quickCount     = quickEntries.filter(([, t]) => t < 1500).length;
   const quickTotal     = quickEntries.length > 0 ? quickEntries.length : totalAnswered;
   const quickRatio     = quickTotal > 0 ? quickCount / quickTotal : 0;
   const quickMetric: QualityMetric = {
@@ -444,6 +462,12 @@ export function calculateUnifiedScores(
     reliabilityScore = Math.min(reliabilityScore, 50);
   }
 
+  // [v4.3] B6 — Speed-runner hard cap:
+  // Nếu > 40% số câu trả lời quá nhanh (<1.5s/câu) hoặc có >=20 câu siêu tốc → Bot behavior
+  if (quickRatio > 0.4 || quickCount >= 20) {
+    reliabilityScore = Math.min(reliabilityScore, 40); // Đẩy xuống low-interpretability
+  }
+
   // [v4.2+] 4-tier dựa trên reliabilityScore
   let reliabilityLevel: UnifiedScoringResult['reliabilityLevel'];
   if (reliabilityScore >= 80)      reliabilityLevel = 'reliable';
@@ -473,24 +497,59 @@ export function calculateUnifiedScores(
     interpretationCaveat = '⚠️ Độ tin cậy thấp — dữ liệu bài làm có nhiều bất thường. Các diễn giải chỉ mang tính chất tham khảo. Khuyến nghị xác minh qua phỏng vấn trực tiếp.';
   }
 
+  const dataQuality = {
+    lieScale:         lieMetric,
+    consistency:      consistencyMetric,
+    neutralBias:      neutralMetric,
+    timeTracking:     timeMetric,
+    patternDetection: patternMetric,
+    acquiescenceBias: acquiescenceMetric,
+    extremeResponder: extremeMetric,
+    quickAnswers:     quickMetric,
+  };
+
+  // ── 7. [v4.3] Role Fit Calculation ──────────────────────────────────
+  const roleFits: Array<{ roleKey: string; roleName: string; matchPercent: number }> = [];
+  if (roleTemplates) {
+    for (const template of roleTemplates) {
+      if (!template.coreValues) continue;
+      // Calculate Euclidean distance (or MAPE) against template
+      // template.coreValues = {"Openness": 4.5, "Conscientiousness": 8.0, ...} 
+      // where 1.0-10.0 scale is used
+      let totalDiff = 0;
+      let matchCount = 0;
+      
+      dimensions.forEach(dim => {
+        const expected = template.coreValues[dim.dimensionId];
+        if (expected !== undefined) {
+          const diff = Math.abs(dim.scaledContinuous - expected);
+          totalDiff += (diff / 10); // scale diff to 0-1
+          matchCount++;
+        }
+      });
+      
+      const matchPercent = matchCount > 0 
+        ? Math.round((1 - (totalDiff / matchCount)) * 100) 
+        : 0;
+
+      roleFits.push({
+        roleKey: template.key,
+        roleName: template.name,
+        matchPercent: Math.max(0, matchPercent)
+      });
+    }
+  }
+
   return {
     type: 'SPI_UNIFIED_V4',
     dimensions,
-    dataQuality: {
-      lieScale:         lieMetric,
-      consistency:      consistencyMetric,
-      neutralBias:      neutralMetric,
-      timeTracking:     timeMetric,
-      patternDetection: patternMetric,
-      acquiescenceBias: acquiescenceMetric,
-      extremeResponder: extremeMetric,
-      quickAnswers:     quickMetric,
-    },
+    dataQuality,
     reliabilityScore,
     reliabilityLevel,
     penaltyMultiplier,
     interpretationConfidence,
     interpretationCaveat,
+    roleFits,
   };
 }
 
