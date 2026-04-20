@@ -9,6 +9,8 @@
 import React, { useState, useMemo } from 'react';
 import type { UnifiedReportData, UnifiedGroup, UnifiedScoreItem } from '../utils/unifiedScoring';
 import type { AIReport } from '../utils/openaiService';
+import { detectPersonaRanked } from '../data/aiAnalysis';
+import type { DimensionScore } from '../data/scoring';
 
 // ─── PROPS ────────────────────────────────────────────────────
 interface UnifiedReportProps {
@@ -237,6 +239,23 @@ export default function UnifiedReport({ data, aiReport, candidateName, reportDat
   const topStrong = [...allItems].sort((a, b) => b.score - a.score).slice(0, 3);
   const topWeak   = [...allItems].filter(i => i.score > 0).sort((a, b) => a.score - b.score).slice(0, 3);
 
+  // [v4.1] Top 3 Persona — dùng detectPersonaRanked
+  const allDims = mainGroups.flatMap(g => g.items).map(item => ({
+    dimensionId: item.id,
+    raw: 0,
+    scaled: Math.round(item.score),
+    scaledContinuous: item.score,
+    percentile: Math.round((item.score / 10) * 100),
+    count: 1,
+    max: 10,
+  })) as DimensionScore[];
+  const top3Personas = useMemo(() => detectPersonaRanked(allDims), [activeTab]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Reliability info
+  const reliabilityScore = data.reliabilityScore;
+  const interpretationCaveat = data.interpretationCaveat;
+  const interpretationConfidence = data.interpretationConfidence ?? 'high';
+
   return (
     <div style={{
       fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
@@ -300,19 +319,42 @@ export default function UnifiedReport({ data, aiReport, candidateName, reportDat
           </div>
         </div>
 
-        {/* Reliability strip */}
+        {/* Reliability strip — [v4.1] hiển thị reliabilityScore dạng progress bar */}
         <div style={{
           marginTop: 20, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.15)',
           display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center',
         }}>
           <span style={{ fontSize: 11, opacity: 0.6, marginRight: 4 }}>Độ tin cậy:</span>
-          <span style={{
-            fontSize: 12, fontWeight: 700,
-            background: data.integrityLevel === 'ok' ? 'rgba(16,185,129,0.25)' : data.integrityLevel === 'warning' ? 'rgba(245,158,11,0.25)' : 'rgba(239,68,68,0.25)',
-            padding: '3px 12px', borderRadius: 20,
-          }}>
-            {data.integrityLevel === 'ok' ? '✅ Cao' : data.integrityLevel === 'warning' ? '🟡 Trung bình' : '🔴 Rủi ro'}
-          </span>
+          {reliabilityScore != null ? (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ width: 100, height: 8, background: 'rgba(255,255,255,0.15)', borderRadius: 4, overflow: 'hidden' }}>
+                  <div style={{
+                    height: '100%', borderRadius: 4,
+                    width: `${reliabilityScore}%`,
+                    background: reliabilityScore >= 80 ? '#34D399' : reliabilityScore >= 60 ? '#FBBF24' : reliabilityScore >= 35 ? '#F97316' : '#F87171',
+                    transition: 'width 0.8s ease-out',
+                  }} />
+                </div>
+                <span style={{
+                  fontSize: 12, fontWeight: 700,
+                  background: reliabilityScore >= 80 ? 'rgba(52,211,153,0.25)' : reliabilityScore >= 60 ? 'rgba(251,191,36,0.25)' : reliabilityScore >= 35 ? 'rgba(249,115,22,0.25)' : 'rgba(248,113,113,0.25)',
+                  padding: '3px 12px', borderRadius: 20,
+                }}>
+                  {reliabilityScore >= 80 ? '✅' : reliabilityScore >= 60 ? '🟡' : reliabilityScore >= 35 ? '🟠' : '🔴'}
+                  {` ${reliabilityScore}/100`}
+                </span>
+              </div>
+            </>
+          ) : (
+            <span style={{
+              fontSize: 12, fontWeight: 700,
+              background: data.integrityLevel === 'ok' ? 'rgba(16,185,129,0.25)' : data.integrityLevel === 'warning' ? 'rgba(245,158,11,0.25)' : 'rgba(239,68,68,0.25)',
+              padding: '3px 12px', borderRadius: 20,
+            }}>
+              {data.integrityLevel === 'ok' ? '✅ Cao' : data.integrityLevel === 'warning' ? '🟡 Trung bình' : '🔴 Rủi ro'}
+            </span>
+          )}
           {integrityGroup?.items.map(item => (
             <span key={item.id} style={{ fontSize: 11, background: 'rgba(255,255,255,0.1)', padding: '3px 10px', borderRadius: 20 }}>
               {item.label}: <strong>{item.score.toFixed(1)}</strong>
@@ -320,7 +362,7 @@ export default function UnifiedReport({ data, aiReport, candidateName, reportDat
           ))}
           {combatPower && (
             <span style={{ fontSize: 11, background: 'rgba(255,255,255,0.15)', padding: '3px 10px', borderRadius: 20, marginLeft: 'auto' }}>
-              ⚔️ Combat Power: <strong>{combatPower.total}</strong>
+              💼 Chỉ số Năng Lực: <strong>{combatPower.total}</strong>
             </span>
           )}
         </div>
@@ -436,6 +478,103 @@ export default function UnifiedReport({ data, aiReport, candidateName, reportDat
         </div>
       </div>
 
+      {/* ══ TOP 3 PERSONA — [v4.1] ══════════════════════════════ */}
+      {top3Personas.length > 0 && (
+        <div style={{
+          background: 'white', borderRadius: 16, padding: '20px 24px',
+          boxShadow: '0 1px 6px rgba(0,0,0,0.07)', border: '1px solid #F0F0F0', marginBottom: 24,
+        }}>
+          {/* Section header — Tầng 3: Diễn giải */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+            <h3 style={{ margin: 0, fontWeight: 700, fontSize: 16, color: '#1F2937' }}>
+              🧬 Hồ Sơ Cốt Cách (Persona)
+            </h3>
+            <span style={{
+              fontSize: 10, fontWeight: 600, padding: '3px 10px', borderRadius: 20,
+              background: '#F5F3FF', color: '#7C3AED', border: '1px solid #DDD6FE',
+            }}>💡 Tầng Diễn Giải</span>
+          </div>
+          <p style={{ margin: '0 0 16px', fontSize: 12, color: '#6B7280' }}>
+            Phân tích tương đồng với 7 archetype nhân sự. Khoảng cách giữa lý thuyết và thực tế được tính bằng RMSE.
+          </p>
+
+          {/* Caveat banner nếu cần */}
+          {interpretationCaveat && (
+            <div style={{
+              marginBottom: 16, padding: '10px 14px', borderRadius: 10,
+              background: interpretationConfidence === 'low' ? '#FFF7ED' : '#FFFBEB',
+              border: `1px solid ${interpretationConfidence === 'low' ? '#FED7AA' : '#FDE68A'}`,
+              fontSize: 12, color: interpretationConfidence === 'low' ? '#9A3412' : '#92400E',
+            }}>
+              {interpretationCaveat}
+            </div>
+          )}
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14 }}>
+            {top3Personas.map((item, idx) => {
+              const isTop = idx === 0;
+              const confidenceColor = item.confidence === 'high' ? '#059669' : item.confidence === 'medium' ? '#D97706' : '#6B7280';
+              const confidenceLabel = item.confidence === 'high' ? 'Phù hợp rõ' : item.confidence === 'medium' ? 'Có thể phù hợp' : 'Tham khảo';
+              return (
+                <div key={idx} style={{
+                  borderRadius: 14, padding: '16px',
+                  background: isTop ? 'linear-gradient(135deg, #F0F9FF, #E0F2FE)' : '#FAFAFA',
+                  border: isTop ? '2px solid #BAE6FD' : '1px solid #E5E7EB',
+                  position: 'relative', overflow: 'hidden',
+                }}>
+                  {isTop && (
+                    <span style={{
+                      position: 'absolute', top: 8, right: 8,
+                      fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 20,
+                      background: '#0EA5E9', color: 'white',
+                    }}>✦ PHÙ HỢP NHẤT</span>
+                  )}
+                  <div style={{ fontSize: 32, marginBottom: 8 }}>{item.persona.emoji}</div>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: '#1F2937', marginBottom: 4 }}>
+                    {item.persona.title}
+                  </div>
+                  {/* Match score bar */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                    <div style={{ flex: 1, height: 6, background: '#E5E7EB', borderRadius: 3, overflow: 'hidden' }}>
+                      <div style={{
+                        height: '100%', borderRadius: 3,
+                        width: `${item.matchScore}%`,
+                        background: isTop ? '#0EA5E9' : '#94A3B8',
+                        transition: 'width 0.8s ease-out',
+                      }} />
+                    </div>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: isTop ? '#0369A1' : '#64748B', whiteSpace: 'nowrap' }}>
+                      {item.matchScore}%
+                    </span>
+                  </div>
+                  <span style={{
+                    fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 20,
+                    color: confidenceColor,
+                    background: item.confidence === 'high' ? '#D1FAE5' : item.confidence === 'medium' ? '#FEF3C7' : '#F3F4F6',
+                  }}>{confidenceLabel}</span>
+                  <p style={{ fontSize: 11, color: '#6B7280', margin: '8px 0 0', lineHeight: 1.5 }}>
+                    {item.persona.bestEnvironment}
+                  </p>
+                  <p style={{ fontSize: 10, color: '#F59E0B', margin: '6px 0 0', lineHeight: 1.4, fontStyle: 'italic' }}>
+                    ⚠ {item.persona.watchOut}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Lưu ý về dual-type nếu rank1 và rank2 sát nhau */}
+          {top3Personas.length >= 2 && top3Personas[0].matchScore - top3Personas[1].matchScore < 8 && (
+            <div style={{
+              marginTop: 14, padding: '10px 14px', background: '#EFF6FF',
+              borderRadius: 10, border: '1px solid #BFDBFE', fontSize: 12, color: '#1D4ED8',
+            }}>
+              💡 <strong>Hồ sơ 2 chiều:</strong> Sự khác biệt giữa <em>{top3Personas[0].persona.title}</em> và <em>{top3Personas[1].persona.title}</em> rất nhỏ — người này có thể linh hoạt thể hiện cả hai phong cách tùy bối cảnh.
+            </div>
+          )}
+        </div>
+      )}
+
       {/* ══ PHÙ HỢP VAI TRÒ ════════════════════════════════════ */}
       {suitability.length > 0 && (
         <div style={{
@@ -506,7 +645,8 @@ export default function UnifiedReport({ data, aiReport, candidateName, reportDat
             { label: 'Tổng nhóm', value: `${mainGroups.length} nhóm` },
             { label: 'Tổng chỉ số', value: `${allItems.length} chỉ số` },
             { label: 'Độ tin cậy', value: data.integrityLevel === 'ok' ? 'Cao ✅' : data.integrityLevel === 'warning' ? 'Trung bình 🟡' : 'Rủi ro 🔴' },
-            combatPower ? { label: 'Combat Power', value: `${combatPower.total}/100` } : null,
+            combatPower ? { label: '💼 Chỉ số Năng Lực', value: `${combatPower.total}/100` } : null,
+            reliabilityScore != null ? { label: '🎯 Điểm Tin Cậy', value: `${reliabilityScore}/100` } : null,
           ].filter(Boolean).map((item, i) => (
             <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', borderBottom: '1px solid #EDE9FE' }}>
               <span style={{ fontSize: 11, color: '#7C3AED' }}>{item!.label}</span>

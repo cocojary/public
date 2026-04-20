@@ -600,6 +600,134 @@ export function detectPersona(dims: DimensionScore[]): PersonaType {
   };
 }
 
+// ─── TOP-3 PERSONA DETECTION (v4.1) ───────────────────────────────────────
+// Thay vì chỉ trả về 1 persona, tính similarity score cho tất cả archetype
+// và trả về Top 3 kèm mức độ tin cậy.
+
+export interface PersonaRankedResult {
+  rank: number;
+  persona: PersonaType;
+  matchScore: number; // 0–100
+  confidence: 'high' | 'medium' | 'low';
+}
+
+/**
+ * detectPersonaRanked — Trả về top 3 persona phù hợp nhất với điểm similarity.
+ * Rule: mỗi archetype có 1 "ideal profile" → tính Euclidean distance → score cao = gần ideal.
+ */
+export function detectPersonaRanked(dims: DimensionScore[]): PersonaRankedResult[] {
+  const get = (id: string) => {
+    const d = dims.find(d => d.dimensionId === id);
+    // Ưu tiên scaledContinuous nếu có (v4.1)
+    return (d as any)?.scaledContinuous ?? d?.scaled ?? 5;
+  };
+
+  const ext = get('extraversion');
+  const agr = get('agreeableness');
+  const con = get('conscientiousness');
+  const ope = get('openness');
+  const emo = get('emotional_stability');
+  const ach = get('achievement_drive');
+  const log = get('logical_thinking');
+  const emp = get('empathy');
+  const aut = get('autonomy');
+
+  // Định nghĩa "ideal profile" cho từng archetype
+  // Format: { dimensionId: idealScore } — chỉ các dimension quan trọng nhất
+  const archetypes: Array<{ persona: PersonaType; profile: Record<string, number> }> = [
+    {
+      persona: { title: 'Nhà Chiến Lược', emoji: '♟️',
+        traits: ['Tư duy chiến lược', 'Định hướng kết quả cao', 'Độc lập và tự chủ'],
+        bestEnvironment: 'Môi trường cạnh tranh, vị trí senior hoặc leadership',
+        watchOut: 'Có thể khó làm việc với người có tốc độ chậm hơn' },
+      profile: { achievement_drive: 9, logical_thinking: 8, autonomy: 8, emotional_stability: 7 },
+    },
+    {
+      persona: { title: 'Chiến Binh Sales', emoji: '🎯',
+        traits: ['Năng động, quyết đoán', 'Khát vọng thành tích cao', 'Không ngại từ chối'],
+        bestEnvironment: 'Sales, business development, account management',
+        watchOut: 'Cần phát triển thêm kỹ năng lắng nghe và empathy' },
+      profile: { extraversion: 8, achievement_drive: 8, empathy: 4, challenge_spirit: 8 },
+    },
+    {
+      persona: { title: 'Nhà Kết Nối', emoji: '🤝',
+        traits: ['Nhạy bén với cảm xúc', 'Xây dựng quan hệ tốt', 'Hòa giải xung đột'],
+        bestEnvironment: 'HR, customer success, team lead, đào tạo',
+        watchOut: 'Tránh để người khác lợi dụng sự tốt bụng' },
+      profile: { empathy: 8, agreeableness: 8, extraversion: 7, emotional_stability: 7 },
+    },
+    {
+      persona: { title: 'Kiến Trúc Sư Hệ Thống', emoji: '🏗️',
+        traits: ['Tư duy logic sâu', 'Tỉ mỉ và có hệ thống', 'Làm việc tốt độc lập'],
+        bestEnvironment: 'Engineering, data, architecture, research',
+        watchOut: 'Cần cải thiện kỹ năng giao tiếp kết quả với non-technical' },
+      profile: { logical_thinking: 9, conscientiousness: 8, extraversion: 3, autonomy: 7 },
+    },
+    {
+      persona: { title: 'Người Đổi Mới', emoji: '💡',
+        traits: ['Sáng tạo và tò mò', 'Luôn tìm cách mới', 'Học nhanh và thích nghi tốt'],
+        bestEnvironment: 'Product, R&D, startup, creative direction',
+        watchOut: 'Có thể nhàm chán với công việc routine. Cần variety' },
+      profile: { openness: 9, achievement_drive: 7, logical_thinking: 7, learning_curiosity: 8 },
+    },
+    {
+      persona: { title: 'Trụ Cột Đáng Tin Cậy', emoji: '⚓',
+        traits: ['Đáng tin cậy và ổn định', 'Tổ chức tốt', 'Thực thi xuất sắc'],
+        bestEnvironment: 'Operations, admin, compliance, project execution',
+        watchOut: 'Có thể ngại thay đổi đột ngột. Cần thích nghi dần dần' },
+      profile: { conscientiousness: 9, emotional_stability: 8, agreeableness: 7, caution: 8 },
+    },
+    {
+      persona: { title: 'Đa Năng Cân Bằng', emoji: '⚖️',
+        traits: ['Linh hoạt và thích nghi', 'Phù hợp nhiều vai trò', 'Cân bằng giữa các tính cách'],
+        bestEnvironment: 'Hầu hết môi trường làm việc thông thường',
+        watchOut: 'Nên xác định rõ hơn điểm mạnh nổi bật để phát triển sâu hơn' },
+      profile: { extraversion: 5, agreeableness: 5, conscientiousness: 5, openness: 5 },
+    },
+  ];
+
+  // Tính similarity score dựa trên distance từ ideal profile
+  const dimValues: Record<string, number> = {
+    extraversion: ext, agreeableness: agr, conscientiousness: con,
+    openness: ope, emotional_stability: emo, achievement_drive: ach,
+    logical_thinking: log, empathy: emp, autonomy: aut,
+    // Fallback cho dimension khác
+    challenge_spirit: get('challenge_spirit'),
+    learning_curiosity: get('learning_curiosity'),
+    caution: get('caution'),
+  };
+
+  const scored = archetypes.map(a => {
+    const profileEntries = Object.entries(a.profile);
+    let sumSquaredDiff = 0;
+    for (const [dimId, ideal] of profileEntries) {
+      const actual = dimValues[dimId] ?? 5;
+      sumSquaredDiff += Math.pow(ideal - actual, 2);
+    }
+    // RMSE → convert thành score 0-100 (max RMSE ~9 khi ngược hoàn toàn)
+    const rmse = Math.sqrt(sumSquaredDiff / profileEntries.length);
+    const matchScore = Math.round(Math.max(0, Math.min(100, (1 - rmse / 7) * 100)));
+    return { persona: a.persona, matchScore };
+  });
+
+  // Sắp xếp giảm dần và lấy Top 3
+  const ranked = [...scored].sort((a, b) => b.matchScore - a.matchScore).slice(0, 3);
+
+  // Tính confidence dựa trên khoảng cách giữa rank 1 và rank 2
+  const gap12 = ranked.length >= 2 ? ranked[0].matchScore - ranked[1].matchScore : 100;
+
+  return ranked.map((r, i) => ({
+    rank: i + 1,
+    persona: r.persona,
+    matchScore: r.matchScore,
+    confidence: i === 0
+      ? (gap12 >= 15 ? 'high' : gap12 >= 8 ? 'medium' : 'low')
+      : (i === 1
+        ? (gap12 < 8 ? 'medium' : 'low')
+        : 'low'),
+  }));
+}
+
 /**
  * detectCEOPersona: Đặc quyền dành riêng cho role CEO
  */

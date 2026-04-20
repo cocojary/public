@@ -65,6 +65,10 @@ export interface UnifiedReportData {
   combatPower: CombatPowerResult;
   integrityLevel: 'ok' | 'warning' | 'risk';
   integrityNote: string;
+  // [v4.1] Weighted reliability score và caveat text
+  reliabilityScore?: number;          // 0-100 — chỉ có khi từ SPI_UNIFIED_V4
+  interpretationCaveat?: string;      // Cảnh báo hiển thị tầng diễn giải
+  interpretationConfidence?: 'high' | 'medium' | 'low'; // Mức confidence
 }
 
 // ── Hàm trợ giúp ─────────────────────────────────────────────
@@ -81,7 +85,12 @@ function clamp(val: number, min = 0, max = 10): number {
 
 function getDimScore(dims: DimensionScore[], id: string): number {
   const d = dims.find(x => x.dimensionId === id);
-  return d && d.scaled > 0 ? clamp(d.scaled) : 5;
+  // [v4.1] Ưu tiên dùng scaledContinuous nếu có (độ phân giải cao hơn)
+  // Fallback về scaled integer nếu không có (dữ liệu cũ / V2)
+  const s = d && (d as any).scaledContinuous != null
+    ? (d as any).scaledContinuous
+    : (d && d.scaled > 0 ? clamp(d.scaled) : 5);
+  return clamp(s);
 }
 
 // ── Xây dựng 6 nhóm từ 20 dimensions ────────────────────────
@@ -547,8 +556,9 @@ export function buildUnifiedFromV4(result: UnifiedScoringResult): UnifiedReportD
   const combatPower = calcCombatPower(groups, penaltyApplied);
 
   const integrityLevel =
-    result.reliabilityLevel === 'invalid' ? 'risk' :
-    result.reliabilityLevel === 'suspect' ? 'warning' : 'ok';
+    result.reliabilityLevel === 'low-interpretability' ? 'risk' :
+    result.reliabilityLevel === 'use-with-caution'     ? 'warning' : 'ok';
+  // 'reliable' | 'mostly-reliable' → 'ok'
 
   return {
     sourceType: 'SPI_UNIFIED_V4',
@@ -558,6 +568,10 @@ export function buildUnifiedFromV4(result: UnifiedScoringResult): UnifiedReportD
     combatPower,
     integrityLevel,
     integrityNote: adapted.reliability.details,
+    // [v4.1] Expose reliability data mới cho UI
+    reliabilityScore: (adapted.reliability as any).reliabilityScore,
+    interpretationCaveat: (adapted.reliability as any).interpretationCaveat,
+    interpretationConfidence: (adapted.reliability as any).interpretationConfidence,
   };
 }
 

@@ -1,10 +1,15 @@
 // ============================================================
-// UNIFIED SCORING ENGINE — Techzen SPI V4
+// UNIFIED SCORING ENGINE — Techzen SPI V4.1
 // Thay thế scoring.ts (V2) + devScoring.ts (V3)
 // Một engine duy nhất cho tất cả vị trí.
 //
 // Input:  answers (UUID → 1-5) + questions từ DB
-// Output: UnifiedScoringResult — 20 dimensions + 5 quality metrics
+// Output: UnifiedScoringResult — 20 dimensions + 8 quality metrics
+//
+// [v4.1] Continuous scoring — scaledContinuous (1.0-10.0)
+// [v4.1] Weighted reliability score (0-100) thay vì đếm Risk/Warning cứng
+// [v4.1] 4-tier reliability: reliable | mostly-reliable | use-with-caution | low-interpretability
+// [v4.1] Penalty được tách khỏi dimension scores — chỉ áp vào interpretationConfidence
 // ============================================================
 
 import { DIMENSIONS } from '@/features/assessment/data/dimensions';
@@ -19,10 +24,11 @@ export interface QualityMetric {
 
 export interface UnifiedDimensionScore {
   dimensionId: string;
-  raw: number;        // Tổng điểm thô (sau đảo chiều)
-  count: number;      // Số câu đã trả lời
-  scaled: number;     // Thang 1–10
-  percentile: number; // 0–100 (vị trí trong khoảng min–max)
+  raw: number;              // Tổng điểm thô (sau đảo chiều)
+  count: number;            // Số câu đã trả lời
+  scaled: number;           // Thang 1–10 (integer, dùng cho UI display — backward compat)
+  scaledContinuous: number; // Thang 1.0–10.0 (float, dùng cho tính toán SMA/Persona nội bộ)
+  percentile: number;       // 0–100 (vị trí trong khoảng min–max)
 }
 
 export interface UnifiedScoringResult {
@@ -38,8 +44,19 @@ export interface UnifiedScoringResult {
     extremeResponder: QualityMetric; // Tỉ lệ chọn điểm cực (1 hoặc 5)
     quickAnswers:     QualityMetric; // Số câu trả lời dưới 2 giây
   };
-  reliabilityLevel: 'reliable' | 'suspect' | 'invalid';
-  penaltyMultiplier: number; // 1.0 = không phạt — chỉ áp vào Combat Power
+  // [v4.1] Weighted score 0-100 (0 = tệ nhất, 100 = tốt nhất)
+  reliabilityScore: number;
+  // [v4.1] 4-tier thay vì 3-tier cũ
+  // 'reliable'              → Không cần lưu ý
+  // 'mostly-reliable'       → Có 1-2 cảnh báo nhỏ, kết quả vẫn tham khảo tốt
+  // 'use-with-caution'      → Có vấn đề đáng kể, cần xác minh phỏng vấn
+  // 'low-interpretability'  → Dữ liệu quá nhiễu, diễn giải không đáng tin
+  reliabilityLevel: 'reliable' | 'mostly-reliable' | 'use-with-caution' | 'low-interpretability';
+  // [v4.1] Penalty nhẹ hơn — chỉ áp vào Combat Power display, không làm hỏng dimension scores
+  penaltyMultiplier: number;
+  // [v4.1] Confidence của phần diễn giải (Persona, Duty Suitability, Risk)
+  interpretationConfidence: 'high' | 'medium' | 'low';
+  interpretationCaveat: string; // Cảnh báo hiển thị trong UI cho phần Tầng 3
 }
 
 // ── Hàm trợ giúp ─────────────────────────────────────────────
@@ -128,7 +145,7 @@ export function calculateUnifiedScores(
     const data = dimData[dimId];
 
     if (!data || data.count === 0) {
-      return { dimensionId: dimId, raw: 0, count: 0, scaled: 0, percentile: 0 };
+      return { dimensionId: dimId, raw: 0, count: 0, scaled: 0, scaledContinuous: 0, percentile: 0 };
     }
 
     const minPossible = data.count;       // Tất cả = 1
@@ -139,7 +156,10 @@ export function calculateUnifiedScores(
       ? Math.max(0, Math.min(100, ((data.rawSum - minPossible) / range) * 100))
       : 50;
 
-    // Percentile 0–100 → scaled 1–10 (bins đều nhau: mỗi 10% = 1 điểm)
+    // [v4.1] scaledContinuous: 1.0–10.0 — giữ đầy đủ thông tin, dùng cho tính toán nội bộ
+    const scaledContinuous = Math.round((1 + (percentile / 100) * 9) * 100) / 100;
+
+    // scaled: 1–10 integer — backward compat, chỉ dùng cho UI display
     const scaled = Math.min(10, Math.max(1, Math.floor(percentile / 10) + 1));
 
     return {
@@ -147,6 +167,7 @@ export function calculateUnifiedScores(
       raw: data.rawSum,
       count: data.count,
       scaled,
+      scaledContinuous,
       percentile: Math.round(percentile),
     };
   });
@@ -289,29 +310,73 @@ export function calculateUnifiedScores(
       'Thời gian phản hồi từng câu hợp lý.',
   };
 
-  // 4. Xác định độ tin cậy tổng quát (8 chỉ số)
-  const allMetrics = [lieMetric, consistencyMetric, neutralMetric, timeMetric, patternMetric, acquiescenceMetric, extremeMetric, quickMetric];
-  const riskCount    = allMetrics.filter(m => m.status === 'Risk').length;
-  const warningCount = allMetrics.filter(m => m.status === 'Warning').length;
+  // ── 4. [v4.1] Weighted Reliability Score (0–100) ──────────────────────────
+  // Mỗi chỉ số có trọng số riêng phản ánh tầm quan trọng thực sự.
+  // Lie Scale + Consistency chiếm weight cao nhất vì chúng chủ động nhất.
+  // Time + Quick Answers weight thấp vì có thể do phong cách đọc nhanh tự nhiên.
+  const RELIABILITY_WEIGHTS = {
+    lieScale:         0.30, // Chủ động gian lận → weight cao nhất
+    consistency:      0.25, // Mâu thuẫn logic → rất đáng ngờ
+    patternDetection: 0.15, // Đánh máy khuôn mẫu → đáng kể
+    neutralBias:      0.10, // Ba phải → giảm tính phân loại
+    acquiescenceBias: 0.10, // Đồng ý/phủ nhận cực đoan
+    timeTracking:     0.05, // Đọc nhanh tự nhiên → weight thấp
+    extremeResponder: 0.03, // Ít phổ biến hơn
+    quickAnswers:     0.02, // Weight thấp nhất — thiếu data
+  };
 
-  let reliabilityLevel: UnifiedScoringResult['reliabilityLevel'] = 'reliable';
+  // Hàm chuyển QualityMetric status → penalty score (0 = bình thường, 1 = tệ nhất)
+  const statusToPenalty = (m: QualityMetric): number => {
+    if (m.status === 'Risk')    return 1.0;
+    if (m.status === 'Warning') return 0.4;
+    return 0.0;
+  };
+
+  const weightedPenalty =
+    statusToPenalty(lieMetric)         * RELIABILITY_WEIGHTS.lieScale +
+    statusToPenalty(consistencyMetric) * RELIABILITY_WEIGHTS.consistency +
+    statusToPenalty(patternMetric)     * RELIABILITY_WEIGHTS.patternDetection +
+    statusToPenalty(neutralMetric)     * RELIABILITY_WEIGHTS.neutralBias +
+    statusToPenalty(acquiescenceMetric)* RELIABILITY_WEIGHTS.acquiescenceBias +
+    statusToPenalty(timeMetric)        * RELIABILITY_WEIGHTS.timeTracking +
+    statusToPenalty(extremeMetric)     * RELIABILITY_WEIGHTS.extremeResponder +
+    statusToPenalty(quickMetric)       * RELIABILITY_WEIGHTS.quickAnswers;
+
+  // reliabilityScore: 0 = tệ nhất, 100 = tốt nhất
+  const reliabilityScore = Math.round(Math.max(0, Math.min(100, (1 - weightedPenalty) * 100)));
+
+  // [v4.1] 4-tier dựa trên reliabilityScore thay vì đếm Risk/Warning cứng
+  let reliabilityLevel: UnifiedScoringResult['reliabilityLevel'];
+  if (reliabilityScore >= 80)      reliabilityLevel = 'reliable';
+  else if (reliabilityScore >= 60) reliabilityLevel = 'mostly-reliable';
+  else if (reliabilityScore >= 35) reliabilityLevel = 'use-with-caution';
+  else                             reliabilityLevel = 'low-interpretability';
+
+  // [v4.1] Penalty nhẹ hơn — giảm tác động cực đoan trên Combat Power
+  // Dimension scores KHÔNG bị ảnh hưởng, chỉ Combat Power display bị điều chỉnh nhẹ
   let penaltyMultiplier = 1.0;
+  if      (reliabilityLevel === 'low-interpretability') penaltyMultiplier = 0.88;
+  else if (reliabilityLevel === 'use-with-caution')     penaltyMultiplier = 0.94;
+  else if (reliabilityLevel === 'mostly-reliable')      penaltyMultiplier = 0.97;
+  // reliable → 1.0 (không phạt)
 
-  if (riskCount >= 1 || warningCount >= 4) {
-    reliabilityLevel = 'invalid';
-    penaltyMultiplier = 0.75;
-  } else if (warningCount >= 2) {
-    reliabilityLevel = 'suspect';
-    penaltyMultiplier = 0.85;
+  // [v4.1] Confidence của tầng Diễn giải (Persona, Duty, Risk Warnings)
+  let interpretationConfidence: UnifiedScoringResult['interpretationConfidence'];
+  let interpretationCaveat: string;
+  if (reliabilityScore >= 75) {
+    interpretationConfidence = 'high';
+    interpretationCaveat = '';
+  } else if (reliabilityScore >= 50) {
+    interpretationConfidence = 'medium';
+    interpretationCaveat = '💡 Các diễn giải dưới đây ở mức tham khảo — có một số dấu hiệu thiếu nhất quán trong bài làm.';
+  } else {
+    interpretationConfidence = 'low';
+    interpretationCaveat = '⚠️ Độ tin cậy thấp — dữ liệu bài làm có nhiều bất thường. Các diễn giải chỉ mang tính chất tham khảo. Khuyến nghị xác minh qua phỏng vấn trực tiếp.';
   }
-  // warningCount === 1 → reliable, không phạt (spec: 1 warning = acceptable)
-
-  // 5. Dimensions giữ nguyên điểm thô — penalty chỉ áp vào Combat Power (unifiedScoring.ts)
-  const finalDimensions = dimensions;
 
   return {
     type: 'SPI_UNIFIED_V4',
-    dimensions: finalDimensions,
+    dimensions,
     dataQuality: {
       lieScale:         lieMetric,
       consistency:      consistencyMetric,
@@ -322,8 +387,11 @@ export function calculateUnifiedScores(
       extremeResponder: extremeMetric,
       quickAnswers:     quickMetric,
     },
+    reliabilityScore,
     reliabilityLevel,
     penaltyMultiplier,
+    interpretationConfidence,
+    interpretationCaveat,
   };
 }
 
@@ -342,26 +410,43 @@ export function adaptToAssessmentResult(result: UnifiedScoringResult) {
     return 35;
   })();
 
+  // [v4.1] Backward compat: map 4-tier mới → 3-tier cũ cho các component legacy
+  const legacyLevel =
+    result.reliabilityLevel === 'reliable'            ? 'high' :
+    result.reliabilityLevel === 'mostly-reliable'     ? 'high' :   // mostly-reliable → high (không cần cảnh báo mạnh)
+    result.reliabilityLevel === 'use-with-caution'    ? 'medium' :
+    'low'; // low-interpretability → low
+
+  const legacyReliabilityNote =
+    result.reliabilityLevel === 'low-interpretability'
+      ? '⚠️ Kết quả không đáng tin cậy — cần phỏng vấn trực tiếp xác minh.'
+    : result.reliabilityLevel === 'use-with-caution'
+      ? `🟡 Kết quả cần thận trọng khi diễn giải (điểm tin cậy: ${result.reliabilityScore}/100).`
+    : result.reliabilityLevel === 'mostly-reliable'
+      ? `✅ Kết quả đáng tin cậy (điểm tin cậy: ${result.reliabilityScore}/100 — có một số lưu ý nhỏ).`
+      : `✅ Kết quả đáng tin cậy (điểm tin cậy: ${result.reliabilityScore}/100).`;
+
   return {
     dimensions: result.dimensions.map(d => ({
       dimensionId: d.dimensionId,
       raw: d.raw,
       max: d.count * 5,
       scaled: d.scaled,
+      scaledContinuous: d.scaledContinuous, // [v4.1] expose cho các hàm downstream
       percentile: d.percentile,
     })),
     reliability: {
-      level: result.reliabilityLevel === 'reliable' ? 'high' :
-             result.reliabilityLevel === 'suspect'  ? 'medium' : 'low',
+      level: legacyLevel,
       lieScore: lieScoreNormalized,
       consistencyScore,
       speedFlag: result.dataQuality.timeTracking.status === 'Risk',
       avgSecondsPerQ: 0,
-      details: result.reliabilityLevel === 'invalid'
-        ? '⚠️ Kết quả không đáng tin cậy — cần phỏng vấn trực tiếp xác minh.'
-        : result.reliabilityLevel === 'suspect'
-        ? `🟡 Kết quả tương đối đáng tin cậy (penalty ${Math.round((1 - result.penaltyMultiplier) * 100)}% đã áp dụng).`
-        : '✅ Kết quả đáng tin cậy.',
+      details: legacyReliabilityNote,
+      // [v4.1] Thêm các field mới để phần diễn giải downstream có thể đọc
+      reliabilityScore: result.reliabilityScore,
+      reliabilityLevel: result.reliabilityLevel,
+      interpretationConfidence: result.interpretationConfidence,
+      interpretationCaveat: result.interpretationCaveat,
     },
     completedAt: new Date().toISOString(),
     durationSeconds: 0,
