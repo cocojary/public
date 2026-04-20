@@ -252,6 +252,52 @@ const NARRATIVES: Record<string, string[]> = {
     'Bạn luôn giữ được sự lý trí sắc lạnh giữa mọi biến động. Khả năng kiểm soát cảm xúc tuyệt vời giúp bạn kiên định với chiến lược bất chấp sóng gió của thị trường.',
     'Bạn sở hữu tinh thần thép và sự tĩnh lặng tuyệt đối trước mọi khủng hoảng sống còn. Sự điềm tĩnh của bạn chính là điểm tựa vững chắc nhất cho toàn bộ tổ chức.',
   ],
+
+  // ── NĂNG LỰC BỔ TRỢ (competency) ───────────────────────────
+  critical_thinking: [
+    'Bạn có xu hướng chấp nhận thông tin và ý kiến người khác mà không phân tích sâu. Bạn làm việc tốt nhất trong môi trường có quy trình rõ ràng và không đòi hỏi sự phán xét phức tạp.',
+    'Bạn đặt câu hỏi trong một số tình huống quen thuộc nhưng chưa hình thành thói quen phân tích đa chiều. Bạn cần rèn luyện thêm để không bị dẫn dắt bởi thông tin bề mặt.',
+    'Bạn có khả năng tư duy phản biện ở mức ổn định, biết đánh giá nhiều quan điểm trước khi kết luận. Bạn phát huy tốt nhất khi được thảo luận nhóm để kiểm chứng lại ý tưởng.',
+    'Bạn có tư duy sắc bén, thường xuyên đặt câu hỏi về nguồn gốc thông tin và tính chính xác của dữ liệu. Bạn rất phù hợp với các vai trò phân tích hoặc kiểm soát chất lượng.',
+    'Bạn sở hữu tư duy phản biện xuất sắc, có khả năng phát hiện những logic sai lầm mà người khác bỏ qua. Bạn đặc biệt phù hợp với vai trò audit, research hoặc tư vấn chiến lược.',
+  ],
+  communication_clarity: [
+    'Bạn đôi khi truyền đạt thông tin vòng vo khiến người nghe khó nắm bắt trọng tâm. Việc luyện tập cấu trúc PREP (Point - Reason - Example - Point) sẽ giúp bạn cải thiện đáng kể.',
+    'Bạn truyền đạt được thông tin cơ bản nhưng đôi khi còn lan man. Bạn phát huy tốt hơn khi có thời gian chuẩn bị trước thay vì giao tiếp ngẫu hứng.',
+    'Bạn giao tiếp ở mức ổn định, truyền đạt thông tin đủ rõ ràng trong hầu hết các tình huống công việc thông thường.',
+    'Bạn trình bày ý tưởng ngắn gọn và dễ hiểu. Khả năng diễn đạt súc tích giúp đồng nghiệp và khách hàng nắm bắt thông tin nhanh chóng.',
+    'Bạn sở hữu khả năng giao tiếp xuất sắc, có thể đơn giản hóa các vấn đề phức tạp thành ngôn ngữ dễ hiểu cho mọi đối tượng. Bạn là người truyền thông tin lý tưởng trong tổ chức.',
+  ],
+  time_management: [
+    'Bạn thường xuyên gặp khó khăn trong việc sắp xếp ưu tiên và dễ bị cuốn vào các tác vụ ít quan trọng. Việc áp dụng ma trận Eisenhower sẽ giúp bạn tập trung đúng chỗ.',
+    'Bạn đôi khi gặp khó khăn khi xử lý nhiều deadline cùng lúc. Một hệ thống quản lý công việc rõ ràng sẽ giúp bạn giảm tình trạng quá tải và bỏ sót.',
+    'Bạn quản lý thời gian ở mức ổn định, hoàn thành phần lớn nhiệm vụ đúng hạn trong điều kiện bình thường.',
+    'Bạn sắp xếp công việc khoa học và ít khi để deadline slip. Khả năng ưu tiên tốt giúp nhóm vận hành nhịp nhàng mà không cần giám sát chặt chẽ.',
+    'Bạn sở hữu kỹ năng quản lý thời gian đỉnh cao, luôn hoàn thành đúng hạn dù khối lượng công việc lớn. Bạn là hình mẫu về sự tổ chức và kỷ luật thời gian.',
+  ],
+  data_literacy: [
+    'Bạn chủ yếu ra quyết định dựa trên trực giác và kinh nghiệm. Trong môi trường số ngày nay, việc học đọc hiểu dữ liệu cơ bản sẽ tăng đáng kể hiệu quả của bạn.',
+    'Bạn có thể đọc các báo cáo cơ bản nhưng chưa tự tin khi làm việc với bộ dữ liệu phức tạp. Một khóa đào tạo ngắn về data visualization sẽ mở ra nhiều cơ hội nghề nghiệp.',
+    'Bạn làm việc tốt với dữ liệu thông thường và có thể rút ra những kết luận hợp lý từ báo cáo số liệu.',
+    'Bạn nhạy bén với các con số và dễ dàng phát hiện những xu hướng trong dữ liệu. Bạn phù hợp với các vai trò cần ra quyết định dựa trên bằng chứng thực tế.',
+    'Bạn sở hữu tư duy dữ liệu xuất sắc, có khả năng đọc hiểu và rút ra insight sắc bén từ những bộ dữ liệu phức tạp. Bạn đặc biệt phù hợp với các vai trò phân tích chiến lược.',
+  ],
+
+  // ── DIMENSION MỚI: LINH HOẠT & BỀN BỈ ────────────────────
+  adaptability: [
+    'Bạn ưu tiên sự ổn định và rõ ràng. Bạn làm việc tốt nhất trong môi trường có quy trình cố định và ít thay đổi đột ngột. Bạn cần được thông báo trước về các thay đổi để chuẩn bị tốt.',
+    'Bạn cần thời gian để thích nghi khi quy trình hoặc yêu cầu thay đổi. Bạn sẽ làm việc hiệu quả hơn khi được cung cấp đủ thông tin và context trước khi chuyển sang nhiệm vụ mới.',
+    'Bạn thích nghi được với phần lớn các thay đổi trong điều kiện bình thường. Bạn có thể xử lý đa nhiệm ở mức vừa phải và duy trì hiệu suất khi được sắp xếp hợp lý.',
+    'Bạn linh hoạt và chuyển đổi tốt giữa các ngữ cảnh khác nhau. Bạn không bị mất phương hướng khi kế hoạch thay đổi và có thể xử lý nhiều luồng công việc cùng lúc.',
+    'Bạn sở hữu khả năng thích nghi vượt trội — tài sản cực kỳ quý giá trong môi trường VUCA. Bạn không chỉ chịu đựng được sự thay đổi mà còn tìm thấy cơ hội trong đó.',
+  ],
+  grit: [
+    'Bạn dễ nản lòng khi gặp trở ngại kéo dài hoặc thiếu kết quả tức thì. Bạn phù hợp với các dự án có mốc tiến độ ngắn hạn rõ ràng để duy trì động lực.',
+    'Bạn có thể kiên trì trong một thời gian nhưng áp lực kéo dài thường ảnh hưởng đến cam kết. Bạn cần hệ thống hỗ trợ và những cột mốc nhỏ để duy trì nhiệt huyết trong giai đoạn khó khăn.',
+    'Bạn có khả năng bền bỉ ở mức ổn định. Bạn không dễ từ bỏ trước những trở ngại thông thường nhưng có thể cần sự khích lệ trong các thử thách kéo dài hơn dự kiến.',
+    'Bạn sở hữu tinh thần bền bỉ tốt — không từ bỏ dễ dàng và có khả năng duy trì nỗ lực qua những giai đoạn khó khăn kéo dài mà người khác đã bỏ cuộc.',
+    'Bạn sở hữu Grit ở mức đỉnh cao. Bạn có khả năng kiên trì theo đuổi mục tiêu dài hạn bất chấp thất bại liên tiếp — đây là phẩm chất hiếm có và là nền tảng của mọi thành công bền vững.',
+  ],
 };
 
 // ─── NEGATIVE TENDENCY ANALYSIS ───────────────────────────────
@@ -390,45 +436,96 @@ export function calcDutySuitability(dims: DimensionScore[]): DutyScore[] {
   const duties = [
     {
       duty: '🧑‍💻 Kỹ thuật / Lập trình (DEV)',
-      score: Math.round(pct(get('logical_thinking')) * 0.4 + pct(get('conscientiousness')) * 0.3 + pct(get('caution')) * 0.3),
+      // Tích hợp data_literacy — quan trọng trong kỷ nguyên số
+      score: Math.round(
+        pct(get('logical_thinking')) * 0.35 +
+        pct(get('conscientiousness')) * 0.25 +
+        pct(get('caution')) * 0.2 +
+        pct(get('data_literacy')) * 0.2
+      ),
       description: 'Phân tích, lập trình, thiết kế hệ thống và giải quyết vấn đề kỹ thuật.',
     },
     {
       duty: '💰 Kế toán / Tài chính (Accountant)',
-      score: Math.round(pct(get('caution')) * 0.5 + pct(get('conscientiousness')) * 0.3 + pct(get('stability_orientation')) * 0.2),
+      // Thêm time_management — quản lý deadline tài chính rất quan trọng
+      score: Math.round(
+        pct(get('caution')) * 0.4 +
+        pct(get('conscientiousness')) * 0.3 +
+        pct(get('stability_orientation')) * 0.15 +
+        pct(get('time_management')) * 0.15
+      ),
       description: 'Quản lý con số, tính toán chi tiết, đảm bảo tính tuân thủ và chính xác tài chính.',
     },
     {
       duty: '🗣️ Kinh doanh / Bán hàng (SALES)',
-      score: Math.round(pct(get('extraversion')) * 0.4 + pct(get('challenge_spirit')) * 0.3 + pct(get('stress_mental')) * 0.3),
+      // Thêm communication_clarity — giao tiếp rõ ràng là yếu tố cốt lõi của sales
+      score: Math.round(
+        pct(get('extraversion')) * 0.35 +
+        pct(get('challenge_spirit')) * 0.25 +
+        pct(get('stress_mental')) * 0.2 +
+        pct(get('communication_clarity')) * 0.2
+      ),
       description: 'Mở rộng thị trường, thuyết phục khách hàng và chịu áp lực doanh số cao.',
     },
     {
       duty: '🎨 Sáng tạo / Truyền thông',
-      score: Math.round(pct(get('openness')) * 0.5 + pct(get('autonomy')) * 0.3 + pct(get('achievement_drive')) * 0.2),
+      // Thêm adaptability — sáng tạo đòi hỏi thích nghi nhanh với xu hướng
+      score: Math.round(
+        pct(get('openness')) * 0.4 +
+        pct(get('autonomy')) * 0.25 +
+        pct(get('achievement_drive')) * 0.15 +
+        pct(get('adaptability')) * 0.2
+      ),
       description: 'UI/UX, sáng tạo nội dung, định hướng thương hiệu và đổi mới.',
     },
     {
       duty: '👥 Nhân sự / Đào tạo (HR)',
-      score: Math.round(pct(get('empathy')) * 0.4 + pct(get('agreeableness')) * 0.3 + pct(get('social_contribution')) * 0.3),
+      // Thêm time_management — HR quản lý nhiều quy trình đồng thời
+      score: Math.round(
+        pct(get('empathy')) * 0.35 +
+        pct(get('agreeableness')) * 0.25 +
+        pct(get('social_contribution')) * 0.2 +
+        pct(get('time_management')) * 0.2
+      ),
       description: 'Kết nối con người, xây dựng văn hóa và phát triển đội ngũ.',
     },
     {
       duty: '📋 Hành chính / Vận hành',
-      score: Math.round(pct(get('conscientiousness')) * 0.4 + pct(get('caution')) * 0.4 + pct(get('stability_orientation')) * 0.2),
+      // Tái cân bằng trọng số — thêm time_management
+      score: Math.round(
+        pct(get('conscientiousness')) * 0.35 +
+        pct(get('caution')) * 0.3 +
+        pct(get('stability_orientation')) * 0.15 +
+        pct(get('time_management')) * 0.2
+      ),
       description: 'Quản lý quy trình, đảm bảo bộ máy vận hành trơn tru và tuân thủ.',
     },
     {
-      duty: '👑 CEO / Giám đốc điều hành',
+      duty: '🚀 Quản lý Dự án / Team Lead',
+      // Dimension mới: grit + adaptability quyết định thành bại dự án
       score: Math.round(
-        pct(get('strategic_vision')) * 0.15 +
-        pct(get('decision_making')) * 0.15 +
-        pct(get('ownership')) * 0.15 +
-        pct(get('pressure_balance')) * 0.15 +
-        pct(get('logical_thinking')) * 0.1 +
-        pct(get('achievement_drive')) * 0.1 +
-        pct(get('emotional_stability')) * 0.1 +
-        pct(get('organization_building')) * 0.1
+        pct(get('conscientiousness')) * 0.25 +
+        pct(get('autonomy')) * 0.2 +
+        pct(get('achievement_drive')) * 0.2 +
+        pct(get('grit')) * 0.2 +
+        pct(get('adaptability')) * 0.15
+      ),
+      description: 'Dẫn dắt nhóm, quản lý tiến độ và nguồn lực, đảm bảo mục tiêu dự án.',
+    },
+    {
+      duty: '👑 CEO / Giám đốc điều hành',
+      // Thêm financial_management + risk_management — lỗ hổng chí mạng của CEO
+      score: Math.round(
+        pct(get('strategic_vision')) * 0.12 +
+        pct(get('decision_making')) * 0.12 +
+        pct(get('ownership')) * 0.12 +
+        pct(get('pressure_balance')) * 0.12 +
+        pct(get('logical_thinking')) * 0.08 +
+        pct(get('achievement_drive')) * 0.08 +
+        pct(get('emotional_stability')) * 0.08 +
+        pct(get('organization_building')) * 0.08 +
+        pct(get('financial_management')) * 0.1 +
+        pct(get('risk_management')) * 0.1
       ),
       description: 'Lãnh đạo tối cao, chịu trách nhiệm chiến lược và sinh mệnh tổ chức.',
     },
@@ -482,16 +579,25 @@ export function calcCombatPower(dims: DimensionScore[]): CombatPower {
   const pct = (val: number) => val * 10;
 
   // 4 Trụ cột Thực chiến (Pillars) - Anthropology Model
-  const vitalityVal = Math.round((pct(get('achievement_drive')) + pct(get('challenge_spirit')) + pct(get('autonomy'))) / 3);
-  const intelligenceVal = Math.round((pct(get('logical_thinking')) + pct(get('openness')) + (isCEO ? pct(get('strategic_vision')) : 50)) / 3);
-  const resilienceVal = Math.round((pct(get('emotional_stability')) + pct(get('stress_mental')) + pct(get('empathy'))) / 3);
-  const disciplineVal = Math.round((pct(get('conscientiousness')) + pct(get('caution')) + (isCEO ? pct(get('decision_making')) : pct(get('execution_speed')))) / 3);
+  const vitalityVal = Math.round(
+    (pct(get('achievement_drive')) + pct(get('challenge_spirit')) + pct(get('autonomy')) + pct(get('grit'))) / 4
+  );
+  // Dùng data_literacy thay fallback 50 — trí tuệ hiện đại cần năng lực số
+  const intelligenceVal = Math.round(
+    (pct(get('logical_thinking')) + pct(get('openness')) + (isCEO ? pct(get('strategic_vision')) : pct(get('data_literacy')))) / 3
+  );
+  const resilienceVal = Math.round(
+    (pct(get('emotional_stability')) + pct(get('stress_mental')) + pct(get('adaptability'))) / 3
+  );
+  const disciplineVal = Math.round(
+    (pct(get('conscientiousness')) + pct(get('caution')) + (isCEO ? pct(get('decision_making')) : pct(get('execution_speed')))) / 3
+  );
 
   const pillars = {
-    vitality: { name: '🔥 VITALITY', value: vitalityVal, desc: 'Sức sống, ý chí sinh tồn và khao khát khẳng định.' },
-    intelligence: { name: '🧠 INTELLIGENCE', value: intelligenceVal, desc: 'Trí tuệ hệ thống, khả năng thích nghi và tầm nhìn.' },
-    resilience: { name: '🛡️ RESILIENCE', value: resilienceVal, desc: 'Bản lĩnh, sức chịu đựng tâm lý và sự thấu cảm.' },
-    discipline: { name: '🎯 DISCIPLINE', value: disciplineVal, desc: 'Kỷ luật cá nhân, khả năng ra quyết định và thực thi.' },
+    vitality:     { name: '🔥 VITALITY',     value: vitalityVal,     desc: 'Sức sống, ý chí sinh tồn, khao khát và bền bỉ (Grit).' },
+    intelligence: { name: '🧠 INTELLIGENCE', value: intelligenceVal, desc: 'Trí tuệ hệ thống, năng lực số và tầm nhìn chiến lược.' },
+    resilience:   { name: '🛡️ RESILIENCE',  value: resilienceVal,   desc: 'Bản lĩnh, sức chịu đựng tâm lý và khả năng thích nghi.' },
+    discipline:   { name: '🎯 DISCIPLINE',   value: disciplineVal,   desc: 'Kỷ luật cá nhân, khả năng ra quyết định và thực thi.' },
   };
 
   // Logic Penalty (Gót chân Achilles)
@@ -502,10 +608,24 @@ export function calcCombatPower(dims: DimensionScore[]): CombatPower {
   if (minPillar < 30) penaltyFactor = 0.65;
   else if (minPillar < 45) penaltyFactor = 0.85;
 
-  // Logic Bonus (Synergy - Cộng hưởng lãnh đạo)
+  // CEO-specific Penalty — lỗ hổng tài chính/rủi ro là rủi ro sống còn của doanh nghiệp
+  if (isCEO && get('financial_management') < 4) {
+    penaltyFactor *= 0.75; // -25% nếu CEO thiếu tư duy tài chính
+  }
+  if (isCEO && get('risk_management') < 4) {
+    penaltyFactor *= 0.80; // -20% nếu CEO không biết quản trị rủi ro
+  }
+  // Đảm bảo penalty tối thiểu 0.3 (không bao giờ về 0)
+  penaltyFactor = Math.max(0.3, penaltyFactor);
+
+  // Logic Bonus (Synergy — Cộng hưởng lãnh đạo)
   let bonusPoints = 0;
   if (isCEO && get('strategic_vision') >= 8 && get('decision_making') >= 8) {
-    bonusPoints = 500; // Cộng thẳng điểm thưởng cho sự kết hợp Tầm nhìn + Quyết đoán
+    bonusPoints = 500; // Cộng điểm thưởng cho sự kết hợp Tầm nhìn + Quyết đoán
+  }
+  // Bonus cho Grit + Adaptability cao (nhân sự trường kỳ tuyệt vời)
+  if (get('grit') >= 8 && get('adaptability') >= 8) {
+    bonusPoints += 200;
   }
 
   const baseTotal = (vitalityVal + intelligenceVal + resilienceVal + disciplineVal) * 25; // Max 10000
@@ -522,6 +642,113 @@ export function calcCombatPower(dims: DimensionScore[]): CombatPower {
   else if (total >= 4000) { rank = 'C'; label = 'Cần được rèn luyện'; description = 'Hệ thống năng lực còn nhiều lỗ hổng, cần lộ trình đào tạo.'; }
 
   return { total, rank, label, description, pillars, penaltyFactor, bonusPoints };
+}
+
+// ─── TECHZEN CULTURE FIT ────────────────────────────────────
+// Tính 5 core score phù hợp văn hóa Techzen từ dimension scores
+export interface TechzenCultureFit {
+  core1Score: number;  // Người tử tế (Tâm/Minh bạch)
+  core2Score: number;  // Học tập suốt đời
+  core3Score: number;  // Agile & Thích ứng
+  core4Score: number;  // Tạo Giá trị thật
+  core5Score: number;  // Trọng văn hóa Nhật
+  overallScore: number;
+}
+
+export function calcTechzenCultureFit(dims: DimensionScore[]): TechzenCultureFit {
+  const get = (id: string) => dims.find(d => d.dimensionId === id)?.scaled ?? 5;
+  const pct = (v: number) => Math.round(v * 10);
+
+  // Core 1: Người tử tế — Agreeableness + Empathy + Conscientiousness
+  const c1 = Math.round((pct(get('agreeableness')) + pct(get('empathy')) + pct(get('conscientiousness'))) / 3);
+  // Core 2: Học tập suốt đời — Learning Curiosity + Openness + Data Literacy
+  const c2 = Math.round((pct(get('learning_curiosity')) + pct(get('openness')) + pct(get('data_literacy'))) / 3);
+  // Core 3: Agile & Thích ứng — Challenge Spirit + Adaptability + Autonomy
+  const c3 = Math.round((pct(get('challenge_spirit')) + pct(get('adaptability')) + pct(get('autonomy'))) / 3);
+  // Core 4: Tạo Giá trị thật — Achievement Drive + Conscientiousness + Grit
+  const c4 = Math.round((pct(get('achievement_drive')) + pct(get('conscientiousness')) + pct(get('grit'))) / 3);
+  // Core 5: Trọng văn hóa Nhật — Conscientiousness + Stability + Stress Mental + Caution
+  const c5 = Math.round((pct(get('conscientiousness')) + pct(get('stability_orientation')) + pct(get('stress_mental')) + pct(get('caution'))) / 4);
+
+  const overallScore = Math.round((c1 + c2 + c3 + c4 + c5) / 5);
+  return { core1Score: c1, core2Score: c2, core3Score: c3, core4Score: c4, core5Score: c5, overallScore };
+}
+
+// ─── RETENTION DRIVERS ───────────────────────────────────────
+// Xác định top 3 yếu tố giữ chân nhân sự (quan trọng cho HR onboarding)
+export interface RetentionDriver {
+  factor: string;
+  dimension: string;
+  importance: 'high' | 'medium';
+  hrAction: string;
+}
+
+export function getRetentionDrivers(dims: DimensionScore[]): RetentionDriver[] {
+  const get = (id: string) => dims.find(d => d.dimensionId === id)?.scaled ?? 5;
+  const drivers: RetentionDriver[] = [];
+
+  // Phân tích từng yếu tố giữ chân dựa trên điểm dimension
+  if (get('recognition_need') >= 7) {
+    drivers.push({
+      factor: '🏆 Được ghi nhận công khai',
+      dimension: 'recognition_need',
+      importance: 'high',
+      hrAction: 'Thiết lập chương trình Employee of the Month, shoutout trong meeting, vinh danh thành tích cụ thể.',
+    });
+  }
+  if (get('autonomy') >= 7) {
+    drivers.push({
+      factor: '🦅 Quyền tự chủ trong công việc',
+      dimension: 'autonomy',
+      importance: 'high',
+      hrAction: 'Cho phép remote/hybrid linh hoạt, giao việc theo outcome không theo quy trình, tránh micromanagement.',
+    });
+  }
+  if (get('growth_orientation') >= 7) {
+    drivers.push({
+      factor: '📈 Lộ trình thăng tiến rõ ràng',
+      dimension: 'growth_orientation',
+      importance: 'high',
+      hrAction: 'Lập career roadmap cụ thể trong 90 ngày đầu, đặt milestone 6 tháng và 1 năm, cử đi training ngoài.',
+    });
+  }
+  if (get('social_contribution') >= 7) {
+    drivers.push({
+      factor: '🌱 Công việc có tác động xã hội',
+      dimension: 'social_contribution',
+      importance: 'medium',
+      hrAction: 'Kết nối nhiệm vụ hàng ngày với sứ mệnh tổ chức, tham gia CSR, chia sẻ impact story thường xuyên.',
+    });
+  }
+  if (get('learning_curiosity') >= 7) {
+    drivers.push({
+      factor: '📚 Cơ hội học hỏi liên tục',
+      dimension: 'learning_curiosity',
+      importance: 'medium',
+      hrAction: 'Cung cấp budget đào tạo cá nhân, cho phép 10% thời gian học, mời speaker nội bộ định kỳ.',
+    });
+  }
+  if (get('stability_orientation') >= 7) {
+    drivers.push({
+      factor: '⚓ Sự ổn định và an toàn công việc',
+      dimension: 'stability_orientation',
+      importance: 'medium',
+      hrAction: 'Cung cấp hợp đồng dài hạn, thông tin minh bạch về tình hình công ty, phúc lợi bảo hiểm đầy đủ.',
+    });
+  }
+  if (get('challenge_spirit') >= 8 && get('grit') >= 7) {
+    drivers.push({
+      factor: '🔥 Thử thách và dự án khó',
+      dimension: 'challenge_spirit',
+      importance: 'high',
+      hrAction: 'Giao những dự án stretch assignments, để họ lead thử thách mới, không để họ bị stagnant quá 6 tháng.',
+    });
+  }
+
+  // Sắp xếp: high importance lên trước, trả về top 3
+  return drivers
+    .sort((a, b) => (a.importance === 'high' ? -1 : 1) - (b.importance === 'high' ? -1 : 1))
+    .slice(0, 3);
 }
 
 // ─── NARRATIVE GENERATOR ─────────────────────────────────────
@@ -678,6 +905,22 @@ export function detectPersonaRanked(dims: DimensionScore[]): PersonaRankedResult
       profile: { conscientiousness: 9, emotional_stability: 8, agreeableness: 7, caution: 8 },
     },
     {
+      // Archetype mới: Người Thực Thi Xuất Sắc — cao Grit + Execution Speed
+      persona: { title: 'Người Thực Thi Xuất Sắc', emoji: '⚡',
+        traits: ['Tốc độ thực thi cao', 'Tự chủ mạnh mẽ', 'Kỷ luật và vượt deadline'],
+        bestEnvironment: 'Project management, operations, startup COO/CTO',
+        watchOut: 'Có thể nóng vội và bỏ qua các chi tiết quan trọng. Cần review kỹ hơn' },
+      profile: { conscientiousness: 8, execution_speed: 9, autonomy: 8, achievement_drive: 8, grit: 8 },
+    },
+    {
+      // Archetype mới: Solution Engineer — cầu nối kỹ thuật-kinh doanh
+      persona: { title: 'Cầu Nối Kỹ thuật-Kinh doanh', emoji: '🔗',
+        traits: ['Kết hợp tư duy kỹ thuật và giao tiếp', 'Thấu cảm nhu cầu khách hàng', 'Giải quyết vấn đề sáng tạo'],
+        bestEnvironment: 'Pre-sales, Technical Account Manager, Solution Architect, Product Manager',
+        watchOut: 'Rủi ro bị kéo sang quá nhiều hướng. Cần xác định rõ chuyên môn cốt lõi' },
+      profile: { logical_thinking: 8, empathy: 7, extraversion: 6, conscientiousness: 7, communication_clarity: 8, data_literacy: 7 },
+    },
+    {
       persona: { title: 'Đa Năng Cân Bằng', emoji: '⚖️',
         traits: ['Linh hoạt và thích nghi', 'Phù hợp nhiều vai trò', 'Cân bằng giữa các tính cách'],
         bestEnvironment: 'Hầu hết môi trường làm việc thông thường',
@@ -691,10 +934,15 @@ export function detectPersonaRanked(dims: DimensionScore[]): PersonaRankedResult
     extraversion: ext, agreeableness: agr, conscientiousness: con,
     openness: ope, emotional_stability: emo, achievement_drive: ach,
     logical_thinking: log, empathy: emp, autonomy: aut,
-    // Fallback cho dimension khác
-    challenge_spirit: get('challenge_spirit'),
-    learning_curiosity: get('learning_curiosity'),
-    caution: get('caution'),
+    // Dimension mở rộng
+    challenge_spirit:    get('challenge_spirit'),
+    learning_curiosity:  get('learning_curiosity'),
+    caution:             get('caution'),
+    execution_speed:     get('execution_speed'),
+    adaptability:        get('adaptability'),
+    grit:                get('grit'),
+    data_literacy:       get('data_literacy'),
+    communication_clarity: get('communication_clarity'),
   };
 
   const scored = archetypes.map(a => {

@@ -32,6 +32,12 @@ const DIMS = [
   { id: 'stress_physical',      group: 'stress',      nameVi: 'Chịu Đựng Stress Thể Chất', nameEn: 'Physical Stress Tolerance', descLow: 'Cần cân bằng giữa công việc và nghỉ ngơi, không phù hợp cường độ cao kéo dài.', descHigh: 'Duy trì năng lượng và sức khỏe tốt ngay cả khi làm việc cường độ cao kéo dài.',                                  color: '#DC2626', icon: '💪',  displayOrder: 19 },
   // ── NHÓM E.B: COMPETENCY ──
   { id: 'critical_thinking',    group: 'competency',  nameVi: 'Tư Duy Phản Biện',          nameEn: 'Critical Thinking',    descLow: 'Dễ dàng chấp nhận thông tin sẵn có mà không đặt câu hỏi hay đào sâu.',         descHigh: 'Thường xuyên phân tích, đánh giá nhiều chiều trước khi tin tưởng một kết luận.',                                     color: '#0284C7', icon: '🕵️', displayOrder: 20 },
+  { id: 'communication_clarity', group: 'competency', nameVi: 'Giao Tiếp Rõ Ràng',           nameEn: 'Communication Clarity', descLow: 'Truyền đạt thông tin đôi khi vòng vo hoặc khiến người nghe khó nắm bắt trọng tâm.', descHigh: 'Trình bày ý tưởng ngắn gọn, súc tích và dễ hiểu cho mọi đối tượng.',           color: '#2DD4BF', icon: '💬', displayOrder: 34 },
+  { id: 'time_management',       group: 'competency', nameVi: 'Quản Lý Thời Gian',            nameEn: 'Time Management',       descLow: 'Thường xuyên gặp khó khăn trong việc ưu tiên công việc, hay làm việc quá giờ.',   descHigh: 'Sắp xếp mức độ ưu tiên xuất sắc, luôn hoàn thành đúng hạn mà không quá tải.',   color: '#EAB308', icon: '⏳', displayOrder: 35 },
+  { id: 'data_literacy',         group: 'competency', nameVi: 'Năng Lực Hiểu Dữ Liệu',       nameEn: 'Data Literacy',         descLow: 'Ra quyết định chủ yếu dựa trên trực giác, gặp khó khăn khi làm việc với báo cáo số liệu.', descHigh: 'Nhạy bén với các con số, dễ dàng đọc hiểu và rút ra quyết định thông minh từ dữ liệu.', color: '#3B82F6', icon: '📊', displayOrder: 36 },
+  // ── NHÓM G: ADAPTABILITY & GRIT (VUCA Dimensions) ──
+  { id: 'adaptability',          group: 'motivation', nameVi: 'Khả Năng Thích Nghi',          nameEn: 'Adaptability',          descLow: 'Gặp khó khăn khi môi trường thay đổi đột ngột, cần thời gian dài để điều chỉnh.', descHigh: 'Linh hoạt cao, nhanh chóng điều chỉnh tư duy và hành động trong môi trường biến động.',                              color: '#06B6D4', icon: '🌊', displayOrder: 37 },
+  { id: 'grit',                  group: 'motivation', nameVi: 'Bền Bỉ / Ý Chí',              nameEn: 'Grit',                  descLow: 'Dễ mất kiên nhẫn hoặc từ bỏ mục tiêu khi gặp trở ngại lớn hay tiến độ chậm.', descHigh: 'Duy trì đam mê và sự kiên trì với mục tiêu dài hạn bất chấp thất bại và khó khăn.', color: '#DC2626', icon: '🔩', displayOrder: 38 },
   // ── NHÓM F: LEADERSHIP (INTERNAL ONLY) ──
   { id: 'strategic_vision',          group: 'leadership', nameVi: 'Tầm Nhìn Chiến Lược',     nameEn: 'Strategic Vision',         descLow: 'Tập trung ngắn hạn.', descHigh: 'Tư duy dài hạn.', color: '#1E3A8A', icon: '🔭', displayOrder: 21 },
   { id: 'decision_making',           group: 'leadership', nameVi: 'Ra Quyết Định',            nameEn: 'Decision Making',          descLow: 'Trì hoãn.',           descHigh: 'Hành động nhanh.', color: '#3B82F6', icon: '⚡', displayOrder: 22 },
@@ -220,6 +226,21 @@ const MAIN_QUESTIONS = [
   { legacyId: 162, dimId: 'critical_thinking',    type: 'main', reversed: false, text: 'Khi đưa ra quyết định quan trọng, tôi cân nhắc cả quan điểm phản biện.' },
   { legacyId: 163, dimId: 'critical_thinking',    type: 'main', reversed: true,  text: 'Tôi thường tin vào thông tin từ người có thẩm quyền mà không kiểm chứng thêm.' },
   { legacyId: 164, dimId: 'critical_thinking',    type: 'main', reversed: true,  text: 'Tôi ít khi xem xét lại giả định của mình ngay cả khi có dữ liệu mới.' },
+  // ── ADAPTABILITY (6 câu — UUID khớp cache) ──
+  // UUID sử dụng legacyId 300-305, khớp với ids trong cache: ada00001...ada00006
+  { legacyId: 300, dimId: 'adaptability', type: 'main', reversed: false, text: 'Tôi nhanh chóng điều chỉnh cách làm việc khi tổ chức hoặc dự án thay đổi định hướng đột ngột.',  id: 'ada00001-0000-4000-a000-000000000001' },
+  { legacyId: 301, dimId: 'adaptability', type: 'main', reversed: false, text: 'Khi quy trình làm việc thay đổi, tôi tiếp cận và thích nghi nhanh hơn đồng nghiệp.',            id: 'ada00002-0000-4000-a000-000000000002' },
+  { legacyId: 302, dimId: 'adaptability', type: 'main', reversed: false, text: 'Tôi có thể chuyển đổi linh hoạt giữa nhiều dự án, ưu tiên khác nhau trong cùng một ngày làm việc.',id: 'ada00003-0000-4000-a000-000000000003' },
+  { legacyId: 303, dimId: 'adaptability', type: 'main', reversed: true,  text: 'Tôi cảm thấy bất an và mất phương hướng khi kế hoạch công việc bị thay đổi đột ngột.',         id: 'ada00004-0000-4000-a000-000000000004' },
+  { legacyId: 304, dimId: 'adaptability', type: 'main', reversed: true,  text: 'Tôi cần quy trình và môi trường cố định để làm việc hiệu quả, khó làm tốt với sự bất ổn.',     id: 'ada00005-0000-4000-a000-000000000005' },
+  { legacyId: 305, dimId: 'adaptability', type: 'main', reversed: false, text: 'Khi môi trường thay đổi, tôi thường nhìn thấy cơ hội thay vì rủi ro và hành động theo đó.',     id: 'ada00006-0000-4000-a000-000000000006' },
+  // ── GRIT — Bền Bỉ / Ý Chí (6 câu — UUID khớp cache) ──
+  { legacyId: 306, dimId: 'grit', type: 'main', reversed: false, text: 'Tôi kiên trì theo đuổi mục tiêu dài hạn dù phải đối mặt với nhiều trở ngại và thất bại trên đường.',  id: 'grt00001-0000-4000-a000-000000000001' },
+  { legacyId: 307, dimId: 'grit', type: 'main', reversed: false, text: 'Khi gặp thất bại, tôi tìm cách học hỏi và tiếp tục cố gắng thay vì từ bỏ mục tiêu ban đầu.',           id: 'grt00002-0000-4000-a000-000000000002' },
+  { legacyId: 308, dimId: 'grit', type: 'main', reversed: false, text: 'Tôi tiếp tục duy trì nỗ lực ngay cả khi kết quả tiến triển chậm hơn kỳ vọng trong nhiều tuần.',        id: 'grt00003-0000-4000-a000-000000000003' },
+  { legacyId: 309, dimId: 'grit', type: 'main', reversed: true,  text: 'Tôi thường từ bỏ mục tiêu dài hạn khi gặp quá nhiều trở ngại liên tiếp.',                              id: 'grt00004-0000-4000-a000-000000000004' },
+  { legacyId: 310, dimId: 'grit', type: 'main', reversed: true,  text: 'Khi tiến độ chậm hơn kế hoạch, tôi dễ mất đi động lực và muốn chuyển sang mục tiêu khác.',             id: 'grt00005-0000-4000-a000-000000000005' },
+  { legacyId: 311, dimId: 'grit', type: 'main', reversed: false, text: 'Tôi duy trì đam mê và cam kết với các mục tiêu quan trọng trong nhiều tháng hoặc nhiều năm liền.',      id: 'grt00006-0000-4000-a000-000000000006' },
 ];
 
 const LIE_QUESTIONS = [
@@ -275,7 +296,7 @@ async function main() {
     data: {
       name: 'Techzen SPI Universal V4.2',
       version: 'v4.2',
-      description: '120 câu chính (20 dimensions) + 12 câu Lie Scale (8 absolute + 4 subtle)',
+      description: '132 câu chính (22 dimensions, bao gồm Adaptability & Grit) + 12 câu Lie Scale (8 absolute + 4 subtle)',
       isActive: true,
       totalMain: MAIN_QUESTIONS.length,
       totalLie: LIE_QUESTIONS.length,

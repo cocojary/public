@@ -122,6 +122,26 @@ export const DIMENSIONS: Dimension[] = [
     color: '#84CC16',
     icon: '⭐',
   },
+  {
+    id: 'adaptability',
+    group: 'motivation',
+    nameVi: 'Linh Hoạt Thích Nghi',
+    nameEn: 'Adaptability',
+    descLow: 'Ưu tiên sự ổn định và quy trình rõ ràng, cần thời gian để thích nghi với thay đổi đột ngột.',
+    descHigh: 'Chuyển đổi linh hoạt giữa các ngữ cảnh, thích nghi nhanh với thay đổi và xử lý tốt môi trường đa nhiệm.',
+    color: '#14B8A6',
+    icon: '🔄',
+  },
+  {
+    id: 'grit',
+    group: 'motivation',
+    nameVi: 'Bền Bỉ (Grit)',
+    nameEn: 'Grit',
+    descLow: 'Dễ nản lòng khi gặp trở ngại kéo dài, phù hợp với các dự án ngắn hạn và mục tiêu rõ ràng.',
+    descHigh: 'Kiên trì theo đuổi mục tiêu dài hạn dù gặp thất bại liên tiếp, không dễ từ bỏ trước nghịch cảnh.',
+    color: '#B45309',
+    icon: '🏔️',
+  },
 
   // ── NHÓM C: TƯ DUY & PHONG CÁCH LÀM VIỆC ────────────────
   {

@@ -234,6 +234,11 @@ const DIM_NAME_MAP: Record<string, string> = {
   stress_mental:         'Stress tâm lý (Stress Mental)',
   stress_physical:       'Stress thể chất (Stress Physical)',
   critical_thinking:     'Tư duy phê phán (Critical Thinking)',
+  communication_clarity: 'Giao tiếp rõ ràng (Communication Clarity)',
+  time_management:       'Quản lý thời gian (Time Management)',
+  data_literacy:         'Năng lực hiểu dữ liệu (Data Literacy)',
+  adaptability:          'Khả năng thích nghi (Adaptability)',
+  grit:                  'Bền bỉ / Ý chí kiên trì dài hạn (Grit)',
   lie_scale:             'Thang đo trung thực — luôn trả lời THẬT',
 };
 

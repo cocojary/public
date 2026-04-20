@@ -1,5 +1,5 @@
 import { AssessmentResult } from '../data/scoring';
-import { PersonaType, CombatPower, DutyScore } from '../data/aiAnalysis';
+import { PersonaType, CombatPower, DutyScore, TechzenCultureFit } from '../data/aiAnalysis';
 import type { DbDimension } from '../../../server/services/assessmentDataService';
 
 export interface AIReport {
@@ -12,6 +12,13 @@ export interface AIReport {
   strengthsBlindSpots: {
     strengths: Array<{ title: string; behavior: string }>;
     blindSpots: Array<{ title: string; risk: string }>;
+  };
+  // Phong cách tương tác — quan trọng cho HR onboarding và team matching
+  interactionStyle: {
+    communicationStyle: string;  // Cách giao tiếp chủ đạo
+    decisionMaking: string;      // Cách ra quyết định
+    conflictHandling: string;    // Cách xử lý mâu thuẫn
+    motivationTrigger: string;   // Điều tạo ra Engagement cao nhất
   };
   jobFit: {
     technical: { score: number; comment: string };
@@ -32,7 +39,7 @@ function buildPrompt(
   persona: PersonaType,
   combatPower: CombatPower,
   duties: DutyScore[],
-  cultureFit: any, // TechzenCultureFit object
+  cultureFit: TechzenCultureFit, // Type-safe — không dùng any
   lang: 'vi' | 'en' | 'ja',
   dimensions?: DbDimension[],
 ): string {
@@ -127,6 +134,12 @@ QUY TẮC NGÔN NGỮ (BẮT BUỘC):
       {"title": "Điểm mù 1", "risk": "Hành vi rủi ro + Kết quả tiêu cực Bạn có thể gặp phải (1 câu duy nhất)."},
       {"title": "Điểm mù 2", "risk": "Hành vi rủi ro + Kết quả tiêu cực Bạn có thể gặp phải (1 câu duy nhất)."}
     ]
+  },
+  "interactionStyle": {
+    "communicationStyle": "Mô tả cách Bạn giao tiếp chủ đạo trong công việc: trực tiếp/gián tiếp, cầu thị/mạnh mẽ, chi tiết/tổng quan (1-2 câu). HR cần biết để giao việc và onboard.",
+    "decisionMaking": "Mô tả cách Bạn ra quyết định: dựa vào dữ liệu/trực giác, độc lập/thảm khảo, nhanh chóng/thong thả (1-2 câu).",
+    "conflictHandling": "Mô tả cách Bạn xử lý mâu thuẫn: đối mặt trực tiếp/tránh xung đột, trung gian hòa giải/bày tỏ quan điểm rõ ràng (1-2 câu).",
+    "motivationTrigger": "Nêu 1-2 điều cụ thể tạo ra engagement cao nhất cho Bạn dựa trên tính cách (Nhìn từ góc độ HR: là gì Manager cần làm để giữ chân Bạn?)"
   },
   "jobFit": {
     "technical":  {"score": số_0_đến_100, "comment": "Vai trò ngách cụ thể (Ví dụ: Security Auditor) + Lý do dựa trên năng lực (1-2 câu)."},
