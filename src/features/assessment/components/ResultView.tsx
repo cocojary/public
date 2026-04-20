@@ -53,7 +53,8 @@ export function ResultView({ recordId, user, resultData, date, cachedAiReport }:
 
   return (
     <div className="w-full flex flex-col items-center space-y-6 pb-20 bg-slate-100 min-h-screen pt-8 print:bg-white print:pt-0 print:pb-0">
-      <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @media print {
           @page { size: A4 portrait; margin: 10mm; }
           body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -92,7 +93,7 @@ export function ResultView({ recordId, user, resultData, date, cachedAiReport }:
           onClick={handleExportPDF}
           className="bg-blue-800 hover:bg-blue-900 shadow-md shrink-0"
         >
-          <><Download className="mr-2 h-4 w-4" /> Bản In Mịn (A4 Vector)</>
+          <><Download className="mr-2 h-4 w-4" /> Xuất dữ liệu ra file PDF</>
         </Button>
       </div>
 

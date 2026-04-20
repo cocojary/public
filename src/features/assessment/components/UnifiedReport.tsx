@@ -244,6 +244,8 @@ function getDimComment(dimId: string, score: number): string {
 const RADAR_LABEL_PAD = 52;
 
 function RadarChart({ groups, size = 280 }: { groups: UnifiedGroup[]; size?: number }) {
+  const [hover, setHover] = useState<{ x: number, y: number, text: string } | null>(null);
+
   const points = groups
     .filter(g => g.id !== 'integrity' && g.id !== 'leadership')
     .flatMap(g => g.items.slice(0, 3))
@@ -273,7 +275,8 @@ function RadarChart({ groups, size = 280 }: { groups: UnifiedGroup[]; size?: num
     }).join(' ') + ' Z';
 
   return (
-    <svg width="100%" viewBox={`0 0 ${totalW} ${totalH}`}>
+    <div style={{ position: 'relative' }} onMouseLeave={() => setHover(null)}>
+      <svg width="100%" viewBox={`0 0 ${totalW} ${totalH}`}>
       {/* Grid rings */}
       {gridLevels.map((lvl, li) => {
         const d = Array.from({ length: n }, (_, i) =>
@@ -289,57 +292,71 @@ function RadarChart({ groups, size = 280 }: { groups: UnifiedGroup[]; size?: num
       <path d={dataPath} fill="rgba(59,130,246,0.15)" stroke="#3B82F6" strokeWidth={2} />
       {points.map((p, i) => {
         const frac = (p.score ?? 0) / 10;
-        return <circle key={i} cx={ptX(i, r * frac)} cy={ptY(i, r * frac)} r={3.5} fill="#3B82F6" stroke="white" strokeWidth={1.5} />;
+        const comment = getDimComment(p.id, p.score) || p.description;
+        return (
+          <circle key={i} cx={ptX(i, r * frac)} cy={ptY(i, r * frac)} r={5} fill="#3B82F6" stroke="white" strokeWidth={1.5}
+            style={{ cursor: 'help' }}
+            onMouseMove={(e) => setHover({ x: e.clientX, y: e.clientY, text: comment })}
+            onMouseLeave={() => setHover(null)}
+          />
+        );
       })}
       {/* Labels — full text, anchor theo vị trí trái/phải */}
       {points.map((p, i) => {
         const lx = r4(cx + labelR * Math.sin(i * angleStep));
         const ly = r4(cy - labelR * Math.cos(i * angleStep));
         const anchor = lx > cx + 10 ? 'start' : lx < cx - 10 ? 'end' : 'middle';
+        const comment = getDimComment(p.id, p.score) || p.description;
         return (
           <text key={i} x={lx} y={ly}
             textAnchor={anchor} dominantBaseline="middle"
-            fontSize={11} fontWeight="500" fill="#374151" fontFamily="system-ui">
+            fontSize={11} fontWeight="500" fill="#374151" fontFamily="system-ui"
+            style={{ cursor: 'help', pointerEvents: 'all' }}
+            onMouseMove={(e) => setHover({ x: e.clientX, y: e.clientY, text: comment })}
+            onMouseLeave={() => setHover(null)}
+          >
             {p.label}
           </text>
         );
       })}
-    </svg>
+      </svg>
+      {hover && (
+        <div style={{
+          position: 'fixed',
+          top: hover.y + 15,
+          left: hover.x,
+          transform: 'translateX(-50%)',
+          background: '#1F2937', color: '#FFFFFF',
+          padding: '8px 12px', borderRadius: 6, fontSize: 12,
+          lineHeight: 1.4, maxWidth: 280, width: 'max-content',
+          zIndex: 9999, pointerEvents: 'none',
+          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+        }}>
+          {hover.text}
+        </div>
+      )}
+    </div>
   );
 }
 
 function DimRow({ item, color }: { item: UnifiedScoreItem; color: string }) {
-  const [isHovered, setIsHovered] = useState(false);
   const label = getScoreLabel(item.score);
-  const comment = getDimComment(item.id, item.score) || item.description;
 
   return (
     <div 
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
       style={{
         display: 'flex', alignItems: 'center', gap: 10,
         padding: '9px 12px', borderRadius: 10,
-        background: isHovered ? '#F3F4F6' : '#FAFAFA', 
+        background: '#FAFAFA', 
         border: '1px solid #F0F0F0', marginBottom: 6,
         position: 'relative',
         transition: 'background 0.2s ease',
-        cursor: 'default'
       }}
     >
       <div style={{ flex: 1 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <span style={{ fontWeight: 600, fontSize: 13, color: '#1F2937' }}>{item.label}</span>
-            {comment && (
-              <span style={{ 
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                width: 14, height: 14, borderRadius: '50%', background: '#E5E7EB',
-                color: '#6B7280', fontSize: 10, fontWeight: 'bold'
-              }}>
-                ?
-              </span>
-            )}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <span style={{ fontWeight: 700, fontSize: 15, color }}>{item.score.toFixed(1)}</span>
@@ -357,39 +374,6 @@ function DimRow({ item, color }: { item: UnifiedScoreItem; color: string }) {
           }} />
         </div>
       </div>
-
-      {isHovered && comment && (
-        <div style={{
-          position: 'absolute',
-          top: '100%',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          background: '#1F2937',
-          color: '#FFFFFF',
-          padding: '8px 12px',
-          borderRadius: 6,
-          fontSize: 12,
-          lineHeight: 1.4,
-          whiteSpace: 'normal',
-          width: 'max-content',
-          maxWidth: 320,
-          zIndex: 50,
-          marginTop: 6,
-          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-          pointerEvents: 'none'
-        }}>
-          {comment}
-          <div style={{
-            position: 'absolute',
-            bottom: '100%',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            borderWidth: 6,
-            borderStyle: 'solid',
-            borderColor: 'transparent transparent #1F2937 transparent'
-          }} />
-        </div>
-      )}
     </div>
   );
 }
@@ -506,7 +490,7 @@ export default function UnifiedReport({ data, aiReport, candidateName, reportDat
         <div style={{ position: 'absolute', right: 40, bottom: -40, width: 140, height: 140, background: 'rgba(255,255,255,0.04)', borderRadius: '50%' }} />
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 20 }}>
-          <div>
+          <div style={{ flex: '1 1 300px' }}>
             <div style={{ fontSize: 11, opacity: 0.7, marginBottom: 6, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
               Techzen · Báo Cáo Năng Lực Nhân Sự
             </div>
@@ -537,45 +521,90 @@ export default function UnifiedReport({ data, aiReport, candidateName, reportDat
           </div>
 
           {/* Nhóm thẻ điểm: Điểm tổng & Năng lực */}
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            {/* Điểm tổng */}
-            <div style={{
-              background: 'rgba(255,255,255,0.12)', borderRadius: 16, padding: '18px 26px',
-              textAlign: 'center', border: '1px solid rgba(255,255,255,0.2)',
-              display: 'flex', flexDirection: 'column', justifyContent: 'center'
-            }}>
-              <div style={{ fontSize: 46, fontWeight: 900, lineHeight: 1 }}>
-                {overallScore.toFixed(1)}
-              </div>
-              <div style={{ fontSize: 11, opacity: 0.7, marginTop: 4 }}>trên thang 10</div>
-              <div style={{
-                marginTop: 8, fontSize: 12, fontWeight: 700, padding: '3px 12px',
-                background: 'rgba(255,255,255,0.22)', borderRadius: 20,
-              }}>{overallLabel.text}</div>
-            </div>
-
-            {/* Chỉ số Năng Lực */}
+          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', flex: '1 1 auto', justifyContent: 'flex-end', alignItems: 'stretch' }}>
+            
+            {/* Chỉ số Năng Lực (Hero Metric) */}
             {combatPower && (
-              <div style={{
-                background: 'rgba(255,255,255,0.12)', borderRadius: 16, padding: '16px 20px',
-                border: '1px solid rgba(255,255,255,0.2)', maxWidth: 240,
-                display: 'flex', flexDirection: 'column'
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, opacity: 0.9 }}>💼 Chỉ số Năng lực</div>
-                  <div style={{ fontSize: 24, fontWeight: 900 }}>{combatPower.total}<span style={{fontSize: 12, fontWeight: 500, opacity: 0.7, marginLeft: 2}}>/100</span></div>
+              <div 
+                style={{
+                  background: 'linear-gradient(to bottom right, rgba(255,255,255,0.15), rgba(255,255,255,0.05))',
+                  borderRadius: 16, padding: '20px 24px', border: '1px solid rgba(255,255,255,0.3)', 
+                  maxWidth: 340, minWidth: 280, display: 'flex', flexDirection: 'column',
+                  position: 'relative', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)'
+                }}
+                title="Thuật toán tính điểm thực chiến có trừ hao các rủi ro năng lực tiềm ẩn"
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                  <div style={{ fontSize: 14, fontWeight: 800, opacity: 0.95, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    💼 Năng lực thực chiến <span style={{ cursor: 'help', opacity: 0.6, fontSize: 12, verticalAlign: 'top' }}>(i)</span>
+                  </div>
+                  <div style={{ fontSize: 38, fontWeight: 900, lineHeight: 1, textShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>
+                    {combatPower.total}<span style={{fontSize: 14, fontWeight: 600, opacity: 0.7, marginLeft: 2}}>/100</span>
+                  </div>
                 </div>
-                <div style={{ fontSize: 11, opacity: 0.85, lineHeight: 1.4, marginBottom: 8, flex: 1 }}>
-                  Dự báo khả năng tạo ra kết quả thực tế, dựa trên sự kết hợp giữa tư duy, động lực và độ ổn định.
+                
+                <div style={{ fontSize: 12, opacity: 0.85, lineHeight: 1.5, marginBottom: 16, flex: 1 }}>
+                  Dự báo khả năng tạo ra kết quả thực tế, kết hợp tư duy, động lực và khả năng kháng áp lực.
                 </div>
+                
+                {/* Auto Insight Highlight (Gót chân Achilles) */}
+                {(() => {
+                  const hasSanction = combatPower.penaltyApplied || (overallScore * 10 - combatPower.total > 8);
+                  if (hasSanction) {
+                    const weakestDim = topWeak[0];
+                    return (
+                      <div style={{ 
+                        background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.4)',
+                        padding: '8px 12px', borderRadius: 8, fontSize: 11, marginBottom: 12, lineHeight: 1.4 
+                      }}>
+                        ⚠️ <strong>Cảnh báo:</strong> Điểm thực chiến bị giảm mạnh do điểm yếu ở <strong>{weakestDim?.label || 'một vài yếu tố'} ({(weakestDim?.score ?? 0).toFixed(1)}/10)</strong>. Nguy cơ gót chân Achilles trong công việc.
+                      </div>
+                    );
+                  }
+                  return (
+                    <div style={{ 
+                      background: 'rgba(52, 211, 153, 0.2)', border: '1px solid rgba(52, 211, 153, 0.4)',
+                      padding: '8px 12px', borderRadius: 8, fontSize: 11, marginBottom: 12, lineHeight: 1.4 
+                    }}>
+                      ✅ <strong>Độ ổn định tốt:</strong> Năng lực phát triển đồng đều, không phát hiện rủi ro chí mạng.
+                    </div>
+                  );
+                })()}
+
                 <div style={{
-                  fontSize: 11, fontWeight: 600, color: '#1E3A8A', background: '#FEF08A',
-                  padding: '5px 8px', borderRadius: 6, marginTop: 'auto', lineHeight: 1.3
+                  fontSize: 13, fontWeight: 700, color: '#1E3A8A', background: '#FEF08A',
+                  padding: '6px 12px', borderRadius: 6, marginTop: 'auto', lineHeight: 1.3, textAlign: 'center',
+                  textTransform: 'uppercase', letterSpacing: '0.02em', boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                 }}>
-                  {combatPower.label}
+                  Xếp hạng: {combatPower.label}
                 </div>
               </div>
             )}
+
+            {/* Điểm tổng (Secondary Metric) */}
+            <div 
+              style={{
+                background: 'rgba(255,255,255,0.08)', borderRadius: 16, padding: '16px 20px',
+                textAlign: 'center', border: '1px dashed rgba(255,255,255,0.2)',
+                display: 'flex', flexDirection: 'column', justifyContent: 'center',
+                minWidth: 130
+              }}
+              title="Điểm bình quân toán học (Lý thuyết) - Dễ bị san phẳng điểm số"
+            >
+              <div style={{ fontSize: 12, fontWeight: 600, opacity: 0.8, marginBottom: 10 }}>
+                Điểm Tr.Bình <span style={{ cursor: 'help', opacity: 0.7 }}>(i)</span>
+              </div>
+              <div style={{ fontSize: 30, fontWeight: 800, lineHeight: 1 }}>
+                {overallScore.toFixed(1)}<span style={{fontSize: 12, opacity: 0.6, fontWeight: 500}}>/10</span>
+              </div>
+              <div style={{
+                marginTop: 12, fontSize: 11, fontWeight: 600, padding: '4px 10px',
+                background: 'rgba(255,255,255,0.15)', borderRadius: 20, whiteSpace: 'nowrap'
+              }}>
+                {overallLabel.text}
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -622,6 +651,67 @@ export default function UnifiedReport({ data, aiReport, candidateName, reportDat
           ))}
         </div>
       </div>
+
+      {/* ── ĐỘ PHÙ HỢP VĂN HÓA TECHZEN (Culture Fit) ─────────────────────── */}
+      {data.techzenCultureFit && (
+        <div style={{ background: 'rgba(236,72,153,0.08)', border: '1px solid rgba(236,72,153,0.25)', borderRadius: 12, padding: '16px 20px', marginBottom: 24 }}>
+          <div style={{ fontWeight: 700, fontSize: 13, color: '#DB2777', marginBottom: 16, letterSpacing: '0.07em', display: 'flex', alignItems: 'center', gap: 6 }}>
+            🌸 ĐỘ PHÙ HỢP VĂN HÓA TECHZEN
+          </div>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 1fr', gap: 20 }}>
+            {/* Cột trái: 5 Trụ cột văn hóa */}
+            <div>
+              {[
+                { key: 'core1Score', label: '1. Người tử tế (Làm việc từ Tâm)', color: '#F472B6' },
+                { key: 'core2Score', label: '2. Học tập suốt đời & Chia sẻ', color: '#60A5FA' },
+                { key: 'core3Score', label: '3. Agile & Thích ứng linh hoạt', color: '#34D399' },
+                { key: 'core4Score', label: '4. Tạo ra Giá trị thật', color: '#FBBF24' },
+                { key: 'core5Score', label: '5. Cẩn trọng & Trọng Văn hóa Nhật', color: '#A78BFA' }
+              ].map((col, i) => {
+                const score = (data.techzenCultureFit as any)[col.key] || 0;
+                return (
+                  <div key={i} style={{ marginBottom: 12 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#334155', marginBottom: 5, fontWeight: 700 }}>
+                      <span>{col.label}</span>
+                      <span style={{ color: col.color, fontWeight: 800 }}>{score}/100</span>
+                    </div>
+                    <div style={{ height: 6, background: 'rgba(0,0,0,0.05)', borderRadius: 3, overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${score}%`, background: col.color, borderRadius: 3, transition: 'width 1s ease-out' }} />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+            
+            {/* Cột phải: Nhận xét AI */}
+            {((aiReport as any)?.techzenCultureFitInsight || data.techzenCultureFit.overallScore) && (
+              <div style={{ background: 'rgba(255,255,255,0.6)', borderRadius: 10, padding: '16px 20px', display: 'flex', flexDirection: 'column', height: '100%', border: '1px solid rgba(236,72,153,0.15)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
+                  <div style={{ width: 50, height: 50, borderRadius: '50%', background: 'linear-gradient(135deg, #BE185D, #DB2777)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 18, boxShadow: '0 4px 12px rgba(190,24,93,0.35)' }}>
+                    {data.techzenCultureFit.overallScore}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: '#BE185D', letterSpacing: '0.02em' }}>CULTURE FIT SCORE</div>
+                    <div style={{ fontSize: 11, color: '#DB2777', fontWeight: 500, marginTop: 2 }}>Mức độ phù hợp với tổ chức</div>
+                  </div>
+                </div>
+                
+                {/* Nhận xét từ AI */}
+                {(aiReport as any)?.techzenCultureFitInsight ? (
+                  <div style={{ fontSize: 13, lineHeight: 1.65, color: '#334155', borderTop: '1px solid rgba(236,72,153,0.2)', paddingTop: 12, marginTop: 'auto', flex: 1 }}>
+                    {(aiReport as any).techzenCultureFitInsight}
+                  </div>
+                ) : (
+                  <div style={{ fontSize: 11, color: '#94A3B8', fontStyle: 'italic', marginTop: 10, borderTop: '1px solid rgba(236,72,153,0.2)', paddingTop: 12, flex: 1 }}>
+                    (Đang chờ phân tích tự động từ AI...)
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ══ BẢN ĐỒ NĂNG LỰC — Full width ══════════════════════ */}
       <div style={{
@@ -1022,66 +1112,7 @@ export default function UnifiedReport({ data, aiReport, candidateName, reportDat
               </div>
             )}
 
-            {/* ── 6. Độ Phù Hợp Văn Hóa Techzen (Culture Fit) ─────────────────────── */}
-            {data.techzenCultureFit && (
-              <div style={{ background: 'rgba(236,72,153,0.08)', border: '1px solid rgba(236,72,153,0.25)', borderRadius: 12, padding: '16px 20px', marginTop: 12 }}>
-                <div style={{ fontWeight: 700, fontSize: 11, color: '#F472B6', marginBottom: 16, letterSpacing: '0.07em' }}>
-                  6 · ĐỘ PHÙ HỢP VĂN HÓA TECHZEN
-                </div>
-                
-                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 1fr', gap: 20 }}>
-                  {/* Cột trái: 5 Trụ cột văn hóa */}
-                  <div>
-                    {[
-                      { key: 'core1Score', label: '1. Người tử tế (Làm việc từ Tâm)', color: '#F472B6' },
-                      { key: 'core2Score', label: '2. Học tập suốt đời & Chia sẻ', color: '#60A5FA' },
-                      { key: 'core3Score', label: '3. Agile & Thích ứng linh hoạt', color: '#34D399' },
-                      { key: 'core4Score', label: '4. Tạo ra Giá trị thật', color: '#FBBF24' },
-                      { key: 'core5Score', label: '5. Cẩn trọng & Trọng Văn hóa Nhật', color: '#A78BFA' }
-                    ].map((col, i) => {
-                      const score = (data.techzenCultureFit as any)[col.key] || 0;
-                      return (
-                        <div key={i} style={{ marginBottom: 12 }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#E2E8F0', marginBottom: 5, fontWeight: 600 }}>
-                            <span>{col.label}</span>
-                            <span style={{ color: col.color, fontWeight: 800 }}>{score}/100</span>
-                          </div>
-                          <div style={{ height: 6, background: 'rgba(255,255,255,0.08)', borderRadius: 3, overflow: 'hidden' }}>
-                            <div style={{ height: '100%', width: `${score}%`, background: col.color, borderRadius: 3, transition: 'width 1s ease-out' }} />
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                  
-                  {/* Cột phải: Nhận xét AI */}
-                  {((aiReport as any).techzenCultureFitInsight || data.techzenCultureFit.overallScore) && (
-                    <div style={{ background: 'rgba(0,0,0,0.15)', borderRadius: 10, padding: '16px 20px', display: 'flex', flexDirection: 'column', height: '100%', border: '1px solid rgba(236,72,153,0.15)' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
-                        <div style={{ width: 50, height: 50, borderRadius: '50%', background: 'linear-gradient(135deg, #BE185D, #DB2777)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 18, boxShadow: '0 4px 12px rgba(190,24,93,0.35)' }}>
-                          {data.techzenCultureFit.overallScore}
-                        </div>
-                        <div>
-                          <div style={{ fontSize: 14, fontWeight: 800, color: '#FBCFE8', letterSpacing: '0.02em' }}>CULTURE FIT SCORE</div>
-                          <div style={{ fontSize: 11, color: '#F472B6', fontWeight: 500, marginTop: 2 }}>Mức độ phù hợp với tổ chức</div>
-                        </div>
-                      </div>
-                      
-                      {/* Nhận xét từ AI */}
-                      {(aiReport as any).techzenCultureFitInsight ? (
-                        <div style={{ fontSize: 13, lineHeight: 1.65, color: '#F1F5F9', borderTop: '1px solid rgba(236,72,153,0.2)', paddingTop: 12, marginTop: 'auto', flex: 1 }}>
-                          {(aiReport as any).techzenCultureFitInsight}
-                        </div>
-                      ) : (
-                        <div style={{ fontSize: 11, color: '#94A3B8', fontStyle: 'italic', marginTop: 10, borderTop: '1px solid rgba(236,72,153,0.2)', paddingTop: 12, flex: 1 }}>
-                          (Đang chờ phân tích tự động từ AI...)
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
+
 
           </div>
         ) : aiReport ? (
