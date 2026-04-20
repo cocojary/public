@@ -60,10 +60,12 @@ Hệ thống được chuyển đổi toàn diện sang kỹ thuật **Next.js 1
 - **Cấu trúc dữ liệu AIReport (V4.1)**:
   - Tách biệt `strengthsBlindSpots` thành object riêng chứa `strengths` và `blindSpots` để tối ưu SEO và cấu trúc dữ liệu Frontend.
   - Mỗi Điểm mạnh/Điểm mù chứa `title` và `behavior`/`risk` thay vì `description` chung chung để đảm bảo tính hành động.
-- **Logic Validation (Engine Scoring V4.2 & Phát hiện Gian lận)**:
-  - **Thang đo nói dối (Lie Scale)**: Phân mức độ Warning (>= 2.5) và Risk (>= 4.0) phát hiện việc cố tình "tô hồng" bản thân hoặc đánh bóng hồ sơ.
-  - **Xu hướng Trung lập & Dễ dãi (Neutral/Acquiescence Bias)**: Kiểm soát hành vi né tránh (đánh số 4 quá nhiều) hoặc xu hướng ba phải (đánh số 6-7 liên tục). Ngưỡng cảnh báo Risk đã được thắt chặt xuống 40%.
+- **Logic Validation (Engine Scoring V4.3 - Đa ngành nghề & Chống gian lận sâu)**:
+  - **Mở rộng Ngân hàng câu hỏi (140 câu)**:
+    - Bổ sung 4 câu hỏi Situational Judgment Test (SJT) và 4 câu hỏi Cực đoan (Extreme Forced-Choice) để phát hiện nói dối và đo lường EQ, xử lý tình huống linh hoạt.
+    - Thời gian tính toán được tối ưu động: SJT (12s) và Cực đoan (18s) để không đánh nhầm lỗi "Quick Answers".
+  - **Thang đo nói dối (Lie Scale)**: Phân mức độ Warning và Risk. Tích hợp trực tiếp với dạng câu hỏi Cực đoan (`lie_absolute`) để nhận diện xu hướng đánh bóng bản thân tuyệt đối.
+  - **Xu hướng Trung lập & Dễ dãi (Neutral/Acquiescence Bias)**: Kiểm soát hành vi né tránh hoặc xu hướng ba phải. Ngưỡng cảnh báo Risk được thắt chặt.
   - **Độ nhất quán (Consistency)**: Kiểm tra các câu hỏi xuôi - ngược (reversed questions) để đánh giá sự tập trung và chân thực của người làm bài.
-  - **Luật Kết Hợp (Combined Rules)**: Bổ sung khả năng phát hiện "Tô hồng nhẹ" khi kết hợp điểm Lie Scale và Acquiescence Bias.
-  - **Hard Cap Penalty**: Độ tin cậy (Reliability Score) bị giới hạn tối đa 50% nếu người dùng có tỷ lệ Neutral >= 100% (cố tình né tránh toàn bộ đánh giá).
-  - **Automated Validation Data**: Hệ thống tích hợp kịch bản kiểm thử tự động với 20 Personas đa dạng bằng thuật toán AI (hỗ trợ OpenAI & Gemini), bao gồm các mẫu người dùng thực (Developer, Sales, Leader) và các mẫu gian lận (ZigZag, All-Neutral, Cheater, Mâu thuẫn) để đảm bảo độ chính xác >90%.
+  - **Hard Cap Penalty**: Độ tin cậy (Reliability Score) bị giới hạn tối đa 50% nếu vi phạm lỗi logic lớn hoặc gian lận hệ thống.
+  - **Automated Validation Data (50 Personas)**: Nâng cấp kịch bản kiểm thử tĩnh và động với 50 Persona (Role đa ngành: Xây dựng, Y tế, Giáo dục, Legal, Tài chính...) xác thực tỷ lệ Pass/Fail cực gắt. Đảm bảo mô hình đánh giá không dính thiên kiến IT để vươn tới hệ quy chiếu chuẩn 100% ngành nghề. Kết quả validation được export tự động sang dạng JSON và Report UI.

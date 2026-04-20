@@ -260,6 +260,20 @@ ${results.filter(r => !r.overallPass).map(r => `- ❌ **${r.persona.name}**: ${r
   writeFileSync(OUTPUT_PATH_50, report, 'utf-8');
   console.log(`\n✅ Báo cáo đã lưu vào ${OUTPUT_PATH_50}`);
   console.log(`📊 Kết quả: ${passCount}/${results.length} PASS (${Math.round((passCount / results.length) * 100)}%)`);
+
+  // Lưu JSON cho màn hình Test Report
+  const OUTPUT_JSON_PATH = './src/features/assessment/data/validation_results_50.json';
+  const jsonOutput = results.map(r => ({
+    persona: r.persona,
+    scoringResult: {
+      type: "SPI_UNIFIED_V4",
+      ...r.scoringResult
+    },
+    flags: r.validationFlags,
+    pass: r.overallPass
+  }));
+  writeFileSync(OUTPUT_JSON_PATH, JSON.stringify(jsonOutput, null, 2), 'utf-8');
+  console.log(`✅ Kết quả JSON đã lưu vào ${OUTPUT_JSON_PATH}`);
 }
 
 main().catch(err => {
