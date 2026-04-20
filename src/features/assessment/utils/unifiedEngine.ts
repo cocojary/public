@@ -280,16 +280,30 @@ export function calculateUnifiedScores(
       'Sẵn sàng biểu đạt quan điểm.',
   };
 
-  // 3.4 Time Tracking — ngưỡng tính động theo số câu chính (không tính lie)
-  const mainQCount    = questions.filter(q => !q.isLieScale).length;
-  const minRiskSec    = mainQCount * 3; // 3s/câu — chỉ đủ lướt mắt qua
-  const minWarnSec    = mainQCount * 5; // 5s/câu — đọc và suy nghĩ tối thiểu
+  // 3.4 Time Tracking — ngưỡng tính động theo format câu hỏi
+  let minRiskSec = 0;
+  let minWarnSec = 0;
+  let mainQCount = 0;
+
+  for (const q of questions) {
+    if (q.isLieScale) continue;
+    mainQCount++;
+    const format = (q as any).format?.toUpperCase();
+    if (format === 'SJT' || format === 'FORCED_CHOICE') {
+      minRiskSec += 12; // 12s tối thiểu để đọc trắc nghiệm tình huống
+      minWarnSec += 18; // 18s cảnh báo đọc lướt
+    } else {
+      minRiskSec += 3;  // 3s cho likert
+      minWarnSec += 5;  // 5s cho likert
+    }
+  }
+
   const timeMetric: QualityMetric = {
     score: `${Math.round(durationSeconds)} giây`,
     status: durationSeconds < minRiskSec ? 'Risk' : durationSeconds < minWarnSec ? 'Warning' : 'Ok',
     message:
       durationSeconds < minRiskSec
-        ? `Làm bài quá nhanh (${Math.round(durationSeconds)}s / ${mainQCount} câu chính) — không đủ thời gian đọc hiểu.`
+        ? `Làm bài quá nhanh (${Math.round(durationSeconds)}s) — không đủ thời gian đọc hiểu.`
       : durationSeconds < minWarnSec
         ? 'Tốc độ làm bài nhanh hơn trung bình.'
       : 'Thời gian làm bài hợp lý.',
@@ -361,11 +375,22 @@ export function calculateUnifiedScores(
       'Biên độ phản hồi tự nhiên.',
   };
 
-  // 3.8 Quick Answers: câu trả lời dưới 1.5 giây
-  const quickEntries   = answerTimes ? Object.entries(answerTimes) : [];
-  const quickCount     = quickEntries.filter(([, t]) => t < 1500).length;
-  const quickTotal     = quickEntries.length > 0 ? quickEntries.length : totalAnswered;
-  const quickRatio     = quickTotal > 0 ? quickCount / quickTotal : 0;
+  // 3.8 Quick Answers: câu trả lời cực nhanh (từng câu)
+  let quickCount = 0;
+  let quickTotal = 0;
+  if (answerTimes) {
+    for (const q of questions) {
+      const t = answerTimes[q.id];
+      if (t !== undefined) {
+        quickTotal++;
+        const format = (q as any).format?.toUpperCase();
+        // Áp dụng threshold 6.0s cho SJT/FORCED_CHOICE, 1.5s cho Likert
+        const threshold = (format === 'SJT' || format === 'FORCED_CHOICE') ? 6000 : 1500;
+        if (t < threshold) quickCount++;
+      }
+    }
+  }
+  const quickRatio = quickTotal > 0 ? quickCount / quickTotal : 0;
   const quickMetric: QualityMetric = {
     score: answerTimes ? `${quickCount}/${quickTotal} câu` : 'N/A',
     status: !answerTimes ? 'Ok' : quickRatio > 0.4 ? 'Risk' : quickRatio > 0.2 ? 'Warning' : 'Ok',
