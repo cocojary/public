@@ -38,6 +38,26 @@ function getCombatPower(resultData: any): number | null {
   }
 }
 
+function isFlagged(resultData: any): boolean {
+  try {
+    const rel = (resultData as any)?.reliability;
+    if (!rel) return false;
+    const level = rel.level?.toLowerCase();
+    return level === 'low' || level === 'invalid';
+  } catch {
+    return false;
+  }
+}
+
+function getHrNoteCount(hrNotes: any): number {
+  if (!hrNotes) return 0;
+  if (Array.isArray(hrNotes)) return hrNotes.length;
+  try {
+    const parsed = JSON.parse(hrNotes as string);
+    return Array.isArray(parsed) ? parsed.length : 0;
+  } catch { return 0; }
+}
+
 export default async function AdminPage({
   searchParams,
 }: {
@@ -52,6 +72,37 @@ export default async function AdminPage({
     getAllAssessments(page, 20, roleFilter || undefined),
   ]);
 
+  const statCards = [
+    {
+      label: 'Tổng bài đánh giá',
+      value: stats.totalAssessments,
+      sub: `${stats.weekCount} tuần này`,
+      color: 'bg-indigo-600',
+      icon: '📋',
+    },
+    {
+      label: 'Hôm nay',
+      value: stats.todayCount,
+      sub: 'bài mới nộp',
+      color: 'bg-blue-600',
+      icon: '📅',
+    },
+    {
+      label: 'Tổng ứng viên',
+      value: stats.totalUsers,
+      sub: 'người đã làm bài',
+      color: 'bg-emerald-600',
+      icon: '👥',
+    },
+    {
+      label: 'Lọc vị trí',
+      value: roleFilter || 'Tất cả',
+      sub: `Trang ${page} / ${pages}`,
+      color: 'bg-slate-600',
+      icon: '🔍',
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-slate-100">
       {/* Header */}
@@ -59,7 +110,7 @@ export default async function AdminPage({
         <div className="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-3">
           <div>
             <h1 className="text-2xl font-bold">HR Assessment — Admin Dashboard</h1>
-            <p className="text-indigo-200 text-sm mt-0.5">Quản lý kết quả đánh giá ứng viên</p>
+            <p className="text-indigo-200 text-sm mt-0.5">Quản lý kết quả đánh giá nhân sự</p>
           </div>
           <div className="flex gap-2 flex-wrap">
             <Link
@@ -87,17 +138,16 @@ export default async function AdminPage({
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
         {/* Stats cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {[
-            { label: 'Tổng bài đánh giá', value: stats.totalAssessments, color: 'bg-blue-600' },
-            { label: 'Tổng ứng viên', value: stats.totalUsers, color: 'bg-indigo-600' },
-            { label: 'Trang hiện tại', value: `${page} / ${pages}`, color: 'bg-slate-600' },
-            { label: 'Lọc vị trí', value: roleFilter || 'Tất cả', color: 'bg-emerald-600' },
-          ].map(s => (
-            <div key={s.label} className="bg-white rounded-xl shadow-sm p-5">
-              <div className={`text-white text-xs font-semibold px-2 py-0.5 rounded inline-block mb-2 ${s.color}`}>
-                {s.label}
+          {statCards.map(s => (
+            <div key={s.label} className="bg-white rounded-xl shadow-sm p-5 flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">{s.icon}</span>
+                <div className={`text-white text-xs font-semibold px-2 py-0.5 rounded inline-block ${s.color}`}>
+                  {s.label}
+                </div>
               </div>
-              <div className="text-2xl font-black text-slate-800">{s.value}</div>
+              <div className="text-2xl font-black text-slate-800 mt-1">{s.value}</div>
+              <div className="text-xs text-slate-400">{s.sub}</div>
             </div>
           ))}
         </div>
@@ -128,6 +178,9 @@ export default async function AdminPage({
             <h2 className="font-bold text-slate-800">
               Danh sách bài đánh giá ({total} kết quả)
             </h2>
+            <span className="text-xs text-slate-400 bg-slate-50 px-3 py-1 rounded-full border border-slate-200">
+              Trang {page}/{pages}
+            </span>
           </div>
 
           <div className="overflow-x-auto">
@@ -136,11 +189,11 @@ export default async function AdminPage({
                 <tr>
                   <th className="px-4 py-3 text-left font-semibold">Ứng viên</th>
                   <th className="px-4 py-3 text-left font-semibold">Email</th>
-                  <th className="px-4 py-3 text-left font-semibold">Vị trí</th>
+                  <th className="px-4 py-3 text-left font-semibold">Phòng ban</th>
                   <th className="px-4 py-3 text-center font-semibold">Điểm NL</th>
                   <th className="px-4 py-3 text-center font-semibold">Độ tin cậy</th>
-                  <th className="px-4 py-3 text-center font-semibold">AI Report</th>
-                  <th className="px-4 py-3 text-center font-semibold">Lượt xem</th>
+                  <th className="px-4 py-3 text-center font-semibold">HR Note</th>
+                  <th className="px-4 py-3 text-center font-semibold">AI</th>
                   <th className="px-4 py-3 text-left font-semibold">Ngày làm bài</th>
                   <th className="px-4 py-3 text-center font-semibold">Hành động</th>
                 </tr>
@@ -158,22 +211,34 @@ export default async function AdminPage({
                   const reliability = resultData?.reliability?.level ?? '—';
                   const combatPower = getCombatPower(rec.resultData);
                   const hasAiReport = !!rec.aiReport;
-                  const roleName = rec.questionSet?.version ?? '—';
                   const recUser = (rec as any).user;
+                  const flagged = isFlagged(rec.resultData);
+                  const hrNoteCount = getHrNoteCount(rec.hrNotes);
 
                   return (
-                    <tr key={rec.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-4 py-3 font-medium text-slate-800">
-                        {recUser?.fullName ?? '—'}
-                        {recUser?.employeeId && (
-                          <span className="ml-1.5 text-xs text-slate-400">#{recUser.employeeId}</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 text-slate-500">{recUser?.email ?? '—'}</td>
+                    <tr key={rec.id} className={`hover:bg-slate-50 transition-colors ${flagged ? 'bg-rose-50/30' : ''}`}>
                       <td className="px-4 py-3">
-                        <span className="bg-indigo-50 text-indigo-700 text-xs font-semibold px-2 py-1 rounded">
-                          {roleName}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          {flagged && (
+                            <span title="Cảnh báo độ tin cậy thấp" className="text-rose-500 flex-shrink-0">⚠️</span>
+                          )}
+                          <div>
+                            <div className="font-medium text-slate-800">
+                              {recUser?.fullName ?? '—'}
+                            </div>
+                            {recUser?.employeeId && (
+                              <div className="text-xs text-slate-400">#{recUser.employeeId}</div>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-slate-500 text-xs">{recUser?.email ?? '—'}</td>
+                      <td className="px-4 py-3 text-xs text-slate-500">
+                        {recUser?.department ? (
+                          <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded">
+                            {recUser.department}
+                          </span>
+                        ) : '—'}
                       </td>
                       <td className="px-4 py-3 text-center">
                         {combatPower !== null ? (
@@ -188,12 +253,20 @@ export default async function AdminPage({
                         </span>
                       </td>
                       <td className="px-4 py-3 text-center">
+                        {hrNoteCount > 0 ? (
+                          <span className="bg-amber-100 text-amber-700 text-xs font-bold px-2 py-0.5 rounded-full">
+                            {hrNoteCount}
+                          </span>
+                        ) : (
+                          <span className="text-slate-300 text-xs">—</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-center">
                         {hasAiReport
                           ? <span className="text-green-500 font-bold">✓</span>
                           : <span className="text-slate-300">—</span>}
                       </td>
-                      <td className="px-4 py-3 text-center text-slate-500">{(rec as any).viewCount ?? 0}</td>
-                      <td className="px-4 py-3 text-slate-500 whitespace-nowrap">
+                      <td className="px-4 py-3 text-slate-500 whitespace-nowrap text-xs">
                         {new Date(rec.assessmentDate).toLocaleDateString('vi-VN', {
                           day: '2-digit', month: '2-digit', year: 'numeric',
                           hour: '2-digit', minute: '2-digit',
@@ -202,10 +275,10 @@ export default async function AdminPage({
                       <td className="px-4 py-3 text-center">
                         <Link
                           href={`/result/${rec.id}?view=hr`}
-                          className="text-indigo-600 hover:text-indigo-800 font-semibold text-xs underline"
+                          className="text-indigo-600 hover:text-indigo-800 font-semibold text-xs underline whitespace-nowrap"
                           target="_blank"
                         >
-                          Xem báo cáo
+                          Xem báo cáo →
                         </Link>
                       </td>
                     </tr>

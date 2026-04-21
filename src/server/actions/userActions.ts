@@ -13,6 +13,7 @@ export async function submitUserInfo(data: UserInfoFormValues) {
         fullName: parsedData.fullName,
         employeeId: parsedData.employeeId || null,
         email: parsedData.email || null,
+        department: parsedData.department || null,
         // Using position field to store the role code
         position: parsedData.targetRole ?? null,
       },

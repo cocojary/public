@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { calculateUnifiedScores } from '@/features/assessment/utils/unifiedEngine';
 import {
   getActiveQuestions,
@@ -63,7 +63,12 @@ Lưu ý: Key là UUID của câu hỏi. Không giải thích gì thêm, chỉ in
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const secret = request.headers.get('x-validation-secret');
+  if (!process.env.VALIDATION_SECRET || secret !== process.env.VALIDATION_SECRET) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   if (!OPENAI_API_KEY) {
     return NextResponse.json({ error: 'OPENAI_API_KEY is not set in environment.' }, { status: 500 });
   }

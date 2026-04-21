@@ -25,19 +25,17 @@ export function ResultView({ recordId, user, resultData, date, cachedAiReport, i
   const reportRef = useRef<HTMLDivElement>(null);
 
   const [aiReport, setAiReport] = useState<AIReport | null>(cachedAiReport);
-  const [loadingAi, setLoadingAi] = useState(!cachedAiReport);
+  const [loadingAi, setLoadingAi] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+  const [aiRequested, setAiRequested] = useState(false);
 
-  useEffect(() => {
-    // Nếu đã có cache từ server thì không cần fetch
-    if (cachedAiReport) return;
-
-    generateReport();
-  }, []);
+  // Không tự động gọi AI khi load — để tránh tốn token khi không có key
+  // HR hoặc user phải bấm nút "Yêu cầu phân tích AI" thủ công
 
   async function generateReport() {
     setLoadingAi(true);
     setAiError(null);
+    setAiRequested(true);
     try {
       const res = await fetchAiReportAction(recordId, resultData, 'vi');
       if (res.success && res.data) {
@@ -68,26 +66,37 @@ export function ResultView({ recordId, user, resultData, date, cachedAiReport, i
       `}} />
 
       {/* Action Bar */}
-      <div className="print:hidden w-full max-w-[1000px] flex flex-wrap justify-between items-center gap-3 bg-white p-4 rounded-lg shadow-sm">
-        <div className="text-slate-600 font-bold flex items-center gap-2 min-w-0">
-          {loadingAi && (
-            <>
-              <Loader2 className="animate-spin h-4 w-4 shrink-0" />
-              <span>Đang chờ AI phân tích hồ sơ...</span>
-            </>
-          )}
-          {!loadingAi && !aiError && aiReport && (
-            <span className="text-green-600">
-              ✓ AI đã hoàn tất phân tích {aiReport.fromCache ? "(từ cache)" : ""}
+      <div className="print:hidden w-full max-w-[1000px] flex flex-wrap justify-between items-center gap-3 bg-white p-4 rounded-lg shadow-sm border border-slate-100">
+        <div className="flex items-center gap-3 min-w-0 flex-wrap">
+          {/* Trạng thái AI */}
+          {aiReport && !loadingAi && (
+            <span className="flex items-center gap-1.5 text-green-600 text-sm font-medium">
+              <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
+              AI đã phân tích {aiReport.fromCache ? "(cache)" : "✓"}
             </span>
           )}
-          {!loadingAi && aiError && (
-            <div className="flex items-center gap-2 text-amber-600">
-              <AlertCircle className="h-4 w-4 shrink-0" />
-              <span className="text-sm">{aiError}</span>
+          {loadingAi && (
+            <span className="flex items-center gap-2 text-indigo-600 text-sm font-medium">
+              <Loader2 className="animate-spin h-4 w-4 shrink-0" />
+              Đang phân tích hồ sơ...
+            </span>
+          )}
+          {!aiReport && !loadingAi && !aiError && (
+            <button
+              onClick={generateReport}
+              className="flex items-center gap-2 text-sm font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-lg transition-colors"
+            >
+              <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+              Yêu cầu phân tích AI
+            </button>
+          )}
+          {aiError && !loadingAi && (
+            <div className="flex items-center gap-2 text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-lg text-sm">
+              <AlertCircle className="h-4 w-4 shrink-0 text-amber-500" />
+              <span className="max-w-[280px] truncate">{aiError}</span>
               <button
                 onClick={generateReport}
-                className="flex items-center gap-1 text-sm text-blue-600 hover:underline ml-1"
+                className="flex items-center gap-1 text-indigo-600 hover:underline font-medium whitespace-nowrap"
               >
                 <RefreshCw className="h-3 w-3" /> Thử lại
               </button>
@@ -98,7 +107,7 @@ export function ResultView({ recordId, user, resultData, date, cachedAiReport, i
           onClick={handleExportPDF}
           className="bg-blue-800 hover:bg-blue-900 shadow-md shrink-0"
         >
-          <><Download className="mr-2 h-4 w-4" /> Xuất dữ liệu ra file PDF</>
+          <><Download className="mr-2 h-4 w-4" /> Xuất PDF</>
         </Button>
       </div>
 

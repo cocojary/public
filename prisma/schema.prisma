@@ -124,6 +124,9 @@ model Question {
   relationsAsA QuestionRelation[] @relation("QRelA")
   relationsAsB QuestionRelation[] @relation("QRelB")
 
+  @@index([setId, isActive])
+  @@index([dimensionId])
+  @@index([questionType])
   @@map("questions")
 }
 
@@ -173,6 +176,10 @@ model AssessmentRecord {
   user        User         @relation(fields: [userId], references: [id])
   questionSet QuestionSet? @relation(fields: [questionSetId], references: [id])
 
+  @@index([userId])
+  @@index([questionSetId])
+  @@index([assessmentDate])
+  @@index([createdAt])
   @@map("assessment_records")
 }
 
@@ -186,6 +193,7 @@ model RateLimit {
   windowStart DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  @@index([windowStart])
   @@map("rate_limits")
 }
 
@@ -203,4 +211,53 @@ model RoleTemplate {
   updatedAt   DateTime @updatedAt
 
   @@map("role_templates")
+}
+
+// ──────────────────────────────────────────────────────────────
+// THƯƠNG MẠI & BẢO MẬT (PREMIUM)
+// ──────────────────────────────────────────────────────────────
+
+enum OrderStatus {
+  PENDING
+  SUCCESS
+  PARTIAL_PAID
+  FAILED
+}
+
+enum SessionStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+model PaymentOrder {
+  id              String         @id @default(uuid())
+  orderCode       String         @unique // Mã giao dịch hiển thị để copy (VD: TZ8129)
+  userEmail       String
+  userPhone       String?
+  amount          Int            @default(49000)
+  status          OrderStatus    @default(PENDING)
+  transactionRef  String?        // Tham chiếu từ webhook MoMo/VietQR
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  session         PremiumSession?
+
+  @@map("payment_orders")
+}
+
+model PremiumSession {
+  id                String         @id @default(uuid())
+  orderId           String         @unique
+  order             PaymentOrder   @relation(fields: [orderId], references: [id])
+  tokenHash         String         @unique
+  deviceFingerprint String
+  status            SessionStatus  @default(NOT_STARTED)
+  currentQuestion   Int            @default(0)
+  answersBackup     Json?
+  expiresAt         DateTime
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  @@map("premium_sessions")
 }
